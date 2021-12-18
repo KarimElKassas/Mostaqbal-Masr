@@ -4,6 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:mostaqbal_masr/modules/SocialMedia/cubit/display_posts_cubit.dart';
+import 'package:mostaqbal_masr/modules/SocialMedia/cubit/display_posts_states.dart';
 import 'package:mostaqbal_masr/modules/SocialMedia/drawer/drawer_widget.dart';
 import 'package:mostaqbal_masr/modules/SocialMedia/layout/social_home_layout.dart';
 import 'package:mostaqbal_masr/network/local/cache_helper.dart';
@@ -20,7 +22,7 @@ void main() async {
   await CacheHelper.init();
   DioHelper.init();
 
-  Firebase.initializeApp();
+  await Firebase.initializeApp();
 
   runApp(MyApp());
 }
@@ -30,14 +32,23 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: MaterialApp(
-        title: 'مستقبل مصر',
-        theme: ThemeData(
-          primaryColor: const Color(0xFF0500A0),
-        ),
-        home: SocialHomeLayout(),
+    return BlocProvider(
+      create: (context) => SocialDisplayPostsCubit(),
+      child: BlocConsumer<SocialDisplayPostsCubit,SocialDisplayPostsStates>(
+        listener: (context, state){},
+        builder: (context, state){
+
+          return Directionality(
+            textDirection: TextDirection.rtl,
+            child: MaterialApp(
+              title: 'مستقبل مصر',
+              theme: ThemeData(
+                primaryColor: const Color(0xFF0500A0),
+              ),
+              home: SocialHomeLayout(),
+            ),
+          );
+        },
       ),
     );
   }

@@ -1,28 +1,25 @@
-class PostsModel{
-
-  String? PostID;
-  String? PostTitle;
-  String? PostVideoID;
-  String? PostDate;
+class PostsModel {
+  String? PostID = "";
+  String? PostTitle = "";
+  String? PostVideoID = "";
+  String? PostDate = "";
+  String? hasImages = "";
   List<Object?>? PostImages;
 
-  PostsModel(this.PostID,this.PostTitle,this.PostVideoID,this.PostDate,this.PostImages);
+  PostsModel(this.PostID, this.PostTitle, this.PostVideoID, this.PostDate,
+      this.hasImages, this.PostImages);
 
-  PostsModel.fromJson(Map<String, dynamic> json){
-
+  PostsModel.fromJson(Map<String, dynamic> json) {
     PostID = json["PostID"];
     PostTitle = json["PostTitle"];
     PostVideoID = json["PostVideoID"];
     PostDate = json["PostDate"];
 
-    if(json["PostImages"] != null){
-      json["PostImages"].forEach((element){
-
+    if (json["PostImages"] != null) {
+      json["PostImages"].forEach((element) {
         PostImages!.add(element);
-
       });
     }
-
   }
 
   Map<String, dynamic> toMap() {
@@ -34,5 +31,4 @@ class PostsModel{
       'PostImages': PostImages,
     };
   }
-
 }

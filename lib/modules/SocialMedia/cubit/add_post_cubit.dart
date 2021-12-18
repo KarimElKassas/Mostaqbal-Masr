@@ -1,8 +1,6 @@
 import 'dart:collection';
 import 'dart:io';
-
 import 'package:bloc/bloc.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -47,9 +45,9 @@ class SocialAddPostCubit extends Cubit<SocialAddPostStates> {
     }
 
     if (imageFileList!.isEmpty) {
-      uploadFireStoreSinglePost(postTitle, videoUrl);
+      uploadSinglePost(postTitle, videoUrl);
     } else {
-      uploadFireStoreImagePost(postTitle, videoUrl);
+      uploadImagePost(postTitle, videoUrl);
     }
   }
 
@@ -68,6 +66,7 @@ class SocialAddPostCubit extends Cubit<SocialAddPostStates> {
       'PostTitle': postTitle,
       'PostVideoID': postVideoID!,
       'PostDate': currentTime,
+      'hasImages': "false",
     }).then((value) {
       showToast(
         message: "تم رفع الخبر بنجاح",
@@ -78,37 +77,6 @@ class SocialAddPostCubit extends Cubit<SocialAddPostStates> {
 
       emit(SocialAddPostSuccessState());
     }).catchError((error) {
-      emit(SocialAddPostErrorState(error.toString()));
-    });
-  }
-
-  void uploadFireStoreSinglePost(String postTitle, String? postVideoID) async {
-    emit(SocialAddPostLoadingState());
-
-    DateTime now = DateTime.now();
-    String currentTime = DateFormat("yyyy-MM-dd HH:mm:ss").format(now);
-
-    Map<String, dynamic> map = {};
-    map["PostID"] = currentTime;
-    map["PostTitle"] = postTitle;
-    map["PostVideoID"] = postVideoID;
-    map["PostDate"] = currentTime;
-
-    FirebaseFirestore.instance
-        .collection('Posts')
-        .doc(currentTime)
-        .set(map)
-        .then((value) {
-      showToast(
-        message: "تم رفع الخبر بنجاح",
-        length: Toast.LENGTH_LONG,
-        gravity: ToastGravity.BOTTOM,
-        timeInSecForIosWeb: 3,
-      );
-
-      emit(SocialAddPostSuccessState());
-    }).catchError((error) {
-      print(error.toString());
       emit(SocialAddPostErrorState(error.toString()));
     });
   }
@@ -131,6 +99,7 @@ class SocialAddPostCubit extends Cubit<SocialAddPostStates> {
     dataMap['PostTitle'] = postTitle;
     dataMap['PostVideoID'] = postVideoID!;
     dataMap['PostDate'] = currentTime;
+    dataMap["hasImages"] = "true";
 
     var uploadCount = 0;
     for (int i = 0; i < imageFileList!.length; i++) {
@@ -147,73 +116,6 @@ class SocialAddPostCubit extends Cubit<SocialAddPostStates> {
             dataMap["PostImages"] = urlsList;
 
             postsRef.child(currentTime).update(dataMap).then((value) {
-              showToast(
-                message: "تم رفع الخبر بنجاح",
-                length: Toast.LENGTH_LONG,
-                gravity: ToastGravity.BOTTOM,
-                timeInSecForIosWeb: 3,
-              );
-
-              imageFileList = [];
-
-              emit(SocialAddPostSuccessState());
-            }).catchError((error) {
-              emit(SocialAddPostErrorState(error.toString()));
-            });
-          }).catchError((error) {
-            emit(SocialAddPostErrorState(error.toString()));
-          });
-        }).catchError((error) {
-          emit(SocialAddPostErrorState(error.toString()));
-        });
-      }).catchError((error) {
-        emit(SocialAddPostErrorState(error.toString()));
-      });
-
-      //uploadCount++;
-    }
-  }
-
-  Future uploadFireStoreImagePost(String postTitle, String? postVideoID) async {
-    emit(SocialAddPostLoadingState());
-
-    var storageRef = FirebaseStorage.instance.ref("Posts/$postTitle");
-    FirebaseDatabase database = FirebaseDatabase.instance;
-
-    DateTime now = DateTime.now();
-    String currentTime = DateFormat("yyyy-MM-dd HH:mm:ss").format(now);
-
-    List<String> urlsList = [];
-
-    Map<String, Object> dataMap = HashMap();
-
-    dataMap['PostID'] = currentTime;
-    dataMap['PostTitle'] = postTitle;
-    dataMap['PostVideoID'] = postVideoID!;
-    dataMap['PostDate'] = currentTime;
-
-    for (int i = 0; i < imageFileList!.length; i++) {
-      FirebaseFirestore.instance
-          .collection('Posts')
-          .doc(currentTime)
-          .set(dataMap)
-          .then((value) async {
-        String fileName = imageFileList![i].path.toString();
-
-        File imageFile = File(fileName);
-
-        var uploadTask = storageRef.child(fileName).putFile(imageFile);
-        await uploadTask.then((p0) {
-          p0.ref.getDownloadURL().then((value) {
-            urlsList.add(value.toString());
-
-            dataMap["PostImages"] = urlsList;
-
-            FirebaseFirestore.instance
-                .collection('Posts')
-                .doc(currentTime)
-                .update(dataMap)
-                .then((value) {
               showToast(
                 message: "تم رفع الخبر بنجاح",
                 length: Toast.LENGTH_LONG,

@@ -54,3 +54,5 @@ Future<bool?> showToast({
         textColor: textColor,
         fontSize: fontSize);
 
+
+int purpleColor = 0xFF0500A0;
