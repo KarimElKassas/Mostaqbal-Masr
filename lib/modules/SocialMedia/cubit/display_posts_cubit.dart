@@ -59,6 +59,8 @@ class SocialDisplayPostsCubit extends Cubit<SocialDisplayPostsStates> {
         //print("From Model ${postsModel!.PostImages}");
       });
       emit(SocialDisplayPostsSuccessState());
+    }).catchError((error){
+      emit(SocialDisplayPostsErrorState(error.toString()));
     });
   }
 

@@ -30,6 +30,13 @@ class LoginScreen extends StatelessWidget {
             gravity: ToastGravity.BOTTOM,
             timeInSecForIosWeb: 3,
           );
+        }else if(state is LoginSharedPrefErrorState){
+          showToast(
+            message: state.error,
+            length: Toast.LENGTH_LONG,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 3,
+          );
         }
 
         if (state is LoginSuccessState) {

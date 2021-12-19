@@ -1,5 +1,6 @@
 import 'dart:io' as i;
 
+import 'package:animate_do/animate_do.dart';
 import 'package:buildcondition/buildcondition.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -106,40 +107,52 @@ class SocialAddPostScreen extends StatelessWidget {
                         const SizedBox(
                           height: 16.0,
                         ),
-                        TextFormField(
-                          textDirection: TextDirection.rtl,
-                          controller: postTextController,
-                          keyboardType: TextInputType.text,
-                          validator: (String? value) {
-                            if (value!.isEmpty) {
-                              return 'يجب ادخال موضوع الخبر !';
-                            }
-                          },
-                          decoration: const InputDecoration(
-                            labelText: 'نص الخبر',
-                            alignLabelWithHint: true,
-                            hintTextDirection: TextDirection.rtl,
-                            prefixIcon: Icon(
-                              Icons.subtitles_rounded,
+                        SlideInRight(
+                          animate: true,
+                          from: 1000,
+                          //delay: Duration(milliseconds: 800),
+                          duration: Duration(seconds: 2),
+                          child: TextFormField(
+                            textDirection: TextDirection.rtl,
+                            controller: postTextController,
+                            keyboardType: TextInputType.text,
+                            validator: (String? value) {
+                              if (value!.isEmpty) {
+                                return 'يجب ادخال موضوع الخبر !';
+                              }
+                            },
+                            decoration: const InputDecoration(
+                              labelText: 'نص الخبر',
+                              alignLabelWithHint: true,
+                              hintTextDirection: TextDirection.rtl,
+                              prefixIcon: Icon(
+                                Icons.subtitles_rounded,
+                              ),
+                              border: OutlineInputBorder(),
                             ),
-                            border: OutlineInputBorder(),
                           ),
                         ),
                         const SizedBox(
                           height: 16.0,
                         ),
-                        TextFormField(
-                          textDirection: TextDirection.rtl,
-                          controller: postVideoIDController,
-                          keyboardType: TextInputType.text,
-                          decoration: const InputDecoration(
-                            labelText: 'رابط الفيديو إن وجد',
-                            alignLabelWithHint: true,
-                            hintTextDirection: TextDirection.rtl,
-                            prefixIcon: Icon(
-                              Icons.subtitles_rounded,
+                        SlideInRight(
+                          animate: true,
+                          from: 1000,
+                          delay: const Duration(milliseconds: 1000),
+                          duration: const Duration(milliseconds: 2000),
+                          child: TextFormField(
+                            textDirection: TextDirection.rtl,
+                            controller: postVideoIDController,
+                            keyboardType: TextInputType.text,
+                            decoration: const InputDecoration(
+                              labelText: 'رابط الفيديو إن وجد',
+                              alignLabelWithHint: true,
+                              hintTextDirection: TextDirection.rtl,
+                              prefixIcon: Icon(
+                                Icons.video_call,
+                              ),
+                              border: OutlineInputBorder(),
                             ),
-                            border: OutlineInputBorder(),
                           ),
                         ),
                         const SizedBox(
@@ -151,16 +164,22 @@ class SocialAddPostScreen extends StatelessWidget {
                               child: CircularProgressIndicator(
                             color: Color(0xFF0500A0),
                           )),
-                          builder: (context) => defaultButton(
-                            function: () {
-                              if (formKey.currentState!.validate()) {
-                                cubit.addPost(
-                                    postTextController.text.toString(),
-                                    postVideoIDController.text.toString());
-                              }
-                            },
-                            text: 'اضافة الخبر',
-                            background: const Color(0xFF0500A0),
+                          builder: (context) => SlideInRight(
+                            animate: true,
+                            from: 1000,
+                            delay: const Duration(milliseconds: 1500),
+                            duration: const Duration(milliseconds: 2000),
+                            child: defaultButton(
+                              function: () {
+                                if (formKey.currentState!.validate()) {
+                                  cubit.addPost(
+                                      postTextController.text.toString(),
+                                      postVideoIDController.text.toString());
+                                }
+                              },
+                              text: 'اضافة الخبر',
+                              background: const Color(0xFF0500A0),
+                            ),
                           ),
                         ),
                         const SizedBox(

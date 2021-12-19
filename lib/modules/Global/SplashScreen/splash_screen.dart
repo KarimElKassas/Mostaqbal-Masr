@@ -1,3 +1,4 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mostaqbal_masr/modules/Global/Login/login_screen.dart';
@@ -20,16 +21,19 @@ class SplashScreen extends StatelessWidget {
 
           cubit.navigate(context, LoginScreen());
 
-          return const Scaffold(
+          return  Scaffold(
             backgroundColor: Colors.black,
             body: Center(
-              child: FadeInImage(
-                height: 300,
-                width: 300,
-                fit: BoxFit.fill,
-                fadeInDuration: Duration(seconds: 1),
-                image: AssetImage('assets/images/logo.jpg'),
-                placeholder: AssetImage("assets/images/black_back.png"),
+              child: FadeInDown(
+                duration: const Duration(milliseconds: 1500),
+                child: const FadeInImage(
+                  height: 300,
+                  width: 300,
+                  fit: BoxFit.fill,
+                  fadeInDuration: Duration(milliseconds: 1500),
+                  image: AssetImage('assets/images/logo.jpg'),
+                  placeholder: AssetImage("assets/images/black_back.png"),
+                ),
               ),
             ),
           );

@@ -151,7 +151,7 @@ class SocialDisplayPostsScreen extends StatelessWidget {
                   bottomLeft: Radius.circular(8.0),
                   bottomRight: Radius.circular(8.0)),
               child: FadeInImage(
-                height: 200,
+                height: 250,
                 width: MediaQuery.of(context).size.width,
                 fit: BoxFit.cover,
                 image: NetworkImage(cubit.postsList[index].PostImages![0]
@@ -163,7 +163,7 @@ class SocialDisplayPostsScreen extends StatelessWidget {
                   return Image.asset(
                     'assets/images/error.png',
                     fit: BoxFit.fill,
-                    height: 200,
+                    height: 250,
                     width: MediaQuery.of(context).size.width,
                   );
                 },

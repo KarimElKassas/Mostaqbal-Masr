@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:mostaqbal_masr/layout/home_layout.dart';
 import 'package:mostaqbal_masr/modules/SocialMedia/cubit/display_posts_cubit.dart';
 import 'package:mostaqbal_masr/modules/SocialMedia/cubit/display_posts_states.dart';
 import 'package:mostaqbal_masr/modules/SocialMedia/drawer/drawer_widget.dart';
@@ -45,7 +46,7 @@ class MyApp extends StatelessWidget {
               theme: ThemeData(
                 primaryColor: const Color(0xFF0500A0),
               ),
-              home: SocialHomeLayout(),
+              home: SplashScreen(),
             ),
           );
         },

@@ -11,7 +11,7 @@ class SplashCubit extends Cubit<SplashStates>{
 
   void navigate(BuildContext context, Widget route)async {
 
-    await Future.delayed(const Duration(milliseconds: 3000),(){});
+    await Future.delayed(const Duration(milliseconds: 4000),(){});
 
     navigateAndFinish(context, route);
     emit(SplashSuccessNavigateState());

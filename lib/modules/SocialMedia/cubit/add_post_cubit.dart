@@ -101,7 +101,6 @@ class SocialAddPostCubit extends Cubit<SocialAddPostStates> {
     dataMap['PostDate'] = currentTime;
     dataMap["hasImages"] = "true";
 
-    var uploadCount = 0;
     for (int i = 0; i < imageFileList!.length; i++) {
       postsRef.child(currentTime).set(dataMap).then((value) async {
         String fileName = imageFileList![i].path.toString();
