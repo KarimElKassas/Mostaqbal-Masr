@@ -1,19 +1,14 @@
-import 'package:bloc/bloc.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:mostaqbal_masr/layout/home_layout.dart';
+import 'package:mostaqbal_masr/modules/Global/SplashScreen/splash_screen.dart';
 import 'package:mostaqbal_masr/modules/SocialMedia/cubit/display_posts_cubit.dart';
 import 'package:mostaqbal_masr/modules/SocialMedia/cubit/display_posts_states.dart';
-import 'package:mostaqbal_masr/modules/SocialMedia/drawer/drawer_widget.dart';
-import 'package:mostaqbal_masr/modules/SocialMedia/layout/social_home_layout.dart';
 import 'package:mostaqbal_masr/network/local/cache_helper.dart';
 import 'package:mostaqbal_masr/network/remote/dio_helper.dart';
 import 'package:mostaqbal_masr/shared/bloc_observer.dart';
-
-import 'modules/Global/SplashScreen/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -44,16 +39,19 @@ class MyApp extends StatelessWidget {
             child: MaterialApp(
               title: 'مستقبل مصر',
               theme: ThemeData(
-                primaryColor: const Color(0xFF0500A0),
+                fontFamily: "Tajwal",
+                bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+                  selectedLabelStyle: TextStyle(fontFamily: "Roboto"),
+                  unselectedLabelStyle: TextStyle(fontFamily: "Roboto"),
+                ),
+                primaryColor: Colors.teal[700],
               ),
-              home: SplashScreen(),
+              debugShowCheckedModeBanner: false,
+              home: const SplashScreen(),
             ),
           );
         },
       ),
     );
   }
-
-
-
 }

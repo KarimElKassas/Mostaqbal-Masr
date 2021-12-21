@@ -13,19 +13,16 @@ class SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => SplashCubit(),
+      create: (context) => SplashCubit()..navigate(context),
       child: BlocConsumer<SplashCubit, SplashStates>(
         listener: (context, state) {},
-        builder: (context, state) {
-          var cubit = SplashCubit.get(context);
-
-          cubit.navigate(context, LoginScreen());
+        builder: (context, state){
 
           return  Scaffold(
             backgroundColor: Colors.black,
             body: Center(
               child: FadeInDown(
-                duration: const Duration(milliseconds: 1500),
+                duration: const Duration(milliseconds: 2000),
                 child: const FadeInImage(
                   height: 300,
                   width: 300,

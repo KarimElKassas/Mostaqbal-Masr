@@ -1,26 +1,20 @@
-import 'package:animate_do/animate_do.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_iconly/flutter_iconly.dart';
-import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:mostaqbal_masr/modules/SocialMedia/cubit/display_posts_cubit.dart';
-import 'package:mostaqbal_masr/modules/SocialMedia/cubit/social_post_details_cubit.dart';
-import 'package:mostaqbal_masr/modules/SocialMedia/cubit/social_post_details_states.dart';
-import 'package:mostaqbal_masr/modules/SocialMedia/screens/social_edit_post_screen.dart';
-import 'package:mostaqbal_masr/shared/components.dart';
+import 'package:mostaqbal_masr/modules/Global/Posts/cubit/global_display_posts_cubit.dart';
+import 'package:mostaqbal_masr/modules/Global/Posts/cubit/global_post_details_cubit.dart';
+import 'package:mostaqbal_masr/modules/Global/Posts/cubit/global_post_details_states.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
-class SocialPostDetailsScreen extends StatelessWidget {
+class GlobalPostDetailsScreen extends StatelessWidget {
   final String postTitle;
   final String postVideoID;
   final String postID;
   final String hasImages;
   final List<Object?>? postImages;
 
-  SocialPostDetailsScreen(
+  GlobalPostDetailsScreen(
       {Key? key,
       required this.postID,
       required this.postTitle,
@@ -36,38 +30,20 @@ class SocialPostDetailsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (context) => SocialPostDetailsCubit(),),
-        BlocProvider(create: (context) => SocialDisplayPostsCubit())
+        BlocProvider(create: (context) => GlobalPostDetailsCubit(),),
+        BlocProvider(create: (context) => GlobalDisplayPostsCubit())
       ],
-      child: BlocConsumer<SocialPostDetailsCubit, SocialPostDetailsStates>(
-        listener: (context, state) {
-          if (state is SocialPostDetailsSuccessDeletePostState) {
-            if (Navigator.of(context).canPop()) {
-              SocialPostDetailsCubit.get(context).getPosts();
-              Navigator.of(context).pop();
-            } else {
-              SystemNavigator.pop();
-            }
-          } else if (state is SocialPostDetailsErrorDeletePostState) {
-            showToast(
-              message: state.error,
-              length: Toast.LENGTH_SHORT,
-              gravity: ToastGravity.BOTTOM,
-              timeInSecForIosWeb: 3,
-            );
-          }
-        },
+      child: BlocConsumer<GlobalPostDetailsCubit, GlobalPostDetailsStates>(
+        listener: (context, state) {},
         builder: (context, state) {
-          var cubit = SocialPostDetailsCubit.get(context);
+          var cubit = GlobalPostDetailsCubit.get(context);
 
           return Directionality(
             textDirection: TextDirection.rtl,
             child: WillPopScope(
               onWillPop: () {
-
                   if (Navigator.of(context).canPop()) {
-                    SocialDisplayPostsCubit.get(context).getPosts();
-                    //cubit.getPosts();
+                    GlobalDisplayPostsCubit.get(context).getPosts();
                     Navigator.of(context).pop();
                   } else {
                     SystemNavigator.pop();
@@ -81,48 +57,6 @@ class SocialPostDetailsScreen extends StatelessWidget {
                   backgroundColor: Colors.teal[700],
                   title: const Text("تفاصيل الخبر"),
                 ),
-                floatingActionButton:
-                    FadeInUp(
-                      duration: const Duration(seconds: 2),
-                      child: Column(
-                          mainAxisAlignment: MainAxisAlignment.end, children: [
-                  FloatingActionButton(
-                      child: const Icon(
-                        IconlyBroken.edit,
-                        color: Colors.white,
-                      ),
-                      backgroundColor: Colors.teal[700],
-                      onPressed: () {
-                        cubit.navigateToEdit(
-                          context,
-                          SocialEditPostScreen(
-                              postID: postID,
-                              postTitle: postTitle,
-                              postVideoID: postVideoID,
-                              hasImages: hasImages,
-                              postImages: postImages),
-                        );
-                      },
-                      heroTag: null,
-                  ),
-                  const SizedBox(
-                      height: 10,
-                  ),
-                  FloatingActionButton(
-                      child: const Icon(
-                        IconlyBroken.delete,
-                        color: Colors.white,
-                      ),
-                      backgroundColor: Colors.teal[700],
-                      onPressed: () {
-                        cubit.deletePost(postID);
-                      },
-                      heroTag: null,
-                  )
-                ]),
-                    ),
-                floatingActionButtonLocation:
-                    FloatingActionButtonLocation.endFloat,
                 body: SingleChildScrollView(
                   physics: const BouncingScrollPhysics(),
                   child: Card(
@@ -171,7 +105,7 @@ class SocialPostDetailsScreen extends StatelessWidget {
         ),
       );
 
-  Widget postBody(BuildContext context, SocialPostDetailsCubit cubit) {
+  Widget postBody(BuildContext context, GlobalPostDetailsCubit cubit) {
     cubit.initializeVideo(postVideoID);
 
     return Padding(

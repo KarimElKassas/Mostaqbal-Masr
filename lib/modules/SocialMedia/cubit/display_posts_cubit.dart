@@ -1,10 +1,9 @@
 import 'package:bloc/bloc.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mostaqbal_masr/modules/SocialMedia/cubit/display_posts_states.dart';
-import 'package:mostaqbal_masr/modules/SocialMedia/model/posts_model.dart';
+import 'package:mostaqbal_masr/models/posts_model.dart';
 import 'package:mostaqbal_masr/shared/components.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
@@ -16,10 +15,18 @@ class SocialDisplayPostsCubit extends Cubit<SocialDisplayPostsStates> {
   YoutubePlayerController? controller;
 
   Future initializeVideo(String videoID) async {
-   controller = YoutubePlayerController(
+    controller = YoutubePlayerController(
       initialVideoId: videoID,
       flags: const YoutubePlayerFlags(
           autoPlay: false, mute: false, hideControls: false),
+    );
+  }
+
+  Future initializeVideoWithoutPlay(String videoID) async {
+    controller = YoutubePlayerController(
+      initialVideoId: videoID,
+      flags: const YoutubePlayerFlags(
+          autoPlay: false, mute: false, hideControls: true),
     );
   }
 
@@ -36,38 +43,38 @@ class SocialDisplayPostsCubit extends Cubit<SocialDisplayPostsStates> {
         .child('Posts')
         .once()
         .then((snapshot) async {
-      Map<dynamic, dynamic> values = snapshot.value;
-      values.forEach((key, values) {
+      if (snapshot.exists) {
+        Map<dynamic, dynamic> values = snapshot.value;
+        values.forEach((key, values) {
+          String postID = values["PostID"].toString();
+          String postTitle = values["PostTitle"].toString();
+          String postVideoID = values["PostVideoID"].toString();
+          String postDate = values["PostDate"].toString();
+          String hasImages = values["hasImages"].toString();
 
-        String postID = values["PostID"].toString();
-        String postTitle = values["PostTitle"].toString();
-        String postVideoID = values["PostVideoID"].toString();
-        String postDate = values["PostDate"].toString();
-        String hasImages = values["hasImages"].toString();
+          if (values["hasImages"] == "true") {
+            postImages = values["PostImages"];
+          }
 
-        if(values["hasImages"] == "true"){
-          postImages = values["PostImages"];
+          postsModel = PostsModel(
+              postID, postTitle, postVideoID, postDate, hasImages, postImages);
+          postsList.add(postsModel!);
 
-        }
+          print(values["PostTitle"]);
+          print(values["PostImages"]);
+          print("From Model ${postsModel!.PostTitle}");
+          //print("From Model ${postsModel!.PostImages}");
+        });
+      }
 
-        postsModel = PostsModel(postID, postTitle, postVideoID, postDate,hasImages,postImages);
-        postsList.add(postsModel!);
-
-        print(values["PostTitle"]);
-        print(values["PostImages"]);
-        print("From Model ${postsModel!.PostTitle}");
-        //print("From Model ${postsModel!.PostImages}");
-      });
       emit(SocialDisplayPostsSuccessState());
-    }).catchError((error){
+    }).catchError((error) {
       emit(SocialDisplayPostsErrorState(error.toString()));
     });
   }
 
-  void goToDetails(BuildContext context, route){
-
+  void goToDetails(BuildContext context, route) {
     navigateTo(context, route);
-
   }
 
 /*
@@ -128,7 +135,7 @@ class SocialDisplayPostsCubit extends Cubit<SocialDisplayPostsStates> {
         print(postsModel!.PostImages);
         print(postsModel!.PostTitle);
 
-      }*//*
+      }*/ /*
 
       emit(SocialDisplayPostsSuccessState());
     }).catchError((error){
@@ -138,12 +145,12 @@ class SocialDisplayPostsCubit extends Cubit<SocialDisplayPostsStates> {
 /* FirebaseFirestore.instance.collection('Posts').get().then((value) {
 
       // ignore: iterable_contains_unrelated_type
-     *//*
+     */ /*
  */
 /* if(value.docs.contains("PostImages")){
 
 
-      }*//*
+      }*/ /*
  */
 /*
 
@@ -174,7 +181,7 @@ class SocialDisplayPostsCubit extends Cubit<SocialDisplayPostsStates> {
 
     }).catchError((error) {
       emit(SocialDisplayPostsErrorState(error.toString()));
-    });*//*
+    });*/ /*
 
   }
 */

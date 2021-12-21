@@ -2,40 +2,43 @@ import 'package:buildcondition/buildcondition.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:mostaqbal_masr/modules/SocialMedia/cubit/display_posts_cubit.dart';
-import 'package:mostaqbal_masr/modules/SocialMedia/cubit/display_posts_states.dart';
 import 'package:mostaqbal_masr/models/posts_model.dart';
-import 'package:mostaqbal_masr/modules/SocialMedia/screens/social_post_details_screen.dart';
+import 'package:mostaqbal_masr/modules/Global/Login/login_screen.dart';
+import 'package:mostaqbal_masr/modules/Global/Posts/cubit/global_display_posts_cubit.dart';
+import 'package:mostaqbal_masr/modules/Global/Posts/cubit/global_display_posts_states.dart';
+import 'package:mostaqbal_masr/modules/Global/Posts/screens/global_post_details_screen.dart';
 import 'package:mostaqbal_masr/shared/components.dart';
 import 'package:video_player/video_player.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
-class SocialDisplayPostsScreen extends StatefulWidget {
+class GlobalDisplayPostsScreen extends StatefulWidget {
   @override
-  State<SocialDisplayPostsScreen> createState() =>
-      _SocialDisplayPostsScreenState();
+  State<GlobalDisplayPostsScreen> createState() =>
+      _GlobalDisplayPostsScreenState();
 }
 
-class _SocialDisplayPostsScreenState extends State<SocialDisplayPostsScreen>
+class _GlobalDisplayPostsScreenState extends State<GlobalDisplayPostsScreen>
     with WidgetsBindingObserver {
   VideoPlayerController? videoPlayerController;
   bool videosInitialized = false;
 
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => SocialDisplayPostsCubit()..getPosts(),
-      child: BlocConsumer<SocialDisplayPostsCubit, SocialDisplayPostsStates>(
+      create: (context) => GlobalDisplayPostsCubit()..getPosts(),
+      child: BlocConsumer<GlobalDisplayPostsCubit, GlobalDisplayPostsStates>(
         listener: (context, state) {
-          if (state is SocialDisplayPostsInitializeVideoErrorState) {
+          if (state is GlobalDisplayPostsInitializeVideoErrorState) {
             showToast(
               message: state.error,
               length: Toast.LENGTH_LONG,
               gravity: ToastGravity.BOTTOM,
               timeInSecForIosWeb: 3,
             );
-          } else if (state is SocialDisplayPostsErrorState) {
+          } else if (state is GlobalDisplayPostsErrorState) {
             showToast(
               message: state.error,
               length: Toast.LENGTH_LONG,
@@ -45,7 +48,7 @@ class _SocialDisplayPostsScreenState extends State<SocialDisplayPostsScreen>
           }
         },
         builder: (context, state) {
-          var cubit = SocialDisplayPostsCubit.get(context);
+          var cubit = GlobalDisplayPostsCubit.get(context);
 
           return Directionality(
             textDirection: TextDirection.rtl,
@@ -56,18 +59,17 @@ class _SocialDisplayPostsScreenState extends State<SocialDisplayPostsScreen>
                 actions: [
                   IconButton(
                     icon: const Icon(
-                      Icons.refresh,
+                      IconlyBroken.login,
                       color: Colors.white,
                     ),
                     onPressed: () {
-                      cubit.postsList.clear();
-                      cubit.getPosts();
+                      cubit.goToLogin(context, LoginScreen());
                     },
                   )
                 ],
               ),
               body: BuildCondition(
-                condition: state is SocialDisplayPostsLoadingState,
+                condition: state is GlobalDisplayPostsLoadingState,
                 builder: (context) => Center(
                     child: CircularProgressIndicator(
                   color: Colors.teal[700],
@@ -94,58 +96,61 @@ class _SocialDisplayPostsScreenState extends State<SocialDisplayPostsScreen>
     );
   }
 
-  Widget noPosts() =>
-    Center(
-      child: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            children: [
-              ClipRRect(
-                borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(8.0),
-                    topRight: Radius.circular(8.0),
-                    bottomLeft: Radius.circular(8.0),
-                    bottomRight: Radius.circular(8.0)),
-                child: FadeInImage(
-                  height: 250,
-                  width: MediaQuery.of(context).size.width,
-                  fit: BoxFit.cover,
-                  image: const AssetImage("assets/images/noresult.png"),
-                  placeholder: const AssetImage("assets/images/wait.jpg"),
-                  imageErrorBuilder: (context, error, stackTrace) {
-                    return Image.asset(
-                      'assets/images/error.png',
-                      fit: BoxFit.fill,
-                      height: 250,
-                      width: MediaQuery.of(context).size.width,
-                    );
-                  },
+  Widget noPosts() => Center(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              children: [
+                ClipRRect(
+                  borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(8.0),
+                      topRight: Radius.circular(8.0),
+                      bottomLeft: Radius.circular(8.0),
+                      bottomRight: Radius.circular(8.0)),
+                  child: FadeInImage(
+                    height: 250,
+                    width: MediaQuery.of(context).size.width,
+                    fit: BoxFit.cover,
+                    image: const AssetImage("assets/images/noresult.png"),
+                    placeholder: const AssetImage("assets/images/wait.jpg"),
+                    imageErrorBuilder: (context, error, stackTrace) {
+                      return Image.asset(
+                        'assets/images/error.png',
+                        fit: BoxFit.fill,
+                        height: 250,
+                        width: MediaQuery.of(context).size.width,
+                      );
+                    },
+                  ),
                 ),
-              ),
-              const SizedBox(height: 12.0,),
-              Text(
+                const SizedBox(
+                  height: 12.0,
+                ),
+                Text(
                   "لا يوجد اخبار لعرضها",
-                style: TextStyle(
-                  color: Colors.teal[500],
-                  fontSize: 24.0,
-                  fontWeight: FontWeight.bold,
+                  style: TextStyle(
+                    color: Colors.teal[500],
+                    fontSize: 24.0,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 12.0,),
-            ],
+                const SizedBox(
+                  height: 12.0,
+                ),
+              ],
+            ),
           ),
         ),
-      ),
-    );
+      );
 
-  Widget cardBuilder(BuildContext context, SocialDisplayPostsCubit cubit,
-          SocialDisplayPostsStates state, PostsModel postsModel, int index) =>
+  Widget cardBuilder(BuildContext context, GlobalDisplayPostsCubit cubit,
+          GlobalDisplayPostsStates state, PostsModel postsModel, int index) =>
       InkWell(
         onTap: () {
           cubit.goToDetails(
               context,
-              SocialPostDetailsScreen(
+              GlobalPostDetailsScreen(
                   postID: cubit.postsList[index].PostID.toString(),
                   postTitle: cubit.postsList[index].PostTitle.toString(),
                   postVideoID: cubit.postsList[index].PostVideoID.toString(),
@@ -191,9 +196,10 @@ class _SocialDisplayPostsScreenState extends State<SocialDisplayPostsScreen>
         ),
       );
 
-  Widget postBody(BuildContext context, SocialDisplayPostsCubit cubit,
-      SocialDisplayPostsStates state, PostsModel postsModel, int index) {
-    cubit.initializeVideoWithoutPlay(cubit.postsList[index].PostVideoID.toString());
+  Widget postBody(BuildContext context, GlobalDisplayPostsCubit cubit,
+      GlobalDisplayPostsStates state, PostsModel postsModel, int index) {
+    cubit.initializeVideoWithoutPlay(
+        cubit.postsList[index].PostVideoID.toString());
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
@@ -276,6 +282,8 @@ class _SocialDisplayPostsScreenState extends State<SocialDisplayPostsScreen>
     super.initState();
 
     WidgetsBinding.instance!.addObserver(this);
+
+
     print("display screen initState\n");
   }
 
@@ -288,13 +296,13 @@ class _SocialDisplayPostsScreenState extends State<SocialDisplayPostsScreen>
         print("display screen in resumed\n");
         break;
       case AppLifecycleState.inactive:
-        print("display screeninactive\n");
+        print("display screen in active\n");
         break;
       case AppLifecycleState.paused:
         print("display screen paused\n");
         break;
       case AppLifecycleState.detached:
-        //await SocialHomeCubit.get(context).logOut(context);
+        //await GlobalHomeCubit.get(context).logOut(context);
         //await logOut();
         print("display screen detached\n");
         break;

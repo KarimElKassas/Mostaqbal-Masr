@@ -3,9 +3,9 @@ import 'package:buildcondition/buildcondition.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:mostaqbal_masr/modules/SocialMedia/cubit/social_setting_cubit.dart';
 import 'package:mostaqbal_masr/modules/SocialMedia/cubit/social_setting_states.dart';
-import 'package:mostaqbal_masr/shared/components.dart';
 
 class SocialSettingsScreen extends StatelessWidget {
   var currentPassController = TextEditingController();
@@ -27,29 +27,32 @@ class SocialSettingsScreen extends StatelessWidget {
             textDirection: TextDirection.rtl,
             child: Scaffold(
               appBar: AppBar(
-                backgroundColor: const Color(0xFF0500A0),
+                backgroundColor: Colors.teal[700],
                 title: const Text("الاعدادات"),
               ),
               floatingActionButton: BuildCondition(
                 condition: state is SocialSettingLoadingState,
-                builder: (context) => const CircularProgressIndicator(
-                  color: Color(0xFF0500A0),
+                builder: (context) => CircularProgressIndicator(
+                  color: Colors.teal[700],
                 ),
-                fallback: (context) => FloatingActionButton(
-                  onPressed: () {
-                    if (formKey.currentState!.validate()) {
-                      cubit.changePassword(
-                          context,
-                          newPassController.text.toString(),
-                          currentPassController.text.toString());
-                    }
-                  },
-                  child: const Icon(
-                    Icons.edit,
-                    color: Colors.white,
+                fallback: (context) => FadeInUp(
+                  duration: const Duration(seconds: 2),
+                  child: FloatingActionButton(
+                    onPressed: () {
+                      if (formKey.currentState!.validate()) {
+                        cubit.changePassword(
+                            context,
+                            newPassController.text.toString(),
+                            currentPassController.text.toString());
+                      }
+                    },
+                    child: const Icon(
+                      Icons.done,
+                      color: Colors.white,
+                    ),
+                    backgroundColor: Colors.teal[700],
+                    elevation: 15.0,
                   ),
-                  backgroundColor: Color(purpleColor),
-                  elevation: 15.0,
                 ),
               ),
               floatingActionButtonLocation:
@@ -62,16 +65,13 @@ class SocialSettingsScreen extends StatelessWidget {
                     child: Center(
                       child: Form(
                         key: formKey,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            SlideInRight(
-                              animate: true,
-                              from: 1000,
-                              //delay: Duration(milliseconds: 800),
-                              duration: Duration(seconds: 2),
-                              child: TextFormField(
+                        child: FadeInDown(
+                          duration: const Duration(seconds: 2),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              TextFormField(
                                 textDirection: TextDirection.rtl,
                                 controller: currentPassController,
                                 keyboardType: TextInputType.text,
@@ -80,26 +80,30 @@ class SocialSettingsScreen extends StatelessWidget {
                                     return 'يجب ادخال كلمة السر الحالية !';
                                   }
                                 },
-                                decoration: const InputDecoration(
+                                decoration: InputDecoration(
+                                  focusedBorder: const OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: Colors.teal, width: 2.0),
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(8.0))),
+                                  floatingLabelStyle:
+                                      TextStyle(color: Colors.teal[700]),
                                   labelText: 'كلمة السر الحالية',
                                   alignLabelWithHint: true,
                                   hintTextDirection: TextDirection.rtl,
                                   prefixIcon: Icon(
-                                    Icons.lock,
+                                    IconlyBroken.password,
+                                    color: Colors.teal[700],
                                   ),
-                                  border: OutlineInputBorder(),
+                                  border: const OutlineInputBorder(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(8.0))),
                                 ),
                               ),
-                            ),
-                            const SizedBox(
-                              height: 16.0,
-                            ),
-                            SlideInRight(
-                              animate: true,
-                              from: 1000,
-                              delay: const Duration(milliseconds: 1000),
-                              duration: const Duration(milliseconds: 2000),
-                              child: TextFormField(
+                              const SizedBox(
+                                height: 16.0,
+                              ),
+                              TextFormField(
                                 textDirection: TextDirection.rtl,
                                 controller: newPassController,
                                 keyboardType: TextInputType.text,
@@ -108,26 +112,30 @@ class SocialSettingsScreen extends StatelessWidget {
                                     return 'يجب ادخال كلمة السر الجديدة !';
                                   }
                                 },
-                                decoration: const InputDecoration(
+                                decoration: InputDecoration(
+                                  focusedBorder: const OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: Colors.teal, width: 2.0),
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(8.0))),
+                                  floatingLabelStyle:
+                                      TextStyle(color: Colors.teal[700]),
                                   labelText: 'كلمة السر الجديدة',
                                   alignLabelWithHint: true,
                                   hintTextDirection: TextDirection.rtl,
                                   prefixIcon: Icon(
-                                    Icons.password_rounded,
+                                    IconlyBold.password,
+                                    color: Colors.teal[700],
                                   ),
-                                  border: OutlineInputBorder(),
+                                  border: const OutlineInputBorder(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(8.0))),
                                 ),
                               ),
-                            ),
-                            const SizedBox(
-                              height: 16.0,
-                            ),
-                            SlideInRight(
-                              animate: true,
-                              from: 1000,
-                              delay: const Duration(milliseconds: 1500),
-                              duration: const Duration(milliseconds: 2000),
-                              child: TextFormField(
+                              const SizedBox(
+                                height: 16.0,
+                              ),
+                              TextFormField(
                                 textDirection: TextDirection.rtl,
                                 controller: confirmNewPassController,
                                 keyboardType: TextInputType.text,
@@ -139,21 +147,31 @@ class SocialSettingsScreen extends StatelessWidget {
                                     return 'كلمتا السر غير متطابقتين !';
                                   }
                                 },
-                                decoration: const InputDecoration(
+                                decoration: InputDecoration(
+                                  focusedBorder: const OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: Colors.teal, width: 2.0),
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(8.0))),
+                                  floatingLabelStyle:
+                                      TextStyle(color: Colors.teal[700]),
                                   labelText: 'تأكيد كلمة السر الجديدة',
                                   alignLabelWithHint: true,
                                   hintTextDirection: TextDirection.rtl,
                                   prefixIcon: Icon(
-                                    Icons.password_rounded,
+                                    IconlyBold.password,
+                                    color: Colors.teal[700],
                                   ),
-                                  border: OutlineInputBorder(),
+                                  border: const OutlineInputBorder(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(8.0))),
                                 ),
                               ),
-                            ),
-                            const SizedBox(
-                              height: 16.0,
-                            ),
-                          ],
+                              const SizedBox(
+                                height: 16.0,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),

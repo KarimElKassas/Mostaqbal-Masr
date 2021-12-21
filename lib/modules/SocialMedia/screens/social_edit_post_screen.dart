@@ -1,9 +1,11 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:buildcondition/buildcondition.dart';
 import 'package:carousel_slider/carousel_options.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mostaqbal_masr/modules/SocialMedia/cubit/social_edit_post_cubit.dart';
 import 'package:mostaqbal_masr/modules/SocialMedia/cubit/social_edit_post_states.dart';
@@ -56,7 +58,6 @@ class _SocialEditPostScreenState extends State<SocialEditPostScreen> {
 
           if(state is SocialEditPostSuccessState){
 
-
             FocusScope.of(context).unfocus();
 
             navigateAndFinish(
@@ -86,26 +87,29 @@ class _SocialEditPostScreenState extends State<SocialEditPostScreen> {
             textDirection: TextDirection.rtl,
             child: Scaffold(
               appBar: AppBar(
-                backgroundColor: const Color(0xFF0500A0),
+                backgroundColor: Colors.teal[700],
                 title: const Text("تعديل الخبر"),
               ),
               floatingActionButton: BuildCondition(
                 condition: state is SocialEditPostLoadingState,
-                builder: (context) => const CircularProgressIndicator(
-                    color: Color(0xFF0500A0),),
-                fallback: (context) => FloatingActionButton(
-                  onPressed: () {
-                    if (formKey.currentState!.validate()) {
-                      cubit.updatePost(widget.postID, postTextController.text,
-                          postVideoIDController.text);
-                    }
-                  },
-                  elevation: 15.0,
-                  child: const Icon(
-                    Icons.done,
-                    color: Colors.white,
+                builder: (context) =>  CircularProgressIndicator(
+                    color: Colors.teal[700],),
+                fallback: (context) => SlideInUp(
+                  duration: const Duration(seconds: 2),
+                  child: FloatingActionButton(
+                    onPressed: () {
+                      if (formKey.currentState!.validate()) {
+                        cubit.updatePost(widget.postID, postTextController.text,
+                            postVideoIDController.text);
+                      }
+                    },
+                    elevation: 15.0,
+                    child: const Icon(
+                      IconlyBroken.edit,
+                      color: Colors.white,
+                    ),
+                    backgroundColor: Colors.teal[700],
                   ),
-                  backgroundColor: Color(purpleColor),
                 ),
               ),
               floatingActionButtonLocation:
@@ -182,7 +186,7 @@ class _SocialEditPostScreenState extends State<SocialEditPostScreen> {
                           fit: BoxFit.fill,
                           image: NetworkImage(e!.toString()),
                           placeholder:
-                              const AssetImage("assets/images/wait.jpg"),
+                              const AssetImage("assets/images/placeholder.jpg"),
                           imageErrorBuilder: (context, error, stackTrace) {
                             return Image.asset('assets/images/error.png',
                                 width: double.infinity,
@@ -219,7 +223,7 @@ class _SocialEditPostScreenState extends State<SocialEditPostScreen> {
                 ],
                 controller: cubit.controller!,
                 showVideoProgressIndicator: true,
-                progressIndicatorColor: Colors.amber,
+                progressIndicatorColor: Colors.teal[700],
                 onReady: () {
                   cubit.controller!;
                 },
@@ -241,14 +245,17 @@ class _SocialEditPostScreenState extends State<SocialEditPostScreen> {
                 return 'يجب ادخال موضوع الخبر !';
               }
             },
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
+              focusedBorder: const OutlineInputBorder(borderSide: BorderSide(color: Colors.teal, width: 2.0),borderRadius: BorderRadius.all(Radius.circular(8.0))),
+              floatingLabelStyle: TextStyle(color: Colors.teal[700]),
               labelText: 'نص الخبر',
               alignLabelWithHint: true,
               hintTextDirection: TextDirection.rtl,
               prefixIcon: Icon(
-                Icons.subtitles_rounded,
+                IconlyBroken.edit,
+                color: Colors.teal[700],
               ),
-              border: OutlineInputBorder(),
+              border: const OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(8.0))),
             ),
           ),
           const SizedBox(
@@ -258,14 +265,17 @@ class _SocialEditPostScreenState extends State<SocialEditPostScreen> {
             textDirection: TextDirection.rtl,
             controller: postVideoIDController,
             keyboardType: TextInputType.text,
-            decoration: const InputDecoration(
+            decoration:  InputDecoration(
+              focusedBorder: const OutlineInputBorder(borderSide: BorderSide(color: Colors.teal, width: 2.0),borderRadius: BorderRadius.all(Radius.circular(8.0))),
+              floatingLabelStyle: TextStyle(color: Colors.teal[700]),
               labelText: 'رابط الفيديو إن وجد',
               alignLabelWithHint: true,
               hintTextDirection: TextDirection.rtl,
               prefixIcon: Icon(
-                Icons.subtitles_rounded,
+                IconlyBroken.video,
+                color: Colors.teal[700],
               ),
-              border: OutlineInputBorder(),
+              border: const OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(8.0))),
             ),
           ),
           const SizedBox(

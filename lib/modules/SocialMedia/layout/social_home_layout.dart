@@ -19,10 +19,13 @@ class SocialHomeLayout extends StatefulWidget {
 
 class _SocialHomeLayoutState extends State<SocialHomeLayout>
     with WidgetsBindingObserver {
+
+
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => SocialHomeCubit(),
+      create: (context) => SocialHomeCubit()..handleUserType(),
       child: BlocConsumer<SocialHomeCubit, SocialHomeStates>(
         listener: (context, state) {
           if (state is SocialHomeLogOutErrorState) {
@@ -52,7 +55,7 @@ class _SocialHomeLayoutState extends State<SocialHomeLayout>
                 items: cubit.bottomNavigationItems,
                 currentIndex: cubit.currentIndex,
                 type: BottomNavigationBarType.fixed,
-                selectedItemColor: Color(0xFF0500A0),
+                selectedItemColor: Colors.teal[700],
                 onTap: (index) {
                   cubit.changeBottomNavBarIndex(index, context);
                 },
@@ -73,16 +76,6 @@ class _SocialHomeLayoutState extends State<SocialHomeLayout>
   }
 
   @override
-  void dispose() async {
-    WidgetsBinding.instance!.removeObserver(this);
-    print("app in dispose\n");
-
-    await logOut().then((value){
-      super.dispose();
-    });
-  }
-
-  @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     super.didChangeAppLifecycleState(state);
 
@@ -98,7 +91,7 @@ class _SocialHomeLayoutState extends State<SocialHomeLayout>
         break;
       case AppLifecycleState.detached:
         //await SocialHomeCubit.get(context).logOut(context);
-        await logOut();
+        //await logOut();
         print("app in detached\n");
         break;
     }
@@ -120,12 +113,5 @@ class _SocialHomeLayoutState extends State<SocialHomeLayout>
       prefs.remove("Login_Log_ID");
       prefs.remove("User_ID");
     });
-  }
-
-  @override
-  void deactivate() async {
-    // TODO: implement deactivate
-    await SocialHomeCubit.get(context).logOut(context);
-    super.deactivate();
   }
 }

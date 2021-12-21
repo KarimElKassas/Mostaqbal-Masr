@@ -1,7 +1,8 @@
 import 'package:bloc/bloc.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_iconly/flutter_iconly.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:mostaqbal_masr/modules/Global/Login/login_screen.dart';
 import 'package:mostaqbal_masr/modules/Global/blank_screen.dart';
@@ -19,35 +20,57 @@ class SocialHomeCubit extends Cubit<SocialHomeStates> {
   static SocialHomeCubit get(context) => BlocProvider.of(context);
 
   int currentIndex = 0;
+  List<String>? sectionFormsNameList = [];
+
+  void handleUserType() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    sectionFormsNameList = prefs.getStringList("Section_Forms_Name_List");
+
+    if (!sectionFormsNameList!.contains("BtnAddPost") && !sectionFormsNameList!.contains("BtnViewPosts")) {
+
+      for(var i = 0; i < 2; i++){
+        bottomNavigationItems.removeAt(0);
+        screens.removeAt(0);
+      }
+
+    }else if(!sectionFormsNameList!.contains("BtnAddPost")){
+      bottomNavigationItems.removeAt(0);
+      screens.removeAt(0);
+    }else if(!sectionFormsNameList!.contains("BtnViewPosts")){
+      bottomNavigationItems.removeAt(1);
+      screens.removeAt(1);
+    }
+    emit(SocialHomeHandleUserTypeState());
+  }
 
   List<BottomNavigationBarItem> bottomNavigationItems = [
     const BottomNavigationBarItem(
       icon: Icon(
-        Icons.add_task_rounded,
+        IconlyBroken.activity,
       ),
       label: 'اضافة خبر',
     ),
     const BottomNavigationBarItem(
       icon: Icon(
-        Icons.visibility,
+        IconlyBroken.discovery,
       ),
       label: 'عرض الاخبار',
     ),
     const BottomNavigationBarItem(
       icon: Icon(
-        Icons.settings,
+        IconlyBroken.setting,
       ),
       label: 'الاعدادات',
     ),
     const BottomNavigationBarItem(
       icon: Icon(
-        Icons.logout,
+        IconlyBroken.logout,
       ),
       label: 'تسجيل الخروج',
     ),
   ];
 
-  List screens = [
+  List<Widget> screens = [
     SocialAddPostScreen(),
     SocialDisplayPostsScreen(),
     SocialSettingsScreen(),
@@ -57,12 +80,34 @@ class SocialHomeCubit extends Cubit<SocialHomeStates> {
   void changeBottomNavBarIndex(int index, BuildContext context) {
     currentIndex = index;
 
-    if (index == 3) {
-      logOut(context);
-    }
+    switch (bottomNavigationItems.length) {
+      case 4:
+        if (index == 3) {
+          logOut(context);
+        }
 
-    if (index != 3) {
-      emit(SocialHomeChangeBottomNavState());
+        if (index != 3) {
+          emit(SocialHomeChangeBottomNavState());
+        }
+        break;
+      case 3:
+        if (index == 2) {
+          logOut(context);
+        }
+
+        if (index != 2) {
+          emit(SocialHomeChangeBottomNavState());
+        }
+        break;
+      case 2:
+        if (index == 1) {
+          logOut(context);
+        }
+
+        if (index != 1) {
+          emit(SocialHomeChangeBottomNavState());
+        }
+        break;
     }
   }
 
@@ -83,11 +128,14 @@ class SocialHomeCubit extends Cubit<SocialHomeStates> {
     }).then((value) {
       prefs.remove("Login_Log_ID");
       prefs.remove("User_ID");
+      prefs.remove("User_Name");
+      prefs.remove("User_Password");
+      prefs.remove("LoginDate");
 
       navigateAndFinish(context, LoginScreen());
 
       emit(SocialHomeLogOutSuccessState());
-    }).catchError((error){
+    }).catchError((error) {
       emit(SocialHomeLogOutErrorState(error.toString()));
     });
   }
