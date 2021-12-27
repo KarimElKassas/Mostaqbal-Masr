@@ -5,9 +5,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mostaqbal_masr/modules/Global/Posts/cubit/global_display_posts_cubit.dart';
 import 'package:mostaqbal_masr/modules/Global/Posts/cubit/global_post_details_cubit.dart';
 import 'package:mostaqbal_masr/modules/Global/Posts/cubit/global_post_details_states.dart';
+import 'package:mostaqbal_masr/shared/components.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
-class GlobalPostDetailsScreen extends StatelessWidget {
+class GlobalPostDetailsScreen extends StatefulWidget {
   final String postTitle;
   final String postVideoID;
   final String postID;
@@ -23,8 +24,24 @@ class GlobalPostDetailsScreen extends StatelessWidget {
       required this.postImages})
       : super(key: key);
 
+  @override
+  State<GlobalPostDetailsScreen> createState() => _GlobalPostDetailsScreenState();
+}
+
+class _GlobalPostDetailsScreenState extends State<GlobalPostDetailsScreen> {
   var scaffoldKey = GlobalKey<ScaffoldState>();
+
   var formKey = GlobalKey<FormState>();
+
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    noInternet();
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -106,7 +123,7 @@ class GlobalPostDetailsScreen extends StatelessWidget {
       );
 
   Widget postBody(BuildContext context, GlobalPostDetailsCubit cubit) {
-    cubit.initializeVideo(postVideoID);
+    cubit.initializeVideo(widget.postVideoID);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
@@ -114,7 +131,7 @@ class GlobalPostDetailsScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            postTitle.toString(),
+            widget.postTitle.toString(),
             style: const TextStyle(
               color: Colors.black,
               fontWeight: FontWeight.bold,
@@ -125,9 +142,9 @@ class GlobalPostDetailsScreen extends StatelessWidget {
             height: 16.0,
           ),
           Visibility(
-            visible: hasImages == "true" ? true : false,
+            visible: widget.hasImages == "true" ? true : false,
             child: CarouselSlider(
-              items: postImages!
+              items: widget.postImages!
                   .map((e) => ClipRRect(
                         borderRadius: const BorderRadius.only(
                             topLeft: Radius.circular(8.0),
@@ -168,7 +185,7 @@ class GlobalPostDetailsScreen extends StatelessWidget {
             height: 16.0,
           ),
           Visibility(
-            visible: postVideoID == "Empty" ? false : true,
+            visible: widget.postVideoID == "Empty" ? false : true,
             child: SizedBox(
               child: YoutubePlayer(
                 bottomActions: [

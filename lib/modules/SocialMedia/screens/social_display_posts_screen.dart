@@ -1,4 +1,5 @@
 import 'package:buildcondition/buildcondition.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -59,9 +60,20 @@ class _SocialDisplayPostsScreenState extends State<SocialDisplayPostsScreen>
                       Icons.refresh,
                       color: Colors.white,
                     ),
-                    onPressed: () {
-                      cubit.postsList.clear();
-                      cubit.getPosts();
+                    onPressed: ()async {
+
+                      var connectivityResult = await (Connectivity().checkConnectivity());
+                      if(connectivityResult == ConnectivityResult.none){
+                        showToast(
+                          message: 'تحقق من اتصالك بالانترنت اولاً',
+                          length: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.BOTTOM,
+                          timeInSecForIosWeb: 3,
+                        );
+                      }else{
+                        cubit.postsList.clear();
+                        cubit.getPosts();
+                      }
                     },
                   )
                 ],
@@ -276,6 +288,9 @@ class _SocialDisplayPostsScreenState extends State<SocialDisplayPostsScreen>
     super.initState();
 
     WidgetsBinding.instance!.addObserver(this);
+
+    noInternet();
+
     print("display screen initState\n");
   }
 

@@ -1,11 +1,14 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:buildcondition/buildcondition.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mostaqbal_masr/modules/SocialMedia/cubit/social_setting_cubit.dart';
 import 'package:mostaqbal_masr/modules/SocialMedia/cubit/social_setting_states.dart';
+import 'package:mostaqbal_masr/shared/components.dart';
 
 class SocialSettingsScreen extends StatelessWidget {
   var currentPassController = TextEditingController();
@@ -38,12 +41,23 @@ class SocialSettingsScreen extends StatelessWidget {
                 fallback: (context) => FadeInUp(
                   duration: const Duration(seconds: 2),
                   child: FloatingActionButton(
-                    onPressed: () {
-                      if (formKey.currentState!.validate()) {
-                        cubit.changePassword(
-                            context,
-                            newPassController.text.toString(),
-                            currentPassController.text.toString());
+                    onPressed: ()async {
+
+                      var connectivityResult = await (Connectivity().checkConnectivity());
+                      if(connectivityResult == ConnectivityResult.none){
+                        showToast(
+                          message: 'تحقق من اتصالك بالانترنت اولاً',
+                          length: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.BOTTOM,
+                          timeInSecForIosWeb: 3,
+                        );
+                      }else{
+                        if (formKey.currentState!.validate()) {
+                          cubit.changePassword(
+                              context,
+                              newPassController.text.toString(),
+                              currentPassController.text.toString());
+                        }
                       }
                     },
                     child: const Icon(

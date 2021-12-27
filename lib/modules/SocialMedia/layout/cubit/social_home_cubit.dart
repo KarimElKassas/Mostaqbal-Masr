@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
@@ -26,17 +27,16 @@ class SocialHomeCubit extends Cubit<SocialHomeStates> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     sectionFormsNameList = prefs.getStringList("Section_Forms_Name_List");
 
-    if (!sectionFormsNameList!.contains("BtnAddPost") && !sectionFormsNameList!.contains("BtnViewPosts")) {
-
-      for(var i = 0; i < 2; i++){
+    if (!sectionFormsNameList!.contains("BtnAddPost") &&
+        !sectionFormsNameList!.contains("BtnViewPosts")) {
+      for (var i = 0; i < 2; i++) {
         bottomNavigationItems.removeAt(0);
         screens.removeAt(0);
       }
-
-    }else if(!sectionFormsNameList!.contains("BtnAddPost")){
+    } else if (!sectionFormsNameList!.contains("BtnAddPost")) {
       bottomNavigationItems.removeAt(0);
       screens.removeAt(0);
-    }else if(!sectionFormsNameList!.contains("BtnViewPosts")){
+    } else if (!sectionFormsNameList!.contains("BtnViewPosts")) {
       bottomNavigationItems.removeAt(1);
       screens.removeAt(1);
     }
@@ -77,13 +77,23 @@ class SocialHomeCubit extends Cubit<SocialHomeStates> {
     const BlankScreen(),
   ];
 
-  void changeBottomNavBarIndex(int index, BuildContext context) {
+  void changeBottomNavBarIndex(int index, BuildContext context) async {
     currentIndex = index;
 
     switch (bottomNavigationItems.length) {
       case 4:
         if (index == 3) {
-          logOut(context);
+          var connectivityResult = await (Connectivity().checkConnectivity());
+          if (connectivityResult == ConnectivityResult.none) {
+            showToast(
+              message: 'تحقق من اتصالك بالانترنت اولاً',
+              length: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.BOTTOM,
+              timeInSecForIosWeb: 3,
+            );
+          } else {
+            logOut(context);
+          }
         }
 
         if (index != 3) {
@@ -92,16 +102,35 @@ class SocialHomeCubit extends Cubit<SocialHomeStates> {
         break;
       case 3:
         if (index == 2) {
-          logOut(context);
+          var connectivityResult = await (Connectivity().checkConnectivity());
+          if (connectivityResult == ConnectivityResult.none) {
+            showToast(
+              message: 'تحقق من اتصالك بالانترنت اولاً',
+              length: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.BOTTOM,
+              timeInSecForIosWeb: 3,
+            );
+          } else {
+            logOut(context);
+          }
         }
-
         if (index != 2) {
           emit(SocialHomeChangeBottomNavState());
         }
         break;
       case 2:
         if (index == 1) {
-          logOut(context);
+          var connectivityResult = await (Connectivity().checkConnectivity());
+          if (connectivityResult == ConnectivityResult.none) {
+            showToast(
+              message: 'تحقق من اتصالك بالانترنت اولاً',
+              length: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.BOTTOM,
+              timeInSecForIosWeb: 3,
+            );
+          } else {
+            logOut(context);
+          }
         }
 
         if (index != 1) {

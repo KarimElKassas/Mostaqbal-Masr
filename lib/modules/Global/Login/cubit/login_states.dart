@@ -4,6 +4,8 @@ class LoginInitialState extends LoginStates {}
 
 class LoginChangePassVisibility extends LoginStates {}
 
+class LoginNoInternetState extends LoginStates {}
+
 class LoginLoadingSignIn extends LoginStates {}
 
 class LoginSuccessState extends LoginStates {

@@ -1,4 +1,5 @@
 import 'package:buildcondition/buildcondition.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -283,6 +284,7 @@ class _GlobalDisplayPostsScreenState extends State<GlobalDisplayPostsScreen>
 
     WidgetsBinding.instance!.addObserver(this);
 
+    noInternet();
 
     print("display screen initState\n");
   }

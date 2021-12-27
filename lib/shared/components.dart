@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:ffi';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -56,3 +59,26 @@ Future<bool?> showToast({
 
 
 int purpleColor = 0xFF0500A0;
+
+Future<bool> noInternetConnection()async{
+  bool noConnection = false;
+  var connectivityResult = await (Connectivity().checkConnectivity());
+  if(connectivityResult == ConnectivityResult.none){
+    noConnection = true;
+  }
+
+  return noConnection;
+
+}
+
+void noInternet()async {
+  var connectivityResult = await (Connectivity().checkConnectivity());
+  if(connectivityResult == ConnectivityResult.none){
+    showToast(
+      message: 'انت لست متصل بالانترنت',
+      length: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      timeInSecForIosWeb: 3,
+    );
+  }
+}

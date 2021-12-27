@@ -2,6 +2,7 @@ import 'dart:io' as i;
 
 import 'package:animate_do/animate_do.dart';
 import 'package:buildcondition/buildcondition.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
@@ -77,10 +78,21 @@ class SocialAddPostScreen extends StatelessWidget {
                           color: Colors.white,
                         ),
                         backgroundColor: Colors.teal[700],
-                        onPressed: () {
-                          if (formKey.currentState!.validate()) {
-                            cubit.addPost(postTextController.text.toString(),
-                                postVideoIDController.text.toString());
+                        onPressed: ()async {
+
+                          var connectivityResult = await (Connectivity().checkConnectivity());
+                          if(connectivityResult == ConnectivityResult.none){
+                            showToast(
+                              message: 'تحقق من اتصالك بالانترنت اولاً',
+                              length: Toast.LENGTH_SHORT,
+                              gravity: ToastGravity.BOTTOM,
+                              timeInSecForIosWeb: 3,
+                            );
+                          }else{
+                            if (formKey.currentState!.validate()) {
+                              cubit.addPost(postTextController.text.toString(),
+                                  postVideoIDController.text.toString());
+                            }
                           }
                         },
                         heroTag: null,

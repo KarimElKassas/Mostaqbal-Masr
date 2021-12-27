@@ -1,5 +1,6 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:buildcondition/buildcondition.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -62,45 +63,58 @@ class LoginScreen extends StatelessWidget {
           textDirection: TextDirection.rtl,
           child: SafeArea(
             child: Scaffold(
-              floatingActionButton:  FadeInUp(
-                  duration: const Duration(seconds: 1),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
+              floatingActionButton: FadeInUp(
+                duration: const Duration(seconds: 1),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
                     BuildCondition(
-                    condition: state is! LoginLoadingSignIn,
-                    fallback: (context) => CircularProgressIndicator(
-                      color: Colors.teal[700],
-                    ),
-                    builder: (context) =>
-                      FloatingActionButton(
+                      condition: state is! LoginLoadingSignIn,
+                      fallback: (context) => CircularProgressIndicator(
+                        color: Colors.teal[700],
+                      ),
+                      builder: (context) => FloatingActionButton(
                         child: const Icon(
                           IconlyBroken.login,
                           color: Colors.white,
                         ),
                         backgroundColor: Colors.teal[700],
-                        onPressed: () {
-                          cubit.signInUser(nameController.text.toString(), passwordController.text.toString());
+                        onPressed: () async {
+                          var connectivityResult =
+                              await (Connectivity().checkConnectivity());
+                          if (connectivityResult == ConnectivityResult.none) {
+                            showToast(
+                              message: 'تحقق من اتصالك بالانترنت اولاً',
+                              length: Toast.LENGTH_SHORT,
+                              gravity: ToastGravity.BOTTOM,
+                              timeInSecForIosWeb: 3,
+                            );
+                          } else {
+                            if (formKey.currentState!.validate()) {
+                              cubit.signInUser(nameController.text.toString(),
+                                  passwordController.text.toString());
+                            }
+                          }
                         },
                         heroTag: null,
                       ),
                     ),
-                      const SizedBox(
-                        height: 10,
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    FloatingActionButton(
+                      child: const Icon(
+                        IconlyBroken.arrowLeftCircle,
+                        color: Colors.white,
                       ),
-                      FloatingActionButton(
-                        child: const Icon(
-                          IconlyBroken.arrowLeftCircle,
-                          color: Colors.white,
-                        ),
-                        backgroundColor: Colors.teal[700],
-                        onPressed: () {
-                          cubit.backToPosts(context);
-                        },
-                        heroTag: null,
-                      ),
-                    ],
-                  ),
+                      backgroundColor: Colors.teal[700],
+                      onPressed: () {
+                        cubit.backToPosts(context);
+                      },
+                      heroTag: null,
+                    ),
+                  ],
+                ),
               ),
               floatingActionButtonLocation:
                   FloatingActionButtonLocation.endFloat,

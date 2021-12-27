@@ -1,5 +1,6 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,7 +14,7 @@ import 'package:mostaqbal_masr/modules/SocialMedia/screens/social_edit_post_scre
 import 'package:mostaqbal_masr/shared/components.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
-class SocialPostDetailsScreen extends StatelessWidget {
+class SocialPostDetailsScreen extends StatefulWidget {
   final String postTitle;
   final String postVideoID;
   final String postID;
@@ -29,8 +30,24 @@ class SocialPostDetailsScreen extends StatelessWidget {
       required this.postImages})
       : super(key: key);
 
+  @override
+  State<SocialPostDetailsScreen> createState() => _SocialPostDetailsScreenState();
+}
+
+class _SocialPostDetailsScreenState extends State<SocialPostDetailsScreen> {
   var scaffoldKey = GlobalKey<ScaffoldState>();
+
   var formKey = GlobalKey<FormState>();
+
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    noInternet();
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -96,11 +113,11 @@ class SocialPostDetailsScreen extends StatelessWidget {
                         cubit.navigateToEdit(
                           context,
                           SocialEditPostScreen(
-                              postID: postID,
-                              postTitle: postTitle,
-                              postVideoID: postVideoID,
-                              hasImages: hasImages,
-                              postImages: postImages),
+                              postID: widget.postID,
+                              postTitle: widget.postTitle,
+                              postVideoID: widget.postVideoID,
+                              hasImages: widget.hasImages,
+                              postImages: widget.postImages),
                         );
                       },
                       heroTag: null,
@@ -114,8 +131,19 @@ class SocialPostDetailsScreen extends StatelessWidget {
                         color: Colors.white,
                       ),
                       backgroundColor: Colors.teal[700],
-                      onPressed: () {
-                        cubit.deletePost(postID);
+                      onPressed: ()async {
+
+                        var connectivityResult = await (Connectivity().checkConnectivity());
+                        if(connectivityResult == ConnectivityResult.none){
+                          showToast(
+                            message: 'تحقق من اتصالك بالانترنت اولاً',
+                            length: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.BOTTOM,
+                            timeInSecForIosWeb: 3,
+                          );
+                        }else{
+                          cubit.deletePost(widget.postID);
+                        }
                       },
                       heroTag: null,
                   )
@@ -172,7 +200,7 @@ class SocialPostDetailsScreen extends StatelessWidget {
       );
 
   Widget postBody(BuildContext context, SocialPostDetailsCubit cubit) {
-    cubit.initializeVideo(postVideoID);
+    cubit.initializeVideo(widget.postVideoID);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
@@ -180,7 +208,7 @@ class SocialPostDetailsScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            postTitle.toString(),
+            widget.postTitle.toString(),
             style: const TextStyle(
               color: Colors.black,
               fontWeight: FontWeight.bold,
@@ -191,9 +219,9 @@ class SocialPostDetailsScreen extends StatelessWidget {
             height: 16.0,
           ),
           Visibility(
-            visible: hasImages == "true" ? true : false,
+            visible: widget.hasImages == "true" ? true : false,
             child: CarouselSlider(
-              items: postImages!
+              items: widget.postImages!
                   .map((e) => ClipRRect(
                         borderRadius: const BorderRadius.only(
                             topLeft: Radius.circular(8.0),
@@ -234,7 +262,7 @@ class SocialPostDetailsScreen extends StatelessWidget {
             height: 16.0,
           ),
           Visibility(
-            visible: postVideoID == "Empty" ? false : true,
+            visible: widget.postVideoID == "Empty" ? false : true,
             child: SizedBox(
               child: YoutubePlayer(
                 bottomActions: [

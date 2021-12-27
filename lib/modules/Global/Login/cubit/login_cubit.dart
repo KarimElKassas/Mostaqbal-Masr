@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -213,4 +214,21 @@ class LoginCubit extends Cubit<LoginStates> {
     navigateAndFinish(context, GlobalDisplayPostsScreen());
 
   }
+
+  var connectivityResult = (Connectivity().checkConnectivity());
+  bool hasInternet = false;
+
+  Future<void> checkConnection()async{
+
+    Future<bool> noConnection = noInternetConnection();
+
+    noConnection.then((value){
+      hasInternet = value;
+      if(value == true){
+        emit(LoginNoInternetState());
+      }
+    });
+
+  }
+
 }

@@ -21,7 +21,6 @@ class _SocialHomeLayoutState extends State<SocialHomeLayout>
     with WidgetsBindingObserver {
 
 
-
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -72,6 +71,9 @@ class _SocialHomeLayoutState extends State<SocialHomeLayout>
     super.initState();
 
     WidgetsBinding.instance!.addObserver(this);
+
+    noInternet();
+
     print("app in initState\n");
   }
 
