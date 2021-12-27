@@ -43,7 +43,7 @@ class LoginCubit extends Cubit<LoginStates> {
     DioHelper.getData(
             url: 'login/GetWithParams',
             query: {'User_Name': userName, 'User_Password': userPassword})
-        .then((value) {
+        .then((value)async {
       print(value.statusMessage.toString());
 
       if (value.statusMessage == "No User Found") {
@@ -55,6 +55,16 @@ class LoginCubit extends Cubit<LoginStates> {
 
         emit(LoginNoUserState());
       } else {
+
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        var oldLoginLogID = prefs.getDouble("Login_Log_ID");
+
+        if(prefs.containsKey("Login_Log_ID")){
+
+          await updateLog(oldLoginLogID!);
+
+        }
+
 
           var userID = value.data[0]["User_ID"];
           var userName = value.data[0]["User_Name"];
@@ -101,6 +111,29 @@ class LoginCubit extends Cubit<LoginStates> {
         .then((value) {
       loginLogID = value.data[0]["Login_Log_ID"];
     });
+  }
+
+  Future<void> updateLog(double oldLoginLogID)async {
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    var loginDate = prefs.getString("LoginDate");
+
+    DateTime formattedDate = DateTime.parse(loginDate!);
+
+    var logOutDate = formattedDate.add(const Duration(days: 1));
+
+    String lastDate = DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format(logOutDate);
+
+    await DioHelper.updateData(url: 'loginlog/PutWithParams', query: {
+      'Login_Log_ID': oldLoginLogID.toInt(),
+      'Login_Log_TDate': lastDate,
+    }).then((value) {
+      emit(LoginUpdateLogSuccess());
+    }).catchError((error) {
+      emit(LoginUpdateLogError(error.toString()));
+    });
+
   }
 
   Future<void> addLog(

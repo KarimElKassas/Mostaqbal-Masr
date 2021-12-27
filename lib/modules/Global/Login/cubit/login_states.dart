@@ -8,6 +8,16 @@ class LoginNoInternetState extends LoginStates {}
 
 class LoginLoadingSignIn extends LoginStates {}
 
+class LoginUpdateLogSuccess extends LoginStates {}
+
+class LoginUpdateLogError extends LoginStates {
+
+  final String error;
+
+  LoginUpdateLogError(this.error);
+
+}
+
 class LoginSuccessState extends LoginStates {
 
   final String sectionName;

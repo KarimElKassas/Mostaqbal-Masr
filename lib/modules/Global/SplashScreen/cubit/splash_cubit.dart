@@ -8,6 +8,7 @@ import 'package:mostaqbal_masr/modules/Global/SplashScreen/cubit/spash_states.da
 import 'package:mostaqbal_masr/modules/Mechan/layout/mechan_home_layout.dart';
 import 'package:mostaqbal_masr/modules/SocialMedia/layout/social_home_layout.dart';
 import 'package:mostaqbal_masr/network/remote/dio_helper.dart';
+import 'package:network_info_plus/network_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashCubit extends Cubit<SplashStates> {
@@ -28,13 +29,30 @@ class SplashCubit extends Cubit<SplashStates> {
       String loginDate = prefs.getString("LoginDate").toString();
       String sectionName = prefs.getString("Section_Name").toString();
 
-      double difference = currentDate.difference(DateTime.parse(loginDate)).inHours.toDouble();
+      double difference = currentDate.difference(DateTime.parse(loginDate)).inMinutes.toDouble();
       print("Difference : $difference");
 
-      if (difference >= 24.0) {
-        await logOut(context, prefs);
-        navigateToLogin(context);
-        emit(SplashSuccessNavigateState());
+      if (difference >= 1.0) {
+
+        final info = NetworkInfo();
+
+        info.getWifiIP().then((value)async {
+
+          if(value!.contains("172.156.1.")){
+            print("Mobile Is in The Network \n");
+              await logOut(context, prefs);
+              navigateToLogin(context);
+              emit(SplashSuccessNavigateState());
+          }else{
+            print("Mobile Is out of The Network \n");
+
+            navigateToLogin(context);
+            emit(SplashSuccessNavigateState());
+
+          }
+
+        });
+
       }else{
 
         switch (sectionName){
@@ -78,12 +96,17 @@ class SplashCubit extends Cubit<SplashStates> {
     loginLogID = prefs.getDouble("Login_Log_ID");
     print("Login Log ID $loginLogID");
 
-    DateTime now = DateTime.now();
-    String formattedDate = DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format(now);
+    var loginDate = prefs.getString("LoginDate");
+
+    DateTime formattedDate = DateTime.parse(loginDate!);
+
+    var logOutDate = formattedDate.add(const Duration(days: 1));
+
+    String lastDate = DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format(logOutDate);
 
     await DioHelper.updateData(url: 'loginlog/PutWithParams', query: {
       'Login_Log_ID': loginLogID!.toInt(),
-      'Login_Log_TDate': formattedDate,
+      'Login_Log_TDate': lastDate,
     }).then((value) {
       prefs.remove("Login_Log_ID");
       prefs.remove("User_ID");

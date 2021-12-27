@@ -84,12 +84,13 @@ class SocialAddPostCubit extends Cubit<SocialAddPostStates> {
   Future uploadImagePost(String postTitle, String? postVideoID) async {
     emit(SocialAddPostLoadingState());
 
-    var storageRef = FirebaseStorage.instance.ref("Posts/$postTitle");
+    DateTime now = DateTime.now();
+    String currentTime = DateFormat("yyyy-MM-dd HH:mm:ss").format(now);
+
+    var storageRef = FirebaseStorage.instance.ref("Posts/$currentTime");
     FirebaseDatabase database = FirebaseDatabase.instance;
     var postsRef = database.reference().child("Posts");
 
-    DateTime now = DateTime.now();
-    String currentTime = DateFormat("yyyy-MM-dd HH:mm:ss").format(now);
 
     List<String> urlsList = [];
 
