@@ -32,6 +32,7 @@ class SocialDisplayPostsCubit extends Cubit<SocialDisplayPostsStates> {
 
   PostsModel? postsModel;
   List<PostsModel> postsList = [];
+  List<PostsModel> postsListReversed = [];
 
   void getPosts() async {
     emit(SocialDisplayPostsLoadingState());
@@ -50,6 +51,7 @@ class SocialDisplayPostsCubit extends Cubit<SocialDisplayPostsStates> {
           String postTitle = values["PostTitle"].toString();
           String postVideoID = values["PostVideoID"].toString();
           String postDate = values["PostDate"].toString();
+          String realDate = values["realDate"].toString();
           String hasImages = values["hasImages"].toString();
 
           if (values["hasImages"] == "true") {
@@ -57,8 +59,9 @@ class SocialDisplayPostsCubit extends Cubit<SocialDisplayPostsStates> {
           }
 
           postsModel = PostsModel(
-              postID, postTitle, postVideoID, postDate, hasImages, postImages);
+              postID, postTitle, postVideoID, postDate, hasImages, postImages,realDate);
           postsList.add(postsModel!);
+          postsListReversed = postsList.reversed.toList();
 
           print(values["PostTitle"]);
           print(values["PostImages"]);

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
+import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mostaqbal_masr/modules/SocialMedia/cubit/display_posts_cubit.dart';
@@ -12,6 +13,8 @@ import 'package:mostaqbal_masr/modules/SocialMedia/cubit/social_post_details_cub
 import 'package:mostaqbal_masr/modules/SocialMedia/cubit/social_post_details_states.dart';
 import 'package:mostaqbal_masr/modules/SocialMedia/screens/social_edit_post_screen.dart';
 import 'package:mostaqbal_masr/shared/components.dart';
+import 'package:mostaqbal_masr/shared/constants.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class SocialPostDetailsScreen extends StatefulWidget {
@@ -19,19 +22,21 @@ class SocialPostDetailsScreen extends StatefulWidget {
   final String postVideoID;
   final String postID;
   final String hasImages;
+  final String realDate;
   final List<Object?>? postImages;
 
-  SocialPostDetailsScreen(
-      {Key? key,
-      required this.postID,
-      required this.postTitle,
-      required this.postVideoID,
-      required this.hasImages,
-      required this.postImages})
+  SocialPostDetailsScreen({Key? key,
+    required this.postID,
+    required this.postTitle,
+    required this.postVideoID,
+    required this.hasImages,
+    required this.realDate,
+    required this.postImages})
       : super(key: key);
 
   @override
-  State<SocialPostDetailsScreen> createState() => _SocialPostDetailsScreenState();
+  State<SocialPostDetailsScreen> createState() =>
+      _SocialPostDetailsScreenState();
 }
 
 class _SocialPostDetailsScreenState extends State<SocialPostDetailsScreen> {
@@ -46,7 +51,6 @@ class _SocialPostDetailsScreenState extends State<SocialPostDetailsScreen> {
     super.initState();
 
     noInternet();
-
   }
 
   @override
@@ -81,14 +85,13 @@ class _SocialPostDetailsScreenState extends State<SocialPostDetailsScreen> {
             textDirection: TextDirection.rtl,
             child: WillPopScope(
               onWillPop: () {
-
-                  if (Navigator.of(context).canPop()) {
-                    SocialDisplayPostsCubit.get(context).getPosts();
-                    //cubit.getPosts();
-                    Navigator.of(context).pop();
-                  } else {
-                    SystemNavigator.pop();
-                  }
+                if (Navigator.of(context).canPop()) {
+                  SocialDisplayPostsCubit.get(context).getPosts();
+                  //cubit.getPosts();
+                  Navigator.of(context).pop();
+                } else {
+                  SystemNavigator.pop();
+                }
 
                 return Future.value(false);
               },
@@ -99,11 +102,11 @@ class _SocialPostDetailsScreenState extends State<SocialPostDetailsScreen> {
                   title: const Text("تفاصيل الخبر"),
                 ),
                 floatingActionButton:
-                    FadeInUp(
-                      duration: const Duration(seconds: 2),
-                      child: Column(
-                          mainAxisAlignment: MainAxisAlignment.end, children: [
-                  FloatingActionButton(
+                FadeInUp(
+                  duration: const Duration(seconds: 1),
+                  child: Column(
+                      mainAxisAlignment: MainAxisAlignment.end, children: [
+                    FloatingActionButton(
                       child: const Icon(
                         IconlyBroken.edit,
                         color: Colors.white,
@@ -117,40 +120,41 @@ class _SocialPostDetailsScreenState extends State<SocialPostDetailsScreen> {
                               postTitle: widget.postTitle,
                               postVideoID: widget.postVideoID,
                               hasImages: widget.hasImages,
+                              realDate: widget.realDate,
                               postImages: widget.postImages),
                         );
                       },
                       heroTag: null,
-                  ),
-                  const SizedBox(
+                    ),
+                    const SizedBox(
                       height: 10,
-                  ),
-                  FloatingActionButton(
+                    ),
+                    FloatingActionButton(
                       child: const Icon(
                         IconlyBroken.delete,
                         color: Colors.white,
                       ),
                       backgroundColor: Colors.teal[700],
-                      onPressed: ()async {
-
-                        var connectivityResult = await (Connectivity().checkConnectivity());
-                        if(connectivityResult == ConnectivityResult.none){
+                      onPressed: () async {
+                        var connectivityResult = await (Connectivity()
+                            .checkConnectivity());
+                        if (connectivityResult == ConnectivityResult.none) {
                           showToast(
                             message: 'تحقق من اتصالك بالانترنت اولاً',
                             length: Toast.LENGTH_SHORT,
                             gravity: ToastGravity.BOTTOM,
                             timeInSecForIosWeb: 3,
                           );
-                        }else{
-                          cubit.deletePost(widget.postID);
+                        } else {
+                          _showDialog(context, cubit);
                         }
                       },
                       heroTag: null,
-                  )
-                ]),
-                    ),
+                    )
+                  ]),
+                ),
                 floatingActionButtonLocation:
-                    FloatingActionButtonLocation.endFloat,
+                FloatingActionButtonLocation.endFloat,
                 body: SingleChildScrollView(
                   physics: const BouncingScrollPhysics(),
                   child: Card(
@@ -176,25 +180,43 @@ class _SocialPostDetailsScreenState extends State<SocialPostDetailsScreen> {
     );
   }
 
-  Widget headerRow() => Padding(
+  Widget headerRow() =>
+      Padding(
         padding: const EdgeInsets.all(12.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
-          children: const [
-            CircleAvatar(
+          children: [
+            const CircleAvatar(
               radius: 20,
               backgroundImage: AssetImage("assets/images/logo.jpg"),
             ),
-            SizedBox(
+            const SizedBox(
               width: 12.0,
             ),
-            Text(
-              "مشروع مستقبل مصر",
-              style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 14.0,
-                  fontWeight: FontWeight.bold),
+            Column(
+              children: [
+                const Text(
+                  "مشروع مستقبل مصر",
+                  style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 14.0,
+                      fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(
+                  height: 4.0,
+                ),
+                Text(
+                  widget.realDate,
+                  textAlign: TextAlign.start,
+                  textDirection: TextDirection.rtl,
+                  style: TextStyle(
+                      color: Colors.grey[600],
+                      fontSize: 12.0,
+                      fontWeight: FontWeight.bold),
+                ),
+              ],
             )
+
           ],
         ),
       );
@@ -207,12 +229,24 @@ class _SocialPostDetailsScreenState extends State<SocialPostDetailsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            widget.postTitle.toString(),
+          Linkify(
+            onOpen: (link) async {
+              if (await canLaunch(link.url)) {
+                await launch(link.url);
+              } else {
+                throw 'Could not launch $link';
+              }
+            },
+            text: widget.postTitle.toString(),
             style: const TextStyle(
               color: Colors.black,
-              fontWeight: FontWeight.bold,
-              fontSize: 14.0,
+              fontSize: 12.0,
+              overflow: TextOverflow.ellipsis,
+            ),
+            linkStyle: const TextStyle(
+              color: Colors.blue,
+              fontSize: 12.0,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
           const SizedBox(
@@ -222,33 +256,36 @@ class _SocialPostDetailsScreenState extends State<SocialPostDetailsScreen> {
             visible: widget.hasImages == "true" ? true : false,
             child: CarouselSlider(
               items: widget.postImages!
-                  .map((e) => ClipRRect(
-                        borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(8.0),
-                            topRight: Radius.circular(8.0),
-                            bottomLeft: Radius.circular(8.0),
-                            bottomRight: Radius.circular(8.0)),
-                        child: FadeInImage(
-                          height: 200,
-                          width: double.infinity,
-                          fit: BoxFit.fill,
-                          image: NetworkImage(e!.toString()),
-                          placeholder:
-                              const AssetImage("assets/images/placeholder.jpg"),
-                          imageErrorBuilder: (context, error, stackTrace) {
-                            return Image.asset('assets/images/error.png',
-                                width: double.infinity,
-                                height: 200,
-                                fit: BoxFit.fill);
-                          },
-                        ),
-                      ))
+                  .map((e) =>
+                  ClipRRect(
+                    borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(8.0),
+                        topRight: Radius.circular(8.0),
+                        bottomLeft: Radius.circular(8.0),
+                        bottomRight: Radius.circular(8.0)),
+                    child: FadeInImage(
+                      height: 200,
+                      width: double.infinity,
+                      fit: BoxFit.fill,
+                      image: NetworkImage(e!.toString()),
+                      placeholder:
+                      const AssetImage("assets/images/placeholder.jpg"),
+                      imageErrorBuilder: (context, error, stackTrace) {
+                        return Image.asset('assets/images/error.png',
+                            width: double.infinity,
+                            height: 200,
+                            fit: BoxFit.fill);
+                      },
+                    ),
+                  ))
                   .toList(),
               options: CarouselOptions(
                 height: 250.0,
                 initialPage: 0,
                 viewportFraction: 1.0,
-                enableInfiniteScroll: true,
+                enableInfiniteScroll: widget.postImages!.length != 1
+                    ? true
+                    : false,
                 reverse: false,
                 autoPlay: true,
                 autoPlayInterval: const Duration(seconds: 5),
@@ -276,7 +313,10 @@ class _SocialPostDetailsScreenState extends State<SocialPostDetailsScreen> {
                   cubit.controller!;
                 },
               ),
-              width: MediaQuery.of(context).size.width,
+              width: MediaQuery
+                  .of(context)
+                  .size
+                  .width,
               height: 200,
             ),
           ),
@@ -285,6 +325,25 @@ class _SocialPostDetailsScreenState extends State<SocialPostDetailsScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  _showDialog(BuildContext context, SocialPostDetailsCubit cubit) {
+    // ignore: prefer_function_declarations_over_variables
+    VoidCallback continueCallBack = () =>
+    {
+      Navigator.of(context).pop(),
+      // code on continue comes here
+      cubit.deletePost(widget.postID)
+    };
+    BlurryDialog alert =
+    BlurryDialog("تنبيه", "هل تريد حذف هذا الخبر ؟", continueCallBack);
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
     );
   }
 }

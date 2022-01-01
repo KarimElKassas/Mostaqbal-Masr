@@ -40,68 +40,88 @@ class LoginCubit extends Cubit<LoginStates> {
   void signInUser(String userName, String userPassword) async {
     emit(LoginLoadingSignIn());
 
-    DioHelper.getData(
-            url: 'login/GetWithParams',
-            query: {'User_Name': userName, 'User_Password': userPassword})
-        .then((value)async {
-      print(value.statusMessage.toString());
+    var connectivityResult = await (Connectivity().checkConnectivity());
 
-      if (value.statusMessage == "No User Found") {
-        showToast(
-            message: "لا يوجد مستخدم بهذه البيانات",
-            length: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 3);
+    if ((connectivityResult == ConnectivityResult.mobile) ||
+        (connectivityResult == ConnectivityResult.none)) {
+      showToast(
+        message: "برجاءالاتصال بشبكة المشروع اولاً",
+        length: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 3,
+      );
+      emit(LoginNoInternetState());
+    } else if (connectivityResult == ConnectivityResult.wifi) {
+      final info = NetworkInfo();
 
-        emit(LoginNoUserState());
-      } else {
+      info.getWifiIP().then((deviceIP) async {
+        if (deviceIP!.contains("172.16.1.")) {
+          DioHelper.getData(
+                  url: 'login/GetWithParams',
+                  query: {'User_Name': userName, 'User_Password': userPassword})
+              .then((value) async {
+            print(value.statusMessage.toString());
 
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        var oldLoginLogID = prefs.getDouble("Login_Log_ID");
+            if (value.statusMessage == "No User Found") {
+              showToast(
+                  message: "لا يوجد مستخدم بهذه البيانات",
+                  length: Toast.LENGTH_SHORT,
+                  gravity: ToastGravity.BOTTOM,
+                  timeInSecForIosWeb: 3);
 
-        if(prefs.containsKey("Login_Log_ID")){
+              emit(LoginNoUserState());
+            } else {
+              SharedPreferences prefs = await SharedPreferences.getInstance();
+              var oldLoginLogID = prefs.getDouble("Login_Log_ID");
 
-          await updateLog(oldLoginLogID!);
+              if (prefs.containsKey("Login_Log_ID")) {
+                await updateLog(oldLoginLogID!);
+              }
 
-        }
+              var userID = value.data[0]["User_ID"];
+              var userName = value.data[0]["User_Name"];
+              var userPassword = value.data[0]["User_Password"];
 
+              info.getWifiIP().then((ipValue) {
+                DateTime now = DateTime.now();
+                String formattedDate =
+                    DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format(now);
 
-          var userID = value.data[0]["User_ID"];
-          var userName = value.data[0]["User_Name"];
-          var userPassword = value.data[0]["User_Password"];
-
-          final info = NetworkInfo();
-
-          info.getWifiIP().then((ipValue) {
-            DateTime now = DateTime.now();
-            String formattedDate =
-                DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format(now);
-
-            getUserSection(userID).then((userSectionValue) {
-              getSectionName().then((nameValue) {
-                getUserForms().then((userFormValue) {
-                  getSectionFormName().then((sectionFormNameValue) {
-                    addLog(userID, formattedDate, "Flutter Application",
-                        ipValue!.toString(), userName, userPassword);
+                getUserSection(userID).then((userSectionValue) {
+                  getSectionName().then((nameValue) {
+                    getUserForms().then((userFormValue) {
+                      getSectionFormName().then((sectionFormNameValue) {
+                        addLog(userID, formattedDate, "Flutter Application",
+                            ipValue!.toString(), userName, userPassword);
+                      });
+                    });
                   });
                 });
               });
-            });
-          });
-        }
-    }).catchError((error) {
-      if (error.type == DioErrorType.response) {
-        showToast(
-            message: "لا يوجد مستخدم بهذه البيانات",
-            length: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 3);
+            }
+          }).catchError((error) {
+            if (error.type == DioErrorType.response) {
+              showToast(
+                  message: "لا يوجد مستخدم بهذه البيانات",
+                  length: Toast.LENGTH_SHORT,
+                  gravity: ToastGravity.BOTTOM,
+                  timeInSecForIosWeb: 3);
 
-        emit(LoginNoUserState());
-      } else {
-        emit(LoginErrorState(error.toString()));
-      }
-    });
+              emit(LoginNoUserState());
+            } else {
+              emit(LoginErrorState(error.toString()));
+            }
+          });
+        } else {
+          showToast(
+              message: "برجاء الاتصال بشبكة المشروع اولاً",
+              length: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.BOTTOM,
+              timeInSecForIosWeb: 3);
+          emit(LoginNoInternetState());
+        }
+      });
+    }
   }
 
   Future<void> getLoginLogID(int userID, String Login_Log_FDate) async {
@@ -113,8 +133,7 @@ class LoginCubit extends Cubit<LoginStates> {
     });
   }
 
-  Future<void> updateLog(double oldLoginLogID)async {
-
+  Future<void> updateLog(double oldLoginLogID) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     var loginDate = prefs.getString("LoginDate");
@@ -123,7 +142,8 @@ class LoginCubit extends Cubit<LoginStates> {
 
     var logOutDate = formattedDate.add(const Duration(days: 1));
 
-    String lastDate = DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format(logOutDate);
+    String lastDate =
+        DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format(logOutDate);
 
     await DioHelper.updateData(url: 'loginlog/PutWithParams', query: {
       'Login_Log_ID': oldLoginLogID.toInt(),
@@ -133,7 +153,6 @@ class LoginCubit extends Cubit<LoginStates> {
     }).catchError((error) {
       emit(LoginUpdateLogError(error.toString()));
     });
-
   }
 
   Future<void> addLog(
@@ -168,7 +187,6 @@ class LoginCubit extends Cubit<LoginStates> {
           print("LoginDate ${loginDate.toString()}");
           print("User_Name $userName");
           print("User_Password $userPassword");
-
 
           emit(LoginSuccessState(sectionName!));
         }).catchError((error) {
@@ -242,26 +260,21 @@ class LoginCubit extends Cubit<LoginStates> {
     print("Section Forms Final Name List : $sectionFormsFinalNameList\n");
   }
 
-  void backToPosts(BuildContext context){
-
+  void backToPosts(BuildContext context) {
     navigateAndFinish(context, GlobalDisplayPostsScreen());
-
   }
 
   var connectivityResult = (Connectivity().checkConnectivity());
   bool hasInternet = false;
 
-  Future<void> checkConnection()async{
-
+  Future<void> checkConnection() async {
     Future<bool> noConnection = noInternetConnection();
 
-    noConnection.then((value){
+    noConnection.then((value) {
       hasInternet = value;
-      if(value == true){
+      if (value == true) {
         emit(LoginNoInternetState());
       }
     });
-
   }
-
 }

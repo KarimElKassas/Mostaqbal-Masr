@@ -3,12 +3,14 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mostaqbal_masr/modules/SocialMedia/cubit/display_posts_cubit.dart';
 import 'package:mostaqbal_masr/modules/SocialMedia/cubit/display_posts_states.dart';
 import 'package:mostaqbal_masr/models/posts_model.dart';
 import 'package:mostaqbal_masr/modules/SocialMedia/screens/social_post_details_screen.dart';
 import 'package:mostaqbal_masr/shared/components.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
@@ -71,6 +73,7 @@ class _SocialDisplayPostsScreenState extends State<SocialDisplayPostsScreen>
                           timeInSecForIosWeb: 3,
                         );
                       }else{
+                        cubit.postsListReversed.clear();
                         cubit.postsList.clear();
                         cubit.getPosts();
                       }
@@ -85,16 +88,16 @@ class _SocialDisplayPostsScreenState extends State<SocialDisplayPostsScreen>
                   color: Colors.teal[700],
                 )),
                 fallback: (context) => BuildCondition(
-                  condition: cubit.postsList.isEmpty,
+                  condition: cubit.postsListReversed.isEmpty,
                   fallback: (context) => ListView.separated(
                     addAutomaticKeepAlives: true,
                     scrollDirection: Axis.vertical,
                     physics: const BouncingScrollPhysics(),
                     itemBuilder: (context, index) => cardBuilder(
-                        context, cubit, state, cubit.postsList[index], index),
+                        context, cubit, state, cubit.postsListReversed[index], index),
                     separatorBuilder: (context, index) =>
                         const SizedBox(width: 10.0),
-                    itemCount: cubit.postsList.length,
+                    itemCount: cubit.postsListReversed.length,
                   ),
                   builder: (context) => noPosts(),
                 ),
@@ -158,11 +161,12 @@ class _SocialDisplayPostsScreenState extends State<SocialDisplayPostsScreen>
           cubit.goToDetails(
               context,
               SocialPostDetailsScreen(
-                  postID: cubit.postsList[index].PostID.toString(),
-                  postTitle: cubit.postsList[index].PostTitle.toString(),
-                  postVideoID: cubit.postsList[index].PostVideoID.toString(),
-                  hasImages: cubit.postsList[index].hasImages.toString(),
-                  postImages: cubit.postsList[index].PostImages));
+                  postID: cubit.postsListReversed[index].PostID.toString(),
+                  postTitle: cubit.postsListReversed[index].PostTitle.toString(),
+                  postVideoID: cubit.postsListReversed[index].PostVideoID.toString(),
+                  hasImages: cubit.postsListReversed[index].hasImages.toString(),
+                  realDate: cubit.postsListReversed[index].realDate.toString(),
+                  postImages: cubit.postsListReversed[index].PostImages));
         },
         child: Card(
           margin: const EdgeInsets.all(16.0),
@@ -173,59 +177,87 @@ class _SocialDisplayPostsScreenState extends State<SocialDisplayPostsScreen>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              headerRow(),
+              headerRow(cubit, index),
               postBody(context, cubit, state, cubit.postsModel!, index),
             ],
           ),
         ),
       );
 
-  Widget headerRow() => Padding(
+  Widget headerRow(SocialDisplayPostsCubit cubit, int index) => Padding(
         padding: const EdgeInsets.all(12.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
-          children: const [
-            CircleAvatar(
+          children:  [
+            const CircleAvatar(
               radius: 20,
               backgroundImage: AssetImage("assets/images/logo.jpg"),
             ),
-            SizedBox(
+            const SizedBox(
               width: 12.0,
             ),
-            Text(
-              "مشروع مستقبل مصر",
-              style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 14.0,
-                  fontWeight: FontWeight.bold),
+            Column(
+              children: [
+                const Text(
+                  "مشروع مستقبل مصر",
+                  style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 14.0,
+                      fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(
+                  height: 4.0,
+                ),
+                Text(
+                  cubit.postsListReversed[index].realDate.toString(),
+                  textAlign: TextAlign.start,
+                  textDirection: TextDirection.rtl,
+                  style: TextStyle(
+                      color: Colors.grey[600],
+                      fontSize: 12.0,
+                      fontWeight: FontWeight.bold),
+                ),
+              ],
             )
+
           ],
         ),
       );
 
   Widget postBody(BuildContext context, SocialDisplayPostsCubit cubit,
       SocialDisplayPostsStates state, PostsModel postsModel, int index) {
-    cubit.initializeVideoWithoutPlay(cubit.postsList[index].PostVideoID.toString());
+    cubit.initializeVideoWithoutPlay(cubit.postsListReversed[index].PostVideoID.toString());
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            cubit.postsList[index].PostTitle!.toString(),
+          Linkify(
+            onOpen: (link) async {
+              if (await canLaunch(link.url)) {
+                await launch(link.url);
+              } else {
+                throw 'Could not launch $link';
+              }
+            },
+            text: cubit.postsListReversed[index].PostTitle!.toString(),
             style: const TextStyle(
               color: Colors.black,
               fontSize: 12.0,
               overflow: TextOverflow.ellipsis,
             ),
-            maxLines: 4,
+            linkStyle: const TextStyle(
+              color: Colors.blue,
+              fontSize: 12.0,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
           const SizedBox(
             height: 16.0,
           ),
           Visibility(
-            visible: cubit.postsList[index].hasImages == "true" ? true : false,
+            visible: cubit.postsListReversed[index].hasImages == "true" ? true : false,
             child: ClipRRect(
               borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(8.0),
@@ -236,7 +268,7 @@ class _SocialDisplayPostsScreenState extends State<SocialDisplayPostsScreen>
                 height: 250,
                 width: MediaQuery.of(context).size.width,
                 fit: BoxFit.fill,
-                image: NetworkImage(cubit.postsList[index].PostImages![0]
+                image: NetworkImage(cubit.postsListReversed[index].PostImages![0]
                     .toString()
                     .replaceAll("[", "")
                     .replaceAll("]", "")),
@@ -257,7 +289,7 @@ class _SocialDisplayPostsScreenState extends State<SocialDisplayPostsScreen>
           ),
           Visibility(
             visible:
-                cubit.postsList[index].PostVideoID == "Empty" ? false : true,
+                cubit.postsListReversed[index].PostVideoID == "Empty" ? false : true,
             child: SizedBox(
               child: YoutubePlayer(
                 bottomActions: [

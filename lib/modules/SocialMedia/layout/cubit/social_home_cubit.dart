@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
@@ -13,6 +14,7 @@ import 'package:mostaqbal_masr/modules/SocialMedia/screens/social_display_posts_
 import 'package:mostaqbal_masr/modules/SocialMedia/screens/social_settings_screen.dart';
 import 'package:mostaqbal_masr/network/remote/dio_helper.dart';
 import 'package:mostaqbal_masr/shared/components.dart';
+import 'package:network_info_plus/network_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SocialHomeCubit extends Cubit<SocialHomeStates> {
@@ -80,19 +82,84 @@ class SocialHomeCubit extends Cubit<SocialHomeStates> {
   void changeBottomNavBarIndex(int index, BuildContext context) async {
     currentIndex = index;
 
-    switch (bottomNavigationItems.length) {
-      case 4:
-        if (index == 3) {
-          var connectivityResult = await (Connectivity().checkConnectivity());
-          if (connectivityResult == ConnectivityResult.none) {
+
+    if(index == bottomNavigationItems.length -1){
+      var connectivityResult = await (Connectivity().checkConnectivity());
+      if ((connectivityResult == ConnectivityResult.none) ||
+          (connectivityResult == ConnectivityResult.mobile)) {
+        showToast(
+          message: 'برجاء الاتصال بشبكة المشروع اولاً',
+          length: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 3,
+        );
+      } else if (connectivityResult == ConnectivityResult.wifi) {
+        final info = NetworkInfo();
+
+        info.getWifiIP().then((value) async {
+          if (value!.contains("172.16.1.")) {
+            print("Mobile Is in The Network \n");
+
+            logOut(context);
+          } else {
             showToast(
-              message: 'تحقق من اتصالك بالانترنت اولاً',
+              message: "برجاءالاتصال بشبكة المشروع اولاً",
               length: Toast.LENGTH_SHORT,
               gravity: ToastGravity.BOTTOM,
               timeInSecForIosWeb: 3,
             );
-          } else {
-            logOut(context);
+          }
+        }).catchError((error) {
+          showToast(
+            message: "لقد حدث خطأ ما",
+            length: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 3,
+          );
+        });
+      }
+    }
+
+    if (index != bottomNavigationItems.length -1) {
+      emit(SocialHomeChangeBottomNavState());
+    }
+/*
+    switch (bottomNavigationItems.length) {
+      case 4:
+        if (index == 3) {
+          var connectivityResult = await (Connectivity().checkConnectivity());
+          if ((connectivityResult == ConnectivityResult.none) ||
+              (connectivityResult == ConnectivityResult.mobile)) {
+            showToast(
+              message: 'برجاء الاتصال بشبكة المشروع اولاً',
+              length: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.BOTTOM,
+              timeInSecForIosWeb: 3,
+            );
+          } else if (connectivityResult == ConnectivityResult.wifi) {
+            final info = NetworkInfo();
+
+            info.getWifiIP().then((value) async {
+              if (value!.contains("172.16.1.")) {
+                print("Mobile Is in The Network \n");
+
+                logOut(context);
+              } else {
+                showToast(
+                  message: "برجاءالاتصال بشبكة المشروع اولاً",
+                  length: Toast.LENGTH_SHORT,
+                  gravity: ToastGravity.BOTTOM,
+                  timeInSecForIosWeb: 3,
+                );
+              }
+            }).catchError((error) {
+              showToast(
+                message: "لقد حدث خطأ ما",
+                length: Toast.LENGTH_SHORT,
+                gravity: ToastGravity.BOTTOM,
+                timeInSecForIosWeb: 3,
+              );
+            });
           }
         }
 
@@ -103,15 +170,38 @@ class SocialHomeCubit extends Cubit<SocialHomeStates> {
       case 3:
         if (index == 2) {
           var connectivityResult = await (Connectivity().checkConnectivity());
-          if (connectivityResult == ConnectivityResult.none) {
+          if ((connectivityResult == ConnectivityResult.none) ||
+              (connectivityResult == ConnectivityResult.mobile)) {
             showToast(
-              message: 'تحقق من اتصالك بالانترنت اولاً',
+              message: 'برجاء الاتصال بشبكة المشروع اولاً',
               length: Toast.LENGTH_SHORT,
               gravity: ToastGravity.BOTTOM,
               timeInSecForIosWeb: 3,
             );
-          } else {
-            logOut(context);
+          } else if (connectivityResult == ConnectivityResult.wifi) {
+            final info = NetworkInfo();
+
+            info.getWifiIP().then((value) async {
+              if (value!.contains("172.16.1.")) {
+                print("Mobile Is in The Network \n");
+
+                logOut(context);
+              } else {
+                showToast(
+                  message: "برجاءالاتصال بشبكة المشروع اولاً",
+                  length: Toast.LENGTH_SHORT,
+                  gravity: ToastGravity.BOTTOM,
+                  timeInSecForIosWeb: 3,
+                );
+              }
+            }).catchError((error) {
+              showToast(
+                message: "لقد حدث خطأ ما",
+                length: Toast.LENGTH_SHORT,
+                gravity: ToastGravity.BOTTOM,
+                timeInSecForIosWeb: 3,
+              );
+            });
           }
         }
         if (index != 2) {
@@ -121,15 +211,38 @@ class SocialHomeCubit extends Cubit<SocialHomeStates> {
       case 2:
         if (index == 1) {
           var connectivityResult = await (Connectivity().checkConnectivity());
-          if (connectivityResult == ConnectivityResult.none) {
+          if ((connectivityResult == ConnectivityResult.none) ||
+              (connectivityResult == ConnectivityResult.mobile)) {
             showToast(
-              message: 'تحقق من اتصالك بالانترنت اولاً',
+              message: 'برجاء الاتصال بشبكة المشروع اولاً',
               length: Toast.LENGTH_SHORT,
               gravity: ToastGravity.BOTTOM,
               timeInSecForIosWeb: 3,
             );
-          } else {
-            logOut(context);
+          } else if (connectivityResult == ConnectivityResult.wifi) {
+            final info = NetworkInfo();
+
+            info.getWifiIP().then((value) async {
+              if (value!.contains("172.16.1.")) {
+                print("Mobile Is in The Network \n");
+
+                logOut(context);
+              } else {
+                showToast(
+                  message: "برجاءالاتصال بشبكة المشروع اولاً",
+                  length: Toast.LENGTH_SHORT,
+                  gravity: ToastGravity.BOTTOM,
+                  timeInSecForIosWeb: 3,
+                );
+              }
+            }).catchError((error) {
+              showToast(
+                message: "لقد حدث خطأ ما",
+                length: Toast.LENGTH_SHORT,
+                gravity: ToastGravity.BOTTOM,
+                timeInSecForIosWeb: 3,
+              );
+            });
           }
         }
 
@@ -138,14 +251,14 @@ class SocialHomeCubit extends Cubit<SocialHomeStates> {
         }
         break;
     }
+*/
   }
 
-  double? loginLogID;
 
   Future<void> logOut(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    loginLogID = prefs.getDouble("Login_Log_ID");
+    double? loginLogID = prefs.getDouble("Login_Log_ID");
     print("Login Log ID $loginLogID");
 
     DateTime now = DateTime.now();
@@ -156,16 +269,24 @@ class SocialHomeCubit extends Cubit<SocialHomeStates> {
       'Login_Log_TDate': formattedDate,
     }).then((value) {
       prefs.remove("Login_Log_ID");
+      prefs.remove("LoginDate");
+      prefs.remove("Section_User_ID");
+      prefs.remove("Section_ID");
+      prefs.remove("Section_Name");
+      prefs.remove("Section_Forms_Name_List");
       prefs.remove("User_ID");
       prefs.remove("User_Name");
       prefs.remove("User_Password");
-      prefs.remove("LoginDate");
 
       navigateAndFinish(context, LoginScreen());
 
       emit(SocialHomeLogOutSuccessState());
     }).catchError((error) {
-      emit(SocialHomeLogOutErrorState(error.toString()));
+      if(error is DioError){
+        emit(SocialHomeLogOutErrorState("لقد حدث خطأ ما برجاء المحاولة لاحقاً"));
+      }else{
+        emit(SocialHomeLogOutErrorState(error.toString()));
+      }
     });
   }
 }

@@ -2,10 +2,12 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:mostaqbal_masr/modules/Global/Posts/cubit/global_display_posts_cubit.dart';
 import 'package:mostaqbal_masr/modules/Global/Posts/cubit/global_post_details_cubit.dart';
 import 'package:mostaqbal_masr/modules/Global/Posts/cubit/global_post_details_states.dart';
 import 'package:mostaqbal_masr/shared/components.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class GlobalPostDetailsScreen extends StatefulWidget {
@@ -130,12 +132,24 @@ class _GlobalPostDetailsScreenState extends State<GlobalPostDetailsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            widget.postTitle.toString(),
+          Linkify(
+            onOpen: (link) async {
+              if (await canLaunch(link.url)) {
+                await launch(link.url);
+              } else {
+                throw 'Could not launch $link';
+              }
+            },
+            text: widget.postTitle.toString(),
             style: const TextStyle(
               color: Colors.black,
-              fontWeight: FontWeight.bold,
-              fontSize: 14.0,
+              fontSize: 12.0,
+              overflow: TextOverflow.ellipsis,
+            ),
+            linkStyle: const TextStyle(
+              color: Colors.blue,
+              fontSize: 12.0,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
           const SizedBox(
@@ -171,7 +185,7 @@ class _GlobalPostDetailsScreenState extends State<GlobalPostDetailsScreen> {
                 height: 250.0,
                 initialPage: 0,
                 viewportFraction: 1.0,
-                enableInfiniteScroll: true,
+                enableInfiniteScroll: widget.postImages!.length != 1 ? true : false,
                 reverse: false,
                 autoPlay: true,
                 autoPlayInterval: const Duration(seconds: 5),

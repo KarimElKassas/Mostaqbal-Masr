@@ -53,6 +53,7 @@ class SocialPostDetailsCubit extends Cubit<SocialPostDetailsStates> {
         String postTitle = values["PostTitle"].toString();
         String postVideoID = values["PostVideoID"].toString();
         String postDate = values["PostDate"].toString();
+        String realDate = values["realDate"].toString();
         String hasImages = values["hasImages"].toString();
 
         if(values["hasImages"] == "true"){
@@ -60,7 +61,7 @@ class SocialPostDetailsCubit extends Cubit<SocialPostDetailsStates> {
 
         }
 
-        postsModel = PostsModel(postID, postTitle, postVideoID, postDate,hasImages,postImages);
+        postsModel = PostsModel(postID, postTitle, postVideoID, postDate,hasImages,postImages,realDate);
         postsList.add(postsModel!);
 
         print(values["PostTitle"]);

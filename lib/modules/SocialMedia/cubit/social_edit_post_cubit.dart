@@ -20,7 +20,7 @@ class SocialEditPostCubit extends Cubit<SocialEditPostStates> {
   }
 
   Future<void> updatePost(
-      String postID, String postTitle, String? postVideoID) async {
+      String postID, String postTitle, String? postVideoID, String realDate) async {
     emit(SocialEditPostLoadingState());
 
     DatabaseReference ref =
@@ -34,6 +34,7 @@ class SocialEditPostCubit extends Cubit<SocialEditPostStates> {
     await ref.update({
       "PostTitle": postTitle,
       "PostVideoID": postVideoID,
+      "realDate": realDate,
     }).then((value) {
       emit(SocialEditPostSuccessState());
     }).catchError((error) {

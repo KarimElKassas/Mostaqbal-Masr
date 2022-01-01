@@ -39,19 +39,19 @@ class SocialAddPostCubit extends Cubit<SocialAddPostStates> {
 
   String videoUrl = "Empty";
 
-  void addPost(String postTitle, String? postVideoID) async {
+  void addPost(String postTitle, String? postVideoID, String realDate) async {
     if (postVideoID!.isNotEmpty) {
       videoUrl = postVideoID;
     }
 
     if (imageFileList!.isEmpty) {
-      uploadSinglePost(postTitle, videoUrl);
+      uploadSinglePost(postTitle, videoUrl, realDate);
     } else {
-      uploadImagePost(postTitle, videoUrl);
+      uploadImagePost(postTitle, videoUrl, realDate);
     }
   }
 
-  void uploadSinglePost(String postTitle, String? postVideoID) async {
+  void uploadSinglePost(String postTitle, String? postVideoID, String realDate) async {
     emit(SocialAddPostLoadingState());
 
     FirebaseDatabase database = FirebaseDatabase.instance;
@@ -66,6 +66,7 @@ class SocialAddPostCubit extends Cubit<SocialAddPostStates> {
       'PostTitle': postTitle,
       'PostVideoID': postVideoID!,
       'PostDate': currentTime,
+      'realDate': realDate,
       'hasImages': "false",
     }).then((value) {
       showToast(
@@ -81,7 +82,7 @@ class SocialAddPostCubit extends Cubit<SocialAddPostStates> {
     });
   }
 
-  Future uploadImagePost(String postTitle, String? postVideoID) async {
+  Future uploadImagePost(String postTitle, String? postVideoID, String realDate) async {
     emit(SocialAddPostLoadingState());
 
     DateTime now = DateTime.now();
@@ -100,6 +101,7 @@ class SocialAddPostCubit extends Cubit<SocialAddPostStates> {
     dataMap['PostTitle'] = postTitle;
     dataMap['PostVideoID'] = postVideoID!;
     dataMap['PostDate'] = currentTime;
+    dataMap['realDate'] = realDate;
     dataMap["hasImages"] = "true";
 
     for (int i = 0; i < imageFileList!.length; i++) {
@@ -142,4 +144,6 @@ class SocialAddPostCubit extends Cubit<SocialAddPostStates> {
       //uploadCount++;
     }
   }
+
+
 }

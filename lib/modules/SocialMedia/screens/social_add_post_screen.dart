@@ -1,4 +1,5 @@
 import 'dart:io' as i;
+import 'dart:ui' as ui;
 
 import 'package:animate_do/animate_do.dart';
 import 'package:buildcondition/buildcondition.dart';
@@ -10,10 +11,13 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mostaqbal_masr/modules/SocialMedia/cubit/add_post_cubit.dart';
 import 'package:mostaqbal_masr/modules/SocialMedia/cubit/add_post_states.dart';
 import 'package:mostaqbal_masr/shared/components.dart';
+import 'package:mostaqbal_masr/shared/constants.dart';
 
 class SocialAddPostScreen extends StatelessWidget {
   var postTextController = TextEditingController();
   var postVideoIDController = TextEditingController();
+  var timeController = TextEditingController();
+  var dateController = TextEditingController();
 
   var formKey = GlobalKey<FormState>();
 
@@ -33,6 +37,7 @@ class SocialAddPostScreen extends StatelessWidget {
           } else if (state is SocialAddPostSuccessState) {
             postTextController.text = "";
             postVideoIDController.text = "";
+            dateController.text = "";
 
             FocusScope.of(context).unfocus();
           }
@@ -41,7 +46,7 @@ class SocialAddPostScreen extends StatelessWidget {
           var cubit = SocialAddPostCubit.get(context);
 
           return Directionality(
-            textDirection: TextDirection.rtl,
+            textDirection: ui.TextDirection.rtl,
             child: Scaffold(
               appBar: AppBar(
                 backgroundColor: Colors.teal[700],
@@ -49,7 +54,7 @@ class SocialAddPostScreen extends StatelessWidget {
                 elevation: 10.0,
               ),
               floatingActionButton: FadeInUp(
-                duration: const Duration(seconds: 2),
+                duration: const Duration(seconds: 1),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -69,7 +74,7 @@ class SocialAddPostScreen extends StatelessWidget {
                     ),
                     BuildCondition(
                       condition: state is! SocialAddPostLoadingState,
-                      fallback: (context) =>  CircularProgressIndicator(
+                      fallback: (context) => CircularProgressIndicator(
                         color: Colors.teal[700],
                       ),
                       builder: (context) => FloatingActionButton(
@@ -78,20 +83,22 @@ class SocialAddPostScreen extends StatelessWidget {
                           color: Colors.white,
                         ),
                         backgroundColor: Colors.teal[700],
-                        onPressed: ()async {
-
-                          var connectivityResult = await (Connectivity().checkConnectivity());
-                          if(connectivityResult == ConnectivityResult.none){
+                        onPressed: () async {
+                          var connectivityResult =
+                              await (Connectivity().checkConnectivity());
+                          if (connectivityResult == ConnectivityResult.none) {
                             showToast(
                               message: 'تحقق من اتصالك بالانترنت اولاً',
                               length: Toast.LENGTH_SHORT,
                               gravity: ToastGravity.BOTTOM,
                               timeInSecForIosWeb: 3,
                             );
-                          }else{
+                          } else {
                             if (formKey.currentState!.validate()) {
-                              cubit.addPost(postTextController.text.toString(),
-                                  postVideoIDController.text.toString());
+                              cubit.addPost(
+                                  postTextController.text.toString(),
+                                  postVideoIDController.text.toString(),
+                                  dateController.text.toString());
                             }
                           }
                         },
@@ -110,7 +117,7 @@ class SocialAddPostScreen extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.all(20.0),
                     child: FadeInDown(
-                      duration: const Duration(seconds: 2),
+                      duration: const Duration(seconds: 1),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
@@ -164,8 +171,7 @@ class SocialAddPostScreen extends StatelessWidget {
                             height: 16.0,
                           ),
                           TextFormField(
-
-                            textDirection: TextDirection.rtl,
+                            textDirection: ui.TextDirection.rtl,
                             controller: postTextController,
                             keyboardType: TextInputType.text,
                             validator: (String? value) {
@@ -177,50 +183,106 @@ class SocialAddPostScreen extends StatelessWidget {
                               focusedBorder: const OutlineInputBorder(
                                   borderSide: BorderSide(
                                       color: Colors.teal, width: 2.0),
-                                  borderRadius: BorderRadius.all(
-                                      Radius.circular(8.0))),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(8.0))),
                               floatingLabelStyle:
-                              TextStyle(color: Colors.teal[700]),
+                                  TextStyle(color: Colors.teal[700]),
                               labelText: 'نص الخبر',
                               alignLabelWithHint: true,
-                              hintTextDirection: TextDirection.rtl,
+                              hintTextDirection: ui.TextDirection.rtl,
                               prefixIcon: Icon(
                                 IconlyBroken.edit,
                                 color: Colors.teal[700],
                               ),
-                              border: const OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(8.0))),
+                              border: const OutlineInputBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(8.0))),
                             ),
                           ),
                           const SizedBox(
                             height: 16.0,
                           ),
                           TextFormField(
-                            textDirection: TextDirection.rtl,
+                            textDirection: ui.TextDirection.rtl,
                             controller: postVideoIDController,
                             keyboardType: TextInputType.text,
                             decoration: InputDecoration(
                               focusedBorder: const OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                      color: Colors.teal, width: 2.0),
-                                  borderRadius: BorderRadius.all(
-                                      Radius.circular(8.0))),
+                                borderSide:
+                                    BorderSide(color: Colors.teal, width: 2.0),
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(8.0),
+                                ),
+                              ),
                               floatingLabelStyle:
-                              TextStyle(color: Colors.teal[700]),
+                                  TextStyle(color: Colors.teal[700]),
                               labelText: 'رابط الفيديو إن وجد',
                               alignLabelWithHint: true,
-                              hintTextDirection: TextDirection.rtl,
+                              hintTextDirection: ui.TextDirection.rtl,
                               prefixIcon: Icon(
                                 IconlyBroken.video,
                                 color: Colors.teal[700],
                               ),
-                              border: const OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(8.0))),
+                              border: const OutlineInputBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(8.0))),
                             ),
                           ),
                           const SizedBox(
                             height: 16.0,
                           ),
+                          TextFormField(
+                            controller: dateController,
+                            keyboardType: TextInputType.datetime,
+                            readOnly: true,
+                            onTap: () {
+                              showDatePicker(
+                                      context: context,
+                                      initialDate: DateTime.now(),
+                                      firstDate: DateTime.parse('2017-01-01'),
+                                      lastDate: DateTime.parse('2030-12-31'))
+                                  .then((value) {
+                                if (value == null) {
+                                  dateController.text = '';
+                                } else {
+                                  dateController.text =
+                                      DateUtil.formatDate(value).toString();
+                                  print(
+                                      "Date Time Value : ${value.toString()}\n");
+                                }
+                              });
+                            },
+                            validator: (value) {
+                              if (value!.isEmpty) {
+                                return 'برجاء ادخال التاريخ';
+                              } else {
+                                return null;
+                              }
+                            },
+                            decoration: InputDecoration(
+                              prefixIcon: Icon(
+                                IconlyBroken.calendar,
+                                color: Colors.teal[700],
+                              ),
+                              focusedBorder: const OutlineInputBorder(
+                                borderSide:
+                                    BorderSide(color: Colors.teal, width: 2.0),
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(8.0),
+                                ),
+                              ),
+                              floatingLabelStyle:
+                                  TextStyle(color: Colors.teal[700]),
+                              labelText: 'تاريخ الخبر',
+                              alignLabelWithHint: true,
+                              hintTextDirection: ui.TextDirection.rtl,
+                              border: const OutlineInputBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(8.0))),
+                            ),
+                          ),
                           const SizedBox(
-                            height: 8.0,
+                            height: 24.0,
                           ),
                         ],
                       ),

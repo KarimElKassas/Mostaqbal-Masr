@@ -22,7 +22,23 @@ class SocialSettingsScreen extends StatelessWidget {
     return BlocProvider(
       create: (context) => SocialSettingCubit(),
       child: BlocConsumer<SocialSettingCubit, SocialSettingStates>(
-        listener: (context, state) {},
+        listener: (context, state) {
+          if(state is SocialSettingLogOutErrorState){
+            showToast(
+              message: state.error,
+              length: Toast.LENGTH_LONG,
+              gravity: ToastGravity.BOTTOM,
+              timeInSecForIosWeb: 3,
+            );
+          }else if(state is SocialSettingErrorState){
+            showToast(
+              message: state.error,
+              length: Toast.LENGTH_LONG,
+              gravity: ToastGravity.BOTTOM,
+              timeInSecForIosWeb: 3,
+            );
+          }
+        },
         builder: (context, state) {
           var cubit = SocialSettingCubit.get(context);
 

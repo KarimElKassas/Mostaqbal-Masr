@@ -4,10 +4,11 @@ class PostsModel {
   String? PostVideoID = "";
   String? PostDate = "";
   String? hasImages = "";
+  String? realDate = "";
   List<Object?>? PostImages;
 
   PostsModel(this.PostID, this.PostTitle, this.PostVideoID, this.PostDate,
-      this.hasImages, this.PostImages);
+      this.hasImages, this.PostImages,this.realDate);
 
   PostsModel.fromJson(Map<String, dynamic> json) {
     PostID = json["PostID"];
