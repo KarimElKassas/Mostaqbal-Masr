@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:animate_do/animate_do.dart';
 import 'package:buildcondition/buildcondition.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -10,27 +13,37 @@ import 'package:mostaqbal_masr/modules/SocialMedia/cubit/social_setting_cubit.da
 import 'package:mostaqbal_masr/modules/SocialMedia/cubit/social_setting_states.dart';
 import 'package:mostaqbal_masr/shared/components.dart';
 
-class SocialSettingsScreen extends StatelessWidget {
+class SocialSettingsScreen extends StatefulWidget {
+  @override
+  State<SocialSettingsScreen> createState() => _SocialSettingsScreenState();
+}
+
+class _SocialSettingsScreenState extends State<SocialSettingsScreen> {
   var currentPassController = TextEditingController();
+
   var newPassController = TextEditingController();
+
   var confirmNewPassController = TextEditingController();
 
   var formKey = GlobalKey<FormState>();
 
+  bool emptyImage = true;
+
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => SocialSettingCubit(),
+      create: (context) => SocialSettingCubit()..getUserData(),
       child: BlocConsumer<SocialSettingCubit, SocialSettingStates>(
         listener: (context, state) {
-          if(state is SocialSettingLogOutErrorState){
+          if (state is SocialSettingLogOutErrorState) {
             showToast(
               message: state.error,
               length: Toast.LENGTH_LONG,
               gravity: ToastGravity.BOTTOM,
               timeInSecForIosWeb: 3,
             );
-          }else if(state is SocialSettingErrorState){
+          } else if (state is SocialSettingErrorState) {
             showToast(
               message: state.error,
               length: Toast.LENGTH_LONG,
@@ -41,6 +54,17 @@ class SocialSettingsScreen extends StatelessWidget {
         },
         builder: (context, state) {
           var cubit = SocialSettingCubit.get(context);
+
+          /*if (cubit.personPic == null || cubit.personPic == "null") {
+            setState(() {
+              emptyImage = true;
+            });
+          } else {
+            setState(() {
+              bytes = base64Decode(cubit.personPic!);
+              emptyImage = false;
+            });
+          }*/
 
           return Directionality(
             textDirection: TextDirection.rtl,
@@ -57,17 +81,17 @@ class SocialSettingsScreen extends StatelessWidget {
                 fallback: (context) => FadeInUp(
                   duration: const Duration(seconds: 2),
                   child: FloatingActionButton(
-                    onPressed: ()async {
-
-                      var connectivityResult = await (Connectivity().checkConnectivity());
-                      if(connectivityResult == ConnectivityResult.none){
+                    onPressed: () async {
+                      var connectivityResult =
+                          await (Connectivity().checkConnectivity());
+                      if (connectivityResult == ConnectivityResult.none) {
                         showToast(
                           message: 'تحقق من اتصالك بالانترنت اولاً',
                           length: Toast.LENGTH_SHORT,
                           gravity: ToastGravity.BOTTOM,
                           timeInSecForIosWeb: 3,
                         );
-                      }else{
+                      } else {
                         if (formKey.currentState!.validate()) {
                           cubit.changePassword(
                               context,
@@ -96,11 +120,78 @@ class SocialSettingsScreen extends StatelessWidget {
                       child: Form(
                         key: formKey,
                         child: FadeInDown(
-                          duration: const Duration(seconds: 2),
+                          duration: const Duration(seconds: 1),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'أهـلاً بـيـك',
+                                        style: TextStyle(
+                                          color: Colors.teal[500],
+                                          fontSize: 20.0,
+                                          fontWeight: FontWeight.w800,
+                                        ),
+                                        textDirection: TextDirection.rtl,
+                                      ),
+                                      const SizedBox(
+                                        height: 6.0,
+                                      ),
+                                      Text(
+                                        cubit.personName!,
+                                        style: TextStyle(
+                                          color: Colors.teal[500],
+                                          fontSize: 20.0,
+                                          fontWeight: FontWeight.w800,
+                                        ),
+                                        textDirection: TextDirection.rtl,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    width: 60,
+                                    height: 60,
+                                    child: CircleAvatar(
+                                      radius: 20,
+                                      child: ClipRRect(
+                                        borderRadius: const BorderRadius.only(
+                                            topLeft: Radius.circular(8.0),
+                                            topRight: Radius.circular(8.0),
+                                            bottomLeft: Radius.circular(8.0),
+                                            bottomRight: Radius.circular(8.0)),
+                                        child: BuildCondition(
+                                          condition: cubit.emptyImage == true,
+                                          builder: (context) => Image.asset(
+                                            "assets/images/user_icon.png",
+                                            width: 60,
+                                            height: 60,
+                                            fit: BoxFit.fill,
+                                          ),
+                                          fallback: (context) => Image.memory(
+                                            cubit.bytes!,
+                                            width: 60,
+                                            height: 60,
+                                            fit: BoxFit.fill,
+                                          ),
+                                        ),
+                                      ),
+                                      backgroundColor: Colors.transparent,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(
+                                height: 16.0,
+                              ),
                               TextFormField(
                                 textDirection: TextDirection.rtl,
                                 controller: currentPassController,

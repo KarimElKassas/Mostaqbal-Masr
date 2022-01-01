@@ -69,13 +69,24 @@ class _GlobalDisplayPostsScreenState extends State<GlobalDisplayPostsScreen>
                 actions: [
                   IconButton(
                     icon: const Icon(
+                      Icons.refresh_rounded,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {
+                      cubit.postsList.clear();
+                      cubit.postsListReversed.clear();
+                      cubit.getPosts();
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(
                       IconlyBroken.login,
                       color: Colors.white,
                     ),
                     onPressed: () {
                       cubit.goToLogin(context, LoginScreen());
                     },
-                  )
+                  ),
                 ],
               ),
               body: BuildCondition(
@@ -187,38 +198,23 @@ class _GlobalDisplayPostsScreenState extends State<GlobalDisplayPostsScreen>
         padding: const EdgeInsets.all(12.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            const CircleAvatar(
+          children: const [
+            CircleAvatar(
               radius: 20,
               backgroundImage: AssetImage("assets/images/logo.jpg"),
             ),
-            const SizedBox(
+            SizedBox(
               width: 12.0,
             ),
-            Column(
-              children: [
-                const Text(
-                  "مشروع مستقبل مصر",
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 14.0,
-                      fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(
-                  height: 4.0,
-                ),
-                Text(
-                  cubit.postsListReversed[index].realDate!.isNotEmpty
-                      ? cubit.postsListReversed[index].realDate!.toString()
-                      : "",
-                  textAlign: TextAlign.start,
-                  textDirection: ui.TextDirection.rtl,
-                  style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 12.0,
-                      fontWeight: FontWeight.bold),
-                ),
-              ],
+            Text(
+              "مشروع مستقبل مصر",
+              style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 14.0,
+                  fontWeight: FontWeight.bold),
+            ),
+            SizedBox(
+              height: 4.0,
             )
           ],
         ),

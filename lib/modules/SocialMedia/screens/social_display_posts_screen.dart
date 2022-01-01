@@ -197,25 +197,16 @@ class _SocialDisplayPostsScreenState extends State<SocialDisplayPostsScreen>
               width: 12.0,
             ),
             Column(
-              children: [
-                const Text(
+              children: const [
+                Text(
                   "مشروع مستقبل مصر",
                   style: TextStyle(
                       color: Colors.black,
                       fontSize: 14.0,
                       fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(
+                SizedBox(
                   height: 4.0,
-                ),
-                Text(
-                  cubit.postsListReversed[index].realDate.toString(),
-                  textAlign: TextAlign.start,
-                  textDirection: TextDirection.rtl,
-                  style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 12.0,
-                      fontWeight: FontWeight.bold),
                 ),
               ],
             )

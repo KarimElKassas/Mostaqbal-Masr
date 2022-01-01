@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:bloc/bloc.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
@@ -87,6 +90,28 @@ class SocialSettingCubit extends Cubit<SocialSettingStates> {
         emit(SocialSettingNoInternetState());
       });
     }
+  }
+  String? personName = "";
+  String? personPic = "";
+  bool emptyImage = true;
+  Uint8List? bytes;
+
+  void getUserData()async{
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    personName = prefs.getString("Person_Name");
+    personPic = prefs.getString("Person_Img");
+
+    if(personPic == null || personPic == "null"){
+      emptyImage = true;
+    }else{
+      bytes = base64Decode(personPic!);
+      emptyImage = false;
+    }
+
+    emit(SocialSettingGetUserDataSuccessState());
+
   }
 
   Future<void> logOut(BuildContext context) async {

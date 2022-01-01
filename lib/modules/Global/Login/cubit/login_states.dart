@@ -28,6 +28,10 @@ class LoginSuccessState extends LoginStates {
 
 class LoginGetUserSectionSuccessState extends LoginStates {}
 
+class LoginGetUserPersonIDSuccessState extends LoginStates {}
+
+class LoginGetUserDataSuccessState extends LoginStates {}
+
 class LoginGetSectionNameSuccessState extends LoginStates {}
 
 class LoginGetUserFormsSuccessState extends LoginStates {}
@@ -60,6 +64,16 @@ class LoginGetUserFormsErrorState extends LoginStates {
   final String error;
 
   LoginGetUserFormsErrorState(this.error);
+}
+class LoginGetPersonIDErrorState extends LoginStates {
+  final String error;
+
+  LoginGetPersonIDErrorState(this.error);
+}
+class LoginGetUserDataErrorState extends LoginStates {
+  final String error;
+
+  LoginGetUserDataErrorState(this.error);
 }
 
 class LoginErrorState extends LoginStates {

@@ -97,8 +97,7 @@ class SocialAddPostScreen extends StatelessWidget {
                             if (formKey.currentState!.validate()) {
                               cubit.addPost(
                                   postTextController.text.toString(),
-                                  postVideoIDController.text.toString(),
-                                  dateController.text.toString());
+                                  postVideoIDController.text.toString());
                             }
                           }
                         },

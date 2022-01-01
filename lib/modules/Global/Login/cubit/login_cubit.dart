@@ -21,6 +21,10 @@ class LoginCubit extends Cubit<LoginStates> {
   IconData suffix = Icons.visibility_rounded;
 
   double? loginLogID;
+  double? classificationPersonID;
+  double? personID;
+  String? personName;
+  String? personImg;
   int? sectionUserID;
   int? sectionID;
   String? sectionName;
@@ -81,6 +85,8 @@ class LoginCubit extends Cubit<LoginStates> {
               var userID = value.data[0]["User_ID"];
               var userName = value.data[0]["User_Name"];
               var userPassword = value.data[0]["User_Password"];
+              classificationPersonID =
+                  value.data[0]["Classification_Persons_ID"];
 
               info.getWifiIP().then((ipValue) {
                 DateTime now = DateTime.now();
@@ -91,8 +97,11 @@ class LoginCubit extends Cubit<LoginStates> {
                   getSectionName().then((nameValue) {
                     getUserForms().then((userFormValue) {
                       getSectionFormName().then((sectionFormNameValue) {
-                        addLog(userID, formattedDate, "Flutter Application",
-                            ipValue!.toString(), userName, userPassword);
+                        getUserData(classificationPersonID!)
+                            .then((classificationPersonIdValue) {
+                          addLog(userID, formattedDate, "Flutter Application",
+                              ipValue!.toString(), userName, userPassword);
+                        });
                       });
                     });
                   });
@@ -182,11 +191,16 @@ class LoginCubit extends Cubit<LoginStates> {
             "Section_Forms_Name_List", sectionFormsFinalNameList!);
         prefs.setString("User_Name", userName);
         prefs.setString("User_Password", userPassword);
+        prefs.setDouble("Classification_Person_ID", classificationPersonID!);
+        prefs.setDouble("Person_ID", personID!);
+        prefs.setString("Person_Name", personName!);
+        prefs.setString("Person_Img", personImg!);
         prefs.setInt("User_ID", userID).then((value) {
           print("Login Log ID $loginLogID");
           print("LoginDate ${loginDate.toString()}");
           print("User_Name $userName");
           print("User_Password $userPassword");
+          print("Person Name $personName");
 
           emit(LoginSuccessState(sectionName!));
         }).catchError((error) {
@@ -197,6 +211,48 @@ class LoginCubit extends Cubit<LoginStates> {
       });
     }).catchError((error) {
       emit(LoginErrorState(error.toString()));
+    });
+  }
+
+  Future<void> getPersonID(double classificationPersonID) async {
+    await DioHelper.getData(
+            url: 'classificationPersons/GetWithParameters',
+            query: {'Classification_Persons_ID': classificationPersonID})
+        .then((value) {
+      personID = value.data[0]["Person_ID"];
+
+      emit(LoginGetUserPersonIDSuccessState());
+    }).catchError((error) {
+      if (error is DioError) {
+        emit(
+            LoginGetPersonIDErrorState("لقد حدث خطأ ما برجاء المحاولة لاحقاً"));
+      } else {
+        emit(LoginGetPersonIDErrorState(error.toString()));
+      }
+    });
+  }
+
+  Future<void> getUserData(double classificationPersonID) async {
+    await getPersonID(classificationPersonID);
+
+    await DioHelper.getData(
+        url: 'person/GetWithParameters',
+        query: {'Person_ID': personID!}).then((value) {
+      personName = value.data[0]["Person_Name"];
+      if(value.data[0]["Person_Pic"] != null){
+        personImg = value.data[0]["Person_Pic"];
+      }else{
+        personImg = "null";
+      }
+
+      emit(LoginGetUserDataSuccessState());
+    }).catchError((error) {
+      if (error is DioError) {
+        emit(
+            LoginGetUserDataErrorState("لقد حدث خطأ ما برجاء المحاولة لاحقاً"));
+      } else {
+        emit(LoginGetUserDataErrorState(error.toString()));
+      }
     });
   }
 
