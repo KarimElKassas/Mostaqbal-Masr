@@ -3,6 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:mostaqbal_masr/modules/Customer/layout/customer_home_layout.dart';
+import 'package:mostaqbal_masr/modules/Customer/screens/customer_register_screen.dart';
+import 'package:mostaqbal_masr/modules/Global/Drawer/big_layout.dart';
+import 'package:mostaqbal_masr/modules/Global/Drawer/home_screen.dart';
 import 'package:mostaqbal_masr/modules/Global/SplashScreen/splash_screen.dart';
 import 'package:mostaqbal_masr/modules/SocialMedia/cubit/display_posts_cubit.dart';
 import 'package:mostaqbal_masr/modules/SocialMedia/cubit/display_posts_states.dart';
@@ -47,7 +51,7 @@ class MyApp extends StatelessWidget {
                 primaryColor: Colors.teal[700],
               ),
               debugShowCheckedModeBanner: false,
-              home: const SplashScreen(),
+              home: CustomerRegisterScreen(),
             ),
           );
         },

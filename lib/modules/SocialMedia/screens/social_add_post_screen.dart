@@ -11,7 +11,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mostaqbal_masr/modules/SocialMedia/cubit/add_post_cubit.dart';
 import 'package:mostaqbal_masr/modules/SocialMedia/cubit/add_post_states.dart';
 import 'package:mostaqbal_masr/shared/components.dart';
-import 'package:mostaqbal_masr/shared/constants.dart';
 
 class SocialAddPostScreen extends StatelessWidget {
   var postTextController = TextEditingController();
@@ -109,14 +108,14 @@ class SocialAddPostScreen extends StatelessWidget {
               ),
               floatingActionButtonLocation:
                   FloatingActionButtonLocation.endFloat,
-              body: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: Form(
-                  key: formKey,
-                  child: Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: FadeInDown(
-                      duration: const Duration(seconds: 1),
+              body: FadeInDown(
+                duration: const Duration(seconds: 1),
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: Form(
+                    key: formKey,
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
@@ -222,59 +221,6 @@ class SocialAddPostScreen extends StatelessWidget {
                                 IconlyBroken.video,
                                 color: Colors.teal[700],
                               ),
-                              border: const OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(8.0))),
-                            ),
-                          ),
-                          const SizedBox(
-                            height: 16.0,
-                          ),
-                          TextFormField(
-                            controller: dateController,
-                            keyboardType: TextInputType.datetime,
-                            readOnly: true,
-                            onTap: () {
-                              showDatePicker(
-                                      context: context,
-                                      initialDate: DateTime.now(),
-                                      firstDate: DateTime.parse('2017-01-01'),
-                                      lastDate: DateTime.parse('2030-12-31'))
-                                  .then((value) {
-                                if (value == null) {
-                                  dateController.text = '';
-                                } else {
-                                  dateController.text =
-                                      DateUtil.formatDate(value).toString();
-                                  print(
-                                      "Date Time Value : ${value.toString()}\n");
-                                }
-                              });
-                            },
-                            validator: (value) {
-                              if (value!.isEmpty) {
-                                return 'برجاء ادخال التاريخ';
-                              } else {
-                                return null;
-                              }
-                            },
-                            decoration: InputDecoration(
-                              prefixIcon: Icon(
-                                IconlyBroken.calendar,
-                                color: Colors.teal[700],
-                              ),
-                              focusedBorder: const OutlineInputBorder(
-                                borderSide:
-                                    BorderSide(color: Colors.teal, width: 2.0),
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(8.0),
-                                ),
-                              ),
-                              floatingLabelStyle:
-                                  TextStyle(color: Colors.teal[700]),
-                              labelText: 'تاريخ الخبر',
-                              alignLabelWithHint: true,
-                              hintTextDirection: ui.TextDirection.rtl,
                               border: const OutlineInputBorder(
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(8.0))),

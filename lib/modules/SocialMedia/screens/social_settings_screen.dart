@@ -55,17 +55,6 @@ class _SocialSettingsScreenState extends State<SocialSettingsScreen> {
         builder: (context, state) {
           var cubit = SocialSettingCubit.get(context);
 
-          /*if (cubit.personPic == null || cubit.personPic == "null") {
-            setState(() {
-              emptyImage = true;
-            });
-          } else {
-            setState(() {
-              bytes = base64Decode(cubit.personPic!);
-              emptyImage = false;
-            });
-          }*/
-
           return Directionality(
             textDirection: TextDirection.rtl,
             child: Scaffold(
@@ -79,7 +68,7 @@ class _SocialSettingsScreenState extends State<SocialSettingsScreen> {
                   color: Colors.teal[700],
                 ),
                 fallback: (context) => FadeInUp(
-                  duration: const Duration(seconds: 2),
+                  duration: const Duration(seconds: 1),
                   child: FloatingActionButton(
                     onPressed: () async {
                       var connectivityResult =

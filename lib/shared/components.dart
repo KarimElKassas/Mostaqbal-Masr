@@ -3,6 +3,7 @@ import 'dart:ffi';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 void navigateTo(context, widget) =>
     Navigator.of(context).push(MaterialPageRoute(builder: (context) => widget));
@@ -59,6 +60,7 @@ Future<bool?> showToast({
 
 
 int purpleColor = 0xFF0500A0;
+Color primaryGreen = const Color(0xff416d6d);
 
 Future<bool> noInternetConnection()async{
   bool noConnection = false;
@@ -82,3 +84,30 @@ void noInternet()async {
     );
   }
 }
+
+List<Map> drawerItems=[
+  {
+    'icon': FontAwesomeIcons.paw,
+    'title' : 'Adoption'
+  },
+  {
+    'icon': Icons.mail,
+    'title' : 'Donation'
+  },
+  {
+    'icon': FontAwesomeIcons.plus,
+    'title' : 'Add pet'
+  },
+  {
+    'icon': Icons.favorite,
+    'title' : 'Favorites'
+  },
+  {
+    'icon': Icons.mail,
+    'title' : 'Messages'
+  },
+  {
+    'icon': FontAwesomeIcons.userAlt,
+    'title' : 'Profile'
+  },
+];

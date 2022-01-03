@@ -1,16 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:mostaqbal_masr/modules/SocialMedia/drawer/drawer_items.dart';
+import 'package:mostaqbal_masr/modules/SocialMedia/drawer/drawer_model.dart';
+import 'package:mostaqbal_masr/shared/components.dart';
 
 class DrawerWidget extends StatelessWidget {
-  const DrawerWidget({Key? key}) : super(key: key);
+
+  final ValueChanged<DrawerModel> onSelectedItem;
+
+  const DrawerWidget({
+    Key? key,
+    required this.onSelectedItem,
+}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-            buildDrawerItems(context),
-        ],
+    return Scaffold(
+      backgroundColor: primaryGreen,
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+              buildDrawerItems(context),
+          ],
+        ),
       ),
     );
   }
@@ -21,15 +32,15 @@ class DrawerWidget extends StatelessWidget {
       children: DrawerItems.all
           .map(
           (item) => ListTile(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
-            onTap: (){},
-            leading: Icon(item.icon,color: const Color(0xFF0500A0),),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            onTap: () => onSelectedItem(item),
+            leading: Icon(item.icon,color: Colors.white,),
             title: Text(
               item.title,
               style: const TextStyle(
-                color: Color(0xFF0500A0),
+                color: Colors.white,
                 fontWeight: FontWeight.w400,
-                fontSize: 16.0
+                fontSize: 14.0
               ),
             ),
           ),
