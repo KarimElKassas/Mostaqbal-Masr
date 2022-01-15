@@ -29,6 +29,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.8.2"
+  awesome_dropdown:
+    dependency: "direct main"
+    description:
+      name: awesome_dropdown
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.4"
   bloc:
     dependency: "direct main"
     description:
@@ -204,6 +211,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "4.0.4"
+  drop_down_list:
+    dependency: "direct main"
+    description:
+      name: drop_down_list
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.2"
   fake_async:
     dependency: transitive
     description:
@@ -457,6 +471,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.12.11"
+  menu_button:
+    dependency: "direct main"
+    description:
+      name: menu_button
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.4.2+1"
   meta:
     dependency: transitive
     description:

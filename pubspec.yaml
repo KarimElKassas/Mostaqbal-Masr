@@ -58,6 +58,9 @@ dependencies:
   data_connection_checker_tv: ^0.3.5-nullsafety
   url_launcher: ^6.0.17
   flutter_linkify: ^5.0.2
+  drop_down_list: ^0.0.2
+  menu_button: ^1.4.2+1
+  awesome_dropdown: ^0.0.3
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2

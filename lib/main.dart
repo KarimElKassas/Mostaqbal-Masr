@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:mostaqbal_masr/modules/Customer/layout/customer_home_layout.dart';
+import 'package:mostaqbal_masr/modules/Customer/menu/menu_list.dart';
 import 'package:mostaqbal_masr/modules/Customer/screens/customer_register_screen.dart';
 import 'package:mostaqbal_masr/modules/Global/Drawer/big_layout.dart';
 import 'package:mostaqbal_masr/modules/Global/Drawer/home_screen.dart';

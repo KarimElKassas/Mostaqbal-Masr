@@ -7,7 +7,7 @@ class DropListModel {
 }
 
 class OptionItem {
-  final String id;
+  final int id;
   final String title;
 
   OptionItem({required this.id, required this.title});
