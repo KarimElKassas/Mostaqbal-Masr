@@ -1,8 +1,15 @@
+import 'dart:collection';
+import 'dart:io';
+
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:mostaqbal_masr/models/city_model.dart';
 import 'package:mostaqbal_masr/models/region_model.dart';
 import 'package:mostaqbal_masr/modules/Customer/cubit/customer_register_states.dart';
@@ -28,6 +35,8 @@ class CustomerRegisterCubit extends Cubit<CustomerRegisterStates> {
   var scaffoldKey = GlobalKey<ScaffoldState>();
   var formKey = GlobalKey<FormState>();
   bool isPassword = true;
+  bool emptyImage = true;
+  String imageUrl = "";
 
   IconData suffix = Icons.visibility_rounded;
 
@@ -129,6 +138,8 @@ class CustomerRegisterCubit extends Cubit<CustomerRegisterStates> {
                     getPersonDocument().then((value){
                       print("Person Document Value : $personDocumentValue \n");
                       print("Person Data ID : $personDataID \n");
+
+
 
                     });
                   });
@@ -241,7 +252,6 @@ class CustomerRegisterCubit extends Cubit<CustomerRegisterStates> {
       personDataID = value.data[0]["Person_Data_ID"];
     });
   }
-
   Future<void> getClassificationPersonID() async {
     await DioHelper.getData(
         url: 'classificationPersons/GetWithPersonID',
@@ -254,6 +264,7 @@ class CustomerRegisterCubit extends Cubit<CustomerRegisterStates> {
 
     });
   }
+
   void showCityBottomSheet(context) {
 
     isCityBottomSheetShown = true;
@@ -384,4 +395,103 @@ class CustomerRegisterCubit extends Cubit<CustomerRegisterStates> {
       emit(CustomerRegisterChangeRegionBottomSheetState());
     }
   }
+
+
+  final ImagePicker imagePicker = ImagePicker();
+
+  void selectImage() async {
+
+    final XFile? image = await imagePicker.pickImage(source: ImageSource.gallery);
+
+    imageUrl = image!.path;
+
+    emptyImage = false;
+
+    emit(CustomerRegisterChangeImageState());
+  }
+
+
+  void uploadUserFirebase(String userName, String userPhone, String userPassword, String userDocType, String userDocNumber, String userCity, String userRegion)async {
+
+    try {
+      emit(CustomerRegisterLoadingState());
+
+      FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: "$userPhone@gmail.com",
+          password: userPassword
+      ).then((value) async {
+        value.user!.getIdToken().then((value){
+          saveUser(userName, userPhone, userPassword, userDocType, userDocNumber, userCity, userRegion, value);
+        });
+
+      }).catchError((error){
+
+        emit(CustomerRegisterErrorState(error.toString()));
+
+      });
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        emit(CustomerRegisterErrorState("The password provided is too weak."));
+      } else if (e.code == 'email-already-in-use') {
+        emit(CustomerRegisterErrorState("The account already exists for that email."));
+      }
+    } catch (e) {
+      emit(CustomerRegisterErrorState(e.toString()));
+    }
+
+  }
+
+  Future saveUser(String userName, String userPhone, String userPassword, String userDocType, String userDocNumber, String userCity, String userRegion, String userToken) async {
+
+    var storageRef = FirebaseStorage.instance.ref("Users/$userPhone");
+    FirebaseDatabase database = FirebaseDatabase.instance;
+    var usersRef = database.reference().child("Users");
+
+    Map<String, Object> dataMap = HashMap();
+
+    //dataMap['UserID'] = classificationPersonID!.round().toString();
+    dataMap['UserName'] = userName;
+    dataMap['UserPhone'] = userPhone;
+    dataMap['UserPassword'] = userPassword;
+    dataMap["UserDocType"] = userDocType;
+    dataMap["UserDocNumber"] = userDocNumber;
+    dataMap["UserCity"] = userCity;
+    dataMap["UserRegion"] = userRegion;
+    dataMap["UserToken"] = userToken;
+
+      usersRef.child(userPhone).set(dataMap).then((value) async {
+        String fileName = imageUrl;
+
+        File imageFile = File(fileName);
+
+        var uploadTask = storageRef.putFile(imageFile);
+        await uploadTask.then((p0) {
+          p0.ref.getDownloadURL().then((value) {
+
+            dataMap["UserImage"] = value.toString();
+
+            usersRef.child(userPhone).update(dataMap).then((value) {
+              showToast(
+                message: "تم التسجيل بنجاح",
+                length: Toast.LENGTH_LONG,
+                gravity: ToastGravity.BOTTOM,
+                timeInSecForIosWeb: 3,
+              );
+
+              emit(CustomerRegisterSuccessState());
+            }).catchError((error) {
+              emit(CustomerRegisterErrorState(error.toString()));
+            });
+          }).catchError((error) {
+            emit(CustomerRegisterErrorState(error.toString()));
+          });
+        }).catchError((error) {
+          emit(CustomerRegisterErrorState(error.toString()));
+        });
+      }).catchError((error) {
+        emit(CustomerRegisterErrorState(error.toString()));
+      });
+
+  }
+
 }

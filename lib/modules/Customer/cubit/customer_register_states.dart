@@ -2,6 +2,8 @@ abstract class CustomerRegisterStates{}
 
 class CustomerRegisterInitialState extends CustomerRegisterStates{}
 
+class CustomerRegisterChangeImageState extends CustomerRegisterStates{}
+
 class CustomerRegisterChangePasswordVisibilityState extends CustomerRegisterStates{}
 
 class CustomerRegisterChangeCityBottomSheetState extends CustomerRegisterStates{}
