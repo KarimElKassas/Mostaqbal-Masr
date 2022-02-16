@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
+import 'package:mostaqbal_masr/modules/Customer/layout/customer_home_layout.dart';
 import 'package:mostaqbal_masr/modules/Global/Login/cubit/login_states.dart';
 import 'package:mostaqbal_masr/modules/Global/Posts/screens/global_display_posts_screen.dart';
 import 'package:mostaqbal_masr/network/remote/dio_helper.dart';
@@ -60,7 +61,7 @@ class LoginCubit extends Cubit<LoginStates> {
 
       info.getWifiIP().then((deviceIP) async {
         if (deviceIP!.contains("172.16.1.")) {
-          DioHelper.getData(
+         await DioHelper.getData(
                   url: 'login/GetWithParams',
                   query: {'User_Name': userName, 'User_Password': userPassword})
               .then((value) async {
@@ -88,12 +89,21 @@ class LoginCubit extends Cubit<LoginStates> {
               classificationPersonID =
                   value.data[0]["Classification_Persons_ID"];
 
-              info.getWifiIP().then((ipValue) {
+              info.getWifiIP().then((ipValue)async {
                 DateTime now = DateTime.now();
                 String formattedDate =
                     DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format(now);
 
-                getUserSection(userID).then((userSectionValue) {
+                await getUserSection(userID);
+                await getSectionName();
+                await getUserForms();
+                await getSectionFormName();
+                await getUserData(classificationPersonID!);
+                await addLog(userID, formattedDate, "Flutter Application",
+                    ipValue!.toString(), userName, userPassword);
+              });
+
+                /*getUserSection(userID).then((userSectionValue) {
                   getSectionName().then((nameValue) {
                     getUserForms().then((userFormValue) {
                       getSectionFormName().then((sectionFormNameValue) {
@@ -106,7 +116,7 @@ class LoginCubit extends Cubit<LoginStates> {
                     });
                   });
                 });
-              });
+              });*/
             }
           }).catchError((error) {
             if (error.type == DioErrorType.response) {
@@ -189,6 +199,7 @@ class LoginCubit extends Cubit<LoginStates> {
         prefs.setString("Section_Name", sectionName!);
         prefs.setStringList(
             "Section_Forms_Name_List", sectionFormsFinalNameList!);
+        prefs.setString("UserIDMessage", "Future Of Egypt");
         prefs.setString("User_Name", userName);
         prefs.setString("User_Password", userPassword);
         prefs.setDouble("Classification_Person_ID", classificationPersonID!);
@@ -203,12 +214,12 @@ class LoginCubit extends Cubit<LoginStates> {
           print("Person Name $personName");
 
           emit(LoginSuccessState(sectionName!));
-        }).catchError((error) {
+        })/*.catchError((error) {
           emit(LoginSharedPrefErrorState(error.toString()));
-        });
-      }).catchError((error) {
+        })*/;
+      })/*.catchError((error) {
         emit(LoginSharedPrefErrorState(error.toString()));
-      });
+      })*/;
     }).catchError((error) {
       emit(LoginErrorState(error.toString()));
     });
@@ -237,7 +248,7 @@ class LoginCubit extends Cubit<LoginStates> {
 
     await DioHelper.getData(
         url: 'person/GetWithParameters',
-        query: {'Person_ID': personID!}).then((value) {
+        query: {'Person_ID': personID!.round()}).then((value) {
       personName = value.data[0]["Person_Name"];
       if(value.data[0]["Person_Pic"] != null){
         personImg = value.data[0]["Person_Pic"];
@@ -317,7 +328,7 @@ class LoginCubit extends Cubit<LoginStates> {
   }
 
   void backToPosts(BuildContext context) {
-    navigateAndFinish(context, GlobalDisplayPostsScreen());
+    navigateAndFinish(context, CustomerHomeLayout());
   }
 
   var connectivityResult = (Connectivity().checkConnectivity());

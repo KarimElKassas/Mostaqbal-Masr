@@ -3,6 +3,7 @@ import 'dart:ui' as ui;
 import 'package:buildcondition/buildcondition.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
@@ -64,6 +65,11 @@ class _GlobalDisplayPostsScreenState extends State<GlobalDisplayPostsScreen>
             textDirection: ui.TextDirection.rtl,
             child: Scaffold(
               appBar: AppBar(
+                systemOverlayStyle: SystemUiOverlayStyle(
+                  statusBarColor: Colors.teal[700],
+                  statusBarIconBrightness: Brightness.light, // For Android (dark icons)
+                  statusBarBrightness: Brightness.dark, // For iOS (dark icons)
+                ),
                 backgroundColor: Colors.teal[700],
                 title: const Text("اخبار المشروع"),
                 actions: [

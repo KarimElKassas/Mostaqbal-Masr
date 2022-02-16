@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
@@ -49,12 +50,15 @@ class _SocialHomeLayoutState extends State<SocialHomeLayout>
           return Directionality(
             textDirection: ui.TextDirection.rtl,
             child: Scaffold(
+
+              backgroundColor: Colors.white,
               body: cubit.screens[cubit.currentIndex],
               bottomNavigationBar: BottomNavigationBar(
                 items: cubit.bottomNavigationItems,
                 currentIndex: cubit.currentIndex,
                 type: BottomNavigationBarType.fixed,
                 selectedItemColor: Colors.teal[700],
+                showUnselectedLabels: false,
                 onTap: (index) {
                   cubit.changeBottomNavBarIndex(index, context);
                 },

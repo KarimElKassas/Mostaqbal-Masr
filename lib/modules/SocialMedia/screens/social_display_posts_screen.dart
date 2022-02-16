@@ -27,9 +27,7 @@ class _SocialDisplayPostsScreenState extends State<SocialDisplayPostsScreen>
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => SocialDisplayPostsCubit()..getPosts(),
-      child: BlocConsumer<SocialDisplayPostsCubit, SocialDisplayPostsStates>(
+    return BlocConsumer<SocialDisplayPostsCubit, SocialDisplayPostsStates>(
         listener: (context, state) {
           if (state is SocialDisplayPostsInitializeVideoErrorState) {
             showToast(
@@ -105,7 +103,6 @@ class _SocialDisplayPostsScreenState extends State<SocialDisplayPostsScreen>
             ),
           );
         },
-      ),
     );
   }
 

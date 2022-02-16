@@ -1,16 +1,10 @@
-import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:mostaqbal_masr/modules/Customer/layout/customer_home_layout.dart';
-import 'package:mostaqbal_masr/modules/Customer/menu/menu_list.dart';
-import 'package:mostaqbal_masr/modules/Customer/screens/customer_register_screen.dart';
-import 'package:mostaqbal_masr/modules/Global/Drawer/big_layout.dart';
-import 'package:mostaqbal_masr/modules/Global/Drawer/home_screen.dart';
-import 'package:mostaqbal_masr/modules/Global/SplashScreen/splash_screen.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mostaqbal_masr/modules/Customer/cubit/customer_support_cubit.dart';
+import 'package:mostaqbal_masr/modules/Global/registration/screens/clerk_registration_screen.dart';
+import 'package:mostaqbal_masr/modules/ITDepartment/layout/it_home_layout.dart';
 import 'package:mostaqbal_masr/modules/SocialMedia/cubit/display_posts_cubit.dart';
-import 'package:mostaqbal_masr/modules/SocialMedia/cubit/display_posts_states.dart';
 import 'package:mostaqbal_masr/network/local/cache_helper.dart';
 import 'package:mostaqbal_masr/network/remote/dio_helper.dart';
 import 'package:mostaqbal_masr/shared/bloc_observer.dart';
@@ -28,34 +22,53 @@ void main() async {
   runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => SocialDisplayPostsCubit(),
-      child: BlocConsumer<SocialDisplayPostsCubit,SocialDisplayPostsStates>(
-        listener: (context, state){},
-        builder: (context, state){
+  State<MyApp> createState() => _MyAppState();
+}
 
-          return Directionality(
-            textDirection: TextDirection.rtl,
-            child: MaterialApp(
-              title: 'مستقبل مصر',
-              theme: ThemeData(
-                fontFamily: "Tajwal",
-                bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-                  selectedLabelStyle: TextStyle(fontFamily: "Roboto"),
-                  unselectedLabelStyle: TextStyle(fontFamily: "Roboto"),
-                ),
-                primaryColor: Colors.teal[700],
-              ),
-              debugShowCheckedModeBanner: false,
-              home: CustomerRegisterScreen(),
+class _MyAppState extends State<MyApp> {
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) =>
+          SocialDisplayPostsCubit()
+            ..getPosts(),
+        ),
+        BlocProvider(
+          create: (context) =>
+          CustomerSupportCubit()
+            ..getUserData(),
+        ),
+      ],
+      child: Directionality(
+        textDirection: TextDirection.rtl,
+        child: MaterialApp(
+          title: 'مستقبل مصر',
+          theme: ThemeData(
+            fontFamily: "Tajwal",
+            bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+              selectedLabelStyle: TextStyle(fontFamily: "Roboto"),
+              unselectedLabelStyle: TextStyle(fontFamily: "Roboto"),
             ),
-          );
-        },
+            primaryColor: Colors.teal[700],
+          ),
+          debugShowCheckedModeBanner: false,
+          home: ITHomeScreen(),
+        ),
       ),
     );
   }

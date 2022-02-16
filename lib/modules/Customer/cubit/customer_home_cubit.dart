@@ -26,13 +26,13 @@ class CustomerHomeCubit extends Cubit<CustomerHomeStates>{
     ),
     const BottomNavigationBarItem(
       icon: Icon(
-        FontAwesomeIcons.questionCircle,
+        IconlyBroken.category,
       ),
       label: 'الاستفسارات',
     ),
     const BottomNavigationBarItem(
       icon: Icon(
-        FontAwesomeIcons.teamspeak,
+        IconlyBroken.chat,
       ),
       label: 'الدعم',
     ),

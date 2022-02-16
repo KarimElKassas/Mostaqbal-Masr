@@ -57,16 +57,9 @@ class CustomerRegisterScreen extends StatelessWidget {
             timeInSecForIosWeb: 3,
           );
         }
-        if (state is CustomerRegisterAddNameSuccessState) {
-          showToast(
-            message: "تم التسجيل",
-            length: Toast.LENGTH_LONG,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 3,
-          );
-          //navigateTo(context, const CustomerHomeLayout());
-        }
-      }, builder: (context, state) {
+
+      },
+          builder: (context, state) {
         var cubit = CustomerRegisterCubit.get(context);
 
         return Directionality(
@@ -150,23 +143,28 @@ class CustomerRegisterScreen extends StatelessWidget {
                                   );
                                   return;
                                 }
+                                if (cubit.emptyImage == true) {
+                                  showToast(
+                                    message: 'يجب اختيار الصورة الشخصية',
+                                    length: Toast.LENGTH_SHORT,
+                                    gravity: ToastGravity.BOTTOM,
+                                    timeInSecForIosWeb: 3,
+                                  );
+                                  return;
+                                }
                                 if (formKey.currentState!.validate()) {
-                                  /*cubit.insertPersonName(
-                                      nameController.text.toString(),
-                                      phoneController.text.toString(),
-                                      cubit.selectedRegionID!.round(),
-                                      1,
-                                      nationalIDController.text.toString(),
-                                      cubit.idOptionItemSelected.id);*/
-
-                                  cubit.uploadUserFirebase(
+                                  cubit.insertPersonName(
                                       nameController.text.toString(),
                                       phoneController.text.toString(),
                                       passwordController.text.toString(),
                                       cubit.idOptionItemSelected.title,
                                       nationalIDController.text.toString(),
                                       cubit.selectedCityName,
-                                      cubit.selectedRegionName);
+                                      cubit.selectedRegionName,
+                                      cubit.selectedRegionID!.round(),
+                                      1,
+                                      nationalIDController.text.toString(),
+                                      cubit.idOptionItemSelected.id);
                                 }
                               }
                             },

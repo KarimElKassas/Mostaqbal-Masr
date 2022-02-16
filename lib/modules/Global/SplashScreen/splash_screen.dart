@@ -13,7 +13,7 @@ class SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => SplashCubit()..navigate(context),
+      create: (context) => SplashCubit()..createMediaFolder()..navigate(context),
       child: BlocConsumer<SplashCubit, SplashStates>(
         listener: (context, state) {},
         builder: (context, state){

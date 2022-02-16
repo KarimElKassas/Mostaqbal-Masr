@@ -10,6 +10,7 @@ import 'package:mostaqbal_masr/modules/Global/Login/login_screen.dart';
 import 'package:mostaqbal_masr/modules/Global/blank_screen.dart';
 import 'package:mostaqbal_masr/modules/SocialMedia/layout/cubit/social_home_states.dart';
 import 'package:mostaqbal_masr/modules/SocialMedia/screens/social_add_post_screen.dart';
+import 'package:mostaqbal_masr/modules/SocialMedia/screens/social_display_chats_screen.dart';
 import 'package:mostaqbal_masr/modules/SocialMedia/screens/social_display_posts_screen.dart';
 import 'package:mostaqbal_masr/modules/SocialMedia/screens/social_settings_screen.dart';
 import 'package:mostaqbal_masr/network/remote/dio_helper.dart';
@@ -41,6 +42,9 @@ class SocialHomeCubit extends Cubit<SocialHomeStates> {
     } else if (!sectionFormsNameList!.contains("BtnViewPosts")) {
       bottomNavigationItems.removeAt(1);
       screens.removeAt(1);
+    }else if(!sectionFormsNameList!.contains("BtnViewChats")){
+      bottomNavigationItems.removeAt(2);
+      screens.removeAt(2);
     }
     emit(SocialHomeHandleUserTypeState());
   }
@@ -60,6 +64,12 @@ class SocialHomeCubit extends Cubit<SocialHomeStates> {
     ),
     const BottomNavigationBarItem(
       icon: Icon(
+        IconlyBroken.chat,
+      ),
+      label: 'المحادثات',
+    ),
+    const BottomNavigationBarItem(
+      icon: Icon(
         IconlyBroken.setting,
       ),
       label: 'الاعدادات',
@@ -75,6 +85,7 @@ class SocialHomeCubit extends Cubit<SocialHomeStates> {
   List<Widget> screens = [
     SocialAddPostScreen(),
     SocialDisplayPostsScreen(),
+    SocialDisplayChats(),
     SocialSettingsScreen(),
     const BlankScreen(),
   ];

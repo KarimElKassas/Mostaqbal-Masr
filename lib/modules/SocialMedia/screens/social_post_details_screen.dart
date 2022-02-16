@@ -25,7 +25,7 @@ class SocialPostDetailsScreen extends StatefulWidget {
   final String realDate;
   final List<Object?>? postImages;
 
-  SocialPostDetailsScreen({Key? key,
+  const SocialPostDetailsScreen({Key? key,
     required this.postID,
     required this.postTitle,
     required this.postVideoID,

@@ -16,6 +16,7 @@ import 'package:mostaqbal_masr/modules/Customer/cubit/customer_register_states.d
 import 'package:mostaqbal_masr/modules/Customer/dropdown/drop_list_model.dart';
 import 'package:mostaqbal_masr/network/remote/dio_helper.dart';
 import 'package:mostaqbal_masr/shared/components.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CustomerRegisterCubit extends Cubit<CustomerRegisterStates> {
   CustomerRegisterCubit() : super(CustomerRegisterInitialState());
@@ -114,7 +115,7 @@ class CustomerRegisterCubit extends Cubit<CustomerRegisterStates> {
     });
   }
 
-  Future<void> insertPersonName(String personName,String personPhone, int personAddress, int placeID,String documentValue, int statementTypeID) async {
+  Future<void> insertPersonName(String personName,String personPhone, String userPassword, String userDocType, String userDocNumber, String userCity, String userRegion, int personAddress, int placeID,String documentValue, int statementTypeID) async {
     await DioHelper.postData(
         url: 'person/POST',
         query: {
@@ -139,7 +140,7 @@ class CustomerRegisterCubit extends Cubit<CustomerRegisterStates> {
                       print("Person Document Value : $personDocumentValue \n");
                       print("Person Data ID : $personDataID \n");
 
-
+                        uploadUserFirebase(personName, personPhone, userPassword, userDocType, userDocNumber, userCity, userRegion);
 
                     });
                   });
@@ -449,7 +450,7 @@ class CustomerRegisterCubit extends Cubit<CustomerRegisterStates> {
 
     Map<String, Object> dataMap = HashMap();
 
-    //dataMap['UserID'] = classificationPersonID!.round().toString();
+    dataMap['UserID'] = classificationPersonID!.round().toString();
     dataMap['UserName'] = userName;
     dataMap['UserPhone'] = userPhone;
     dataMap['UserPassword'] = userPassword;
@@ -458,8 +459,11 @@ class CustomerRegisterCubit extends Cubit<CustomerRegisterStates> {
     dataMap["UserCity"] = userCity;
     dataMap["UserRegion"] = userRegion;
     dataMap["UserToken"] = userToken;
+    dataMap["UserState"] = "متصل الان";
+    dataMap["UserLastMessage"] = "";
+    dataMap["UserLastMessageTime"] = "";
 
-      usersRef.child(userPhone).set(dataMap).then((value) async {
+      usersRef.child(classificationPersonID!.round().toString()).set(dataMap).then((value) async {
         String fileName = imageUrl;
 
         File imageFile = File(fileName);
@@ -470,15 +474,32 @@ class CustomerRegisterCubit extends Cubit<CustomerRegisterStates> {
 
             dataMap["UserImage"] = value.toString();
 
-            usersRef.child(userPhone).update(dataMap).then((value) {
-              showToast(
-                message: "تم التسجيل بنجاح",
-                length: Toast.LENGTH_LONG,
-                gravity: ToastGravity.BOTTOM,
-                timeInSecForIosWeb: 3,
-              );
+            usersRef.child(classificationPersonID!.round().toString()).update(dataMap).then((realtimeDbValue)async {
 
-              emit(CustomerRegisterSuccessState());
+              SharedPreferences prefs = await SharedPreferences.getInstance();
+
+              prefs.setString("CustomerID", classificationPersonID!.round().toString());
+              prefs.setString("CustomerName", userName);
+              prefs.setString("CustomerPhone", userPhone);
+              prefs.setString("CustomerPassword", userPassword);
+              prefs.setString("CustomerDocType", userDocType);
+              prefs.setString("CustomerDocNumber", userDocNumber);
+              prefs.setString("CustomerCity", userCity);
+              prefs.setString("CustomerRegion", userRegion);
+              prefs.setString("CustomerImageUrl", value.toString());
+              prefs.setString("CustomerToken", userToken).then((value){
+                showToast(
+                  message: "تم التسجيل بنجاح",
+                  length: Toast.LENGTH_LONG,
+                  gravity: ToastGravity.BOTTOM,
+                  timeInSecForIosWeb: 3,
+                );
+
+                emit(CustomerRegisterSuccessState());
+              }).catchError((error){
+                emit(CustomerRegisterErrorState(error.toString()));
+              });
+
             }).catchError((error) {
               emit(CustomerRegisterErrorState(error.toString()));
             });

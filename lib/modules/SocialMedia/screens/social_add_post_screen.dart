@@ -5,6 +5,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:buildcondition/buildcondition.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -48,6 +49,11 @@ class SocialAddPostScreen extends StatelessWidget {
             textDirection: ui.TextDirection.rtl,
             child: Scaffold(
               appBar: AppBar(
+                systemOverlayStyle: SystemUiOverlayStyle(
+                  statusBarColor: Colors.teal[700],
+                  statusBarIconBrightness: Brightness.light, // For Android (dark icons)
+                  statusBarBrightness: Brightness.dark, // For iOS (dark icons)
+                ),
                 backgroundColor: Colors.teal[700],
                 title: const Text("اضافة خبر"),
                 elevation: 10.0,

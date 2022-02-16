@@ -14,6 +14,7 @@ void navigateAndFinish(context, widget) => Navigator.pushReplacement(
 Widget defaultButton({
   double width = double.infinity,
   Color background = Colors.deepPurple,
+  Color textColor = Colors.white,
   double radius = 8.0,
   bool isUpperCase = true,
   required VoidCallback function,
@@ -31,11 +32,11 @@ Widget defaultButton({
         child: Text(
           isUpperCase ? text.toUpperCase() : text,
           textAlign: TextAlign.center,
-          style: const TextStyle(
+          style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 14,
               letterSpacing: 2,
-              color: Colors.white),
+              color: textColor),
         ),
       ),
     );
@@ -111,3 +112,7 @@ List<Map> drawerItems=[
     'title' : 'Profile'
   },
 ];
+
+Widget getEmptyWidget() {
+  return const SizedBox.shrink();
+}
