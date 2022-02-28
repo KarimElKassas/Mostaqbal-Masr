@@ -5,6 +5,7 @@ import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -421,8 +422,8 @@ class CustomerRegisterCubit extends Cubit<CustomerRegisterStates> {
           email: "$userPhone@gmail.com",
           password: userPassword
       ).then((value) async {
-        value.user!.getIdToken().then((value){
-          saveUser(userName, userPhone, userPassword, userDocType, userDocNumber, userCity, userRegion, value);
+        FirebaseMessaging.instance.getToken().then((value){
+          saveUser(userName, userPhone, userPassword, userDocType, userDocNumber, userCity, userRegion, value!);
         });
 
       }).catchError((error){

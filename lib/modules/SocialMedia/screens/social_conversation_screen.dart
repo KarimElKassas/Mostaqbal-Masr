@@ -21,12 +21,14 @@ class SocialConversationScreen extends StatefulWidget {
   final String userID;
   final String userName;
   final String userImage;
+  final String userToken;
 
   const SocialConversationScreen(
       {Key? key,
       required this.userID,
       required this.userName,
-      required this.userImage})
+      required this.userImage,
+      required this.userToken})
       : super(key: key);
 
   @override
@@ -199,7 +201,7 @@ class _ConversationScreenState extends State<SocialConversationScreen> {
                               )),
                     ),
                   ),
-                  SocialInputFieldWidget(userID: widget.userID, userName: widget.userName),
+                  SocialInputFieldWidget(userID: widget.userID, userName: widget.userName,userToken: widget.userToken),
                 ],
               ),
             ),

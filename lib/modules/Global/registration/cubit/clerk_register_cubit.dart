@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -81,6 +82,15 @@ class ClerkRegisterCubit extends Cubit<ClerkRegisterStates> {
         query: {'PR_Person_Number': personNumber}).then((value) {
           if(value.statusCode == 200){
             value.data.forEach((clerk) {
+
+              FirebaseDatabase.instance.reference().child("Clerks").child(clerk['PR_Persons_MobilNum1'].toString()).get().then((value){
+                if(value.exists){
+                  print("USER EXISTS \n");
+                }else{
+                  print("USER Doesn't EXIST \n");
+                }
+              });
+
               clerkModel = ClerkModel(
                   clerk['PR_Persons_ID'].toString(), clerk['PR_Persons_Name'].toString(),"", personNumber, clerk['PR_Persons_Address'].toString(), clerk['PR_Persons_MobilNum1'].toString(),
                   clerk['Person_Type_ID'].toString(), clerk['Person_Type_Name'].toString(), clerk['PR_Category_ID'].toString(), clerk['PR_Category_Name'].toString(),
@@ -107,7 +117,6 @@ class ClerkRegisterCubit extends Cubit<ClerkRegisterStates> {
 
           }
 
-
     }).catchError((error) {
       if (error is DioError) {
         if(error.response!.statusCode! == 400){
@@ -127,6 +136,7 @@ class ClerkRegisterCubit extends Cubit<ClerkRegisterStates> {
       String managementName, String typeName, String rankName, String categoryName, String jobName,
       String presenceName, String coreStrengthName) async {
     emit(ClerkRegisterLoadingUploadClerksState());
+
     await DioHelper.postData(
         url: 'person/POST',
         query: {
@@ -145,7 +155,7 @@ class ClerkRegisterCubit extends Cubit<ClerkRegisterStates> {
                 getPersonPhone().then((value){
                   print("Person Phone ID : $personPhoneID \n");
                   print("Person Phone : $personPhone \n");
-                   uploadUserFirebase(clerkID, clerkName, clerkNumber, clerkPhone, clerkPassword, clerkAddress,
+                   uploadUserFirebase(clerkID, clerkName, clerkNumber, clerkPhone, clerkPassword, clerkAddress,managementName,
                        managementName, typeName, rankName, categoryName, jobName,
                        presenceName, coreStrengthName);
                 });
@@ -279,19 +289,18 @@ class ClerkRegisterCubit extends Cubit<ClerkRegisterStates> {
     emit(ClerkRegisterChangeImageState());
   }
 
-  void uploadUserFirebase(String clerkID, String clerkName,String clerkNumber, String clerkPhone, String clerkPassword, String clerkAddress,
+  void uploadUserFirebase(String clerkID, String clerkName,String clerkNumber, String clerkPhone, String clerkPassword, String clerkAddress,String clerkDepartment,
       String managementName, String typeName, String rankName, String categoryName, String jobName,
       String presenceName, String coreStrengthName)async {
 
     try {
-
       FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: "$clerkPhone@gmail.com",
           password: clerkPassword
       ).then((value) async {
-        value.user!.getIdToken().then((value){
+        FirebaseMessaging.instance.getToken().then((value){
           saveUser(clerkID, clerkName, clerkNumber, clerkPhone, clerkPassword, clerkAddress,
-              value, managementName, typeName, rankName, categoryName, jobName,
+              value!,clerkDepartment, managementName, typeName, rankName, categoryName, jobName,
               presenceName, coreStrengthName);
         });
 
@@ -313,7 +322,7 @@ class ClerkRegisterCubit extends Cubit<ClerkRegisterStates> {
   }
 
   Future saveUser(String clerkID, String clerkName,String clerkNumber, String clerkPhone, String clerkPassword, String clerkAddress,
-      String clerkToken, String managementName, String typeName, String rankName, String categoryName, String jobName,
+      String clerkToken,String clerkDepartment, String managementName, String typeName, String rankName, String categoryName, String jobName,
       String presenceName, String coreStrengthName) async {
 
     var storageRef = FirebaseStorage.instance.ref("Clerks/$clerkPhone");
@@ -322,18 +331,26 @@ class ClerkRegisterCubit extends Cubit<ClerkRegisterStates> {
 
     Map<String, Object> dataMap = HashMap();
 
-    dataMap['ClerkID'] = clerkID;
+    dataMap['ClerkID'] = clerkPhone;
     dataMap['ClerkName'] = clerkName;
-    dataMap['ClerkNumber'] = clerkPhone;
+    dataMap['ClerkNumber'] = clerkNumber;
     dataMap['ClerkPhone'] = clerkPhone;
     dataMap['ClerkPassword'] = clerkPassword;
     dataMap["ClerkAddress"] = clerkAddress;
+    dataMap["ClerkManagementName"] = clerkDepartment;
+    dataMap["ClerkRankName"] = rankName;
+    dataMap["ClerkTypeName"] = typeName;
+    dataMap["ClerkCategoryName"] = categoryName;
+    dataMap["ClerkCoreStrengthName"] = coreStrengthName;
+    dataMap["ClerkPresenceName"] = presenceName;
+    dataMap["ClerkJobName"] = jobName;
     dataMap["ClerkState"] = "متصل الان";
     dataMap["ClerkLastMessage"] = "";
     dataMap["ClerkLastMessageTime"] = "";
     dataMap["ClerkToken"] = clerkToken;
+    dataMap["ClerkSubscriptions"] = ["empty"];
 
-      clerksRef.child(clerkID.toString()).set(dataMap).then((value) async {
+      clerksRef.child(clerkPhone).set(dataMap).then((value) async {
       String fileName = imageUrl;
 
       File imageFile = File(fileName);
@@ -343,9 +360,9 @@ class ClerkRegisterCubit extends Cubit<ClerkRegisterStates> {
         p0.ref.getDownloadURL().then((value) {
           dataMap["ClerkImage"] = value.toString();
 
-          clerksRef.child(clerkID.toString()).update(dataMap).then((
+          clerksRef.child(clerkPhone).update(dataMap).then((
               realtimeDbValue) async {
-            clerkFirebaseModel = ClerkFirebaseModel(globalClerkID, globalClerkName, value.toString(), globalClerkNumber, globalClerkAddress, globalClerkPhone, clerkPassword, "متصل الأن", clerkToken, "", "");
+            clerkFirebaseModel = ClerkFirebaseModel(globalClerkID, globalClerkName, value.toString(), globalClerkNumber, globalClerkAddress, globalClerkPhone, clerkPassword, "متصل الأن", clerkToken, "", "",["empty"]);
 
             globalClerkName = "";
             globalClerkPhone = "";
@@ -367,6 +384,8 @@ class ClerkRegisterCubit extends Cubit<ClerkRegisterStates> {
             prefs.setString("ClerkCoreStrengthName", coreStrengthName);
             prefs.setString("ClerkPresenceName", presenceName);
             prefs.setString("ClerkJobName", jobName);
+            prefs.setString("ClerkToken", clerkToken);
+            prefs.setStringList("ClerkSubscriptions", ["empty"]);
 
             //clerkModel!.clerkImage = value.toString();
 

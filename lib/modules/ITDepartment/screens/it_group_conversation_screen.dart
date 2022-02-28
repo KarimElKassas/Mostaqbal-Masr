@@ -275,7 +275,7 @@ class _ITGroupConversationScreenState extends State<ITGroupConversationScreen> {
               ),
             ),
           )
-        : galleryImageMessageView(context, cubit, index, state);
+        : imageMessageView(context, cubit, index, state);
 }
 
   Widget imageMessageView(BuildContext context, ITGroupConversationCubit cubit,
@@ -508,6 +508,7 @@ class _ITGroupConversationScreenState extends State<ITGroupConversationScreen> {
     }
   }
 
+/*
   Widget galleryImageMessageView(BuildContext context, ITGroupConversationCubit cubit,
       int index, ITGroupConversationStates state) {
     if (cubit.chatListReversed[index].type == "Image") {
@@ -548,7 +549,7 @@ class _ITGroupConversationScreenState extends State<ITGroupConversationScreen> {
                               : GalleryThumbnail(
                             galleryItem: cubit.chatListReversed[index].messageImages![index]!,
                             onTap: () {
-                              openImageFullScreen(index, cubit);
+                             // openImageFullScreen(index, cubit);
                             },
                           ));
                     })),
@@ -559,6 +560,7 @@ class _ITGroupConversationScreenState extends State<ITGroupConversationScreen> {
       return fileMessageView(cubit, index);
     }
   }
+*/
 
   Widget fileMessageView(ITGroupConversationCubit cubit, int index) {
     return cubit.chatListReversed[index].type == "file"
@@ -1226,10 +1228,11 @@ class _ITGroupConversationScreenState extends State<ITGroupConversationScreen> {
     );
   }
 
+/*
   Widget buildImageNumbers(int index, ITGroupConversationCubit cubit) {
     return GestureDetector(
       onTap: () {
-        openImageFullScreen(index, cubit);
+        //openImageFullScreen(index, cubit);
       },
       child: Stack(
         alignment: AlignmentDirectional.center,
@@ -1251,8 +1254,9 @@ class _ITGroupConversationScreenState extends State<ITGroupConversationScreen> {
       ),
     );
   }
+*/
 
-  void openImageFullScreen(final int indexOfImage, ITGroupConversationCubit cubit) {
+  /*void openImageFullScreen(final int indexOfImage, ITGroupConversationCubit cubit) {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -1267,5 +1271,5 @@ class _ITGroupConversationScreenState extends State<ITGroupConversationScreen> {
         ),
       ),
     );
-  }
+  }*/
 }

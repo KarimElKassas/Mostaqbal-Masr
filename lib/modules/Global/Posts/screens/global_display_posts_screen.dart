@@ -104,6 +104,7 @@ class _GlobalDisplayPostsScreenState extends State<GlobalDisplayPostsScreen>
                 fallback: (context) => BuildCondition(
                   condition: cubit.postsListReversed.isEmpty,
                   fallback: (context) => ListView.separated(
+                    shrinkWrap: true,
                     addAutomaticKeepAlives: true,
                     scrollDirection: Axis.vertical,
                     physics: const BouncingScrollPhysics(),

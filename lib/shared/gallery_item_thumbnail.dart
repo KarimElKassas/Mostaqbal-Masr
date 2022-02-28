@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mostaqbal_masr/shared/gallery_item_model.dart';
 
 // to show image in Row
 class GalleryThumbnail extends StatelessWidget {
   const GalleryThumbnail({Key? key, required this.galleryItem, this.onTap})
       : super(key: key);
 
-  final XFile galleryItem;
+  final GalleryModel galleryItem;
 
   final GestureTapCallback? onTap;
 
@@ -16,10 +17,10 @@ class GalleryThumbnail extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Hero(
-        tag: galleryItem.path,
+        tag: galleryItem.imageUrl.path,
         child: CachedNetworkImage(
           fit: BoxFit.cover,
-          imageUrl: galleryItem.path.toString().replaceAll("[", "").replaceAll("]", ""),
+          imageUrl: galleryItem.imageUrl.path.toString().replaceAll("[", "").replaceAll("]", ""),
           height: 100.0,
           placeholder: (context, url) =>
               const Center(child: CircularProgressIndicator(color: Colors.teal, strokeWidth: 0.8,)),

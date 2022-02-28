@@ -25,7 +25,7 @@ class _SocialHomeLayoutState extends State<SocialHomeLayout>
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => SocialHomeCubit()..handleUserType(),
+      create: (context) => SocialHomeCubit()..handleUserType()..refreshToken(),
       child: BlocConsumer<SocialHomeCubit, SocialHomeStates>(
         listener: (context, state) {
           if (state is SocialHomeLogOutErrorState) {

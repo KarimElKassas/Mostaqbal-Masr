@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:mostaqbal_masr/modules/Global/Login/login_screen.dart';
 import 'package:mostaqbal_masr/modules/Global/registration/cubit/clerk_register_cubit.dart';
 import 'package:mostaqbal_masr/modules/Global/registration/cubit/clerk_register_states.dart';
 import 'package:mostaqbal_masr/modules/Global/registration/screens/clerk_confirm_registration_screen.dart';
@@ -43,6 +44,9 @@ class _ClerkRegistrationScreenState extends State<ClerkRegistrationScreen> {
                 length: Toast.LENGTH_SHORT,
                 gravity: ToastGravity.BOTTOM,
                 timeInSecForIosWeb: 3);
+          }
+          if(state is ClerkRegisterSuccessState){
+            navigateAndFinish(context, LoginScreen());
           }
         },
         builder: (context, state) {

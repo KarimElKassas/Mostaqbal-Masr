@@ -24,12 +24,14 @@ class ConversationScreen extends StatefulWidget {
   final String userID;
   final String userName;
   final String userImage;
+  final String userToken;
 
   const ConversationScreen(
       {Key? key,
       required this.userID,
       required this.userName,
-      required this.userImage})
+      required this.userImage,
+      required this.userToken})
       : super(key: key);
 
   @override
@@ -201,7 +203,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                               )),
                     ),
                   ),
-                  InputFieldWidget(userID: widget.userID),
+                  InputFieldWidget(userID: widget.userID, userToken: widget.userToken,),
                 ],
               ),
             ),
@@ -280,7 +282,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
               ),
             ),
           )
-        : galleryImageMessageView(context, cubit, index, state);
+        : imageMessageView(context, cubit, index, state);
 }
 
   Widget imageMessageView(BuildContext context, ConversationCubit cubit,
@@ -513,6 +515,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
     }
   }
 
+/*
   Widget galleryImageMessageView(BuildContext context, ConversationCubit cubit,
       int index, ConversationStates state) {
     if (cubit.chatListReversed[index].type == "Image") {
@@ -553,7 +556,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                               : GalleryThumbnail(
                             galleryItem: cubit.chatListReversed[index].messageImages![index]!,
                             onTap: () {
-                              openImageFullScreen(index, cubit);
+                              //openImageFullScreen(index, cubit);
                             },
                           ));
                     })),
@@ -564,6 +567,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
       return fileMessageView(cubit, index);
     }
   }
+*/
 
   Widget fileMessageView(ConversationCubit cubit, int index) {
     return cubit.chatListReversed[index].type == "file"
@@ -1231,10 +1235,11 @@ class _ConversationScreenState extends State<ConversationScreen> {
     );
   }
 
+/*
   Widget buildImageNumbers(int index, ConversationCubit cubit) {
     return GestureDetector(
       onTap: () {
-        openImageFullScreen(index, cubit);
+        //openImageFullScreen(index, cubit);
       },
       child: Stack(
         alignment: AlignmentDirectional.center,
@@ -1256,8 +1261,9 @@ class _ConversationScreenState extends State<ConversationScreen> {
       ),
     );
   }
+*/
 
-  void openImageFullScreen(final int indexOfImage, ConversationCubit cubit) {
+  /*void openImageFullScreen(final int indexOfImage, ConversationCubit cubit) {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -1272,5 +1278,5 @@ class _ConversationScreenState extends State<ConversationScreen> {
         ),
       ),
     );
-  }
+  }*/
 }

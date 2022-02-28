@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 import 'package:mostaqbal_masr/models/posts_model.dart';
 import 'package:mostaqbal_masr/modules/Global/Login/login_screen.dart';
 import 'package:mostaqbal_masr/modules/Global/Posts/cubit/global_display_posts_states.dart';
+import 'package:mostaqbal_masr/modules/ITDepartment/layout/it_home_layout.dart';
 import 'package:mostaqbal_masr/modules/Mechan/layout/mechan_home_layout.dart';
 import 'package:mostaqbal_masr/modules/SocialMedia/layout/social_home_layout.dart';
 import 'package:mostaqbal_masr/network/remote/dio_helper.dart';
@@ -37,7 +38,7 @@ class GlobalDisplayPostsCubit extends Cubit<GlobalDisplayPostsStates> {
     controller = YoutubePlayerController(
       initialVideoId: videoID,
       flags: const YoutubePlayerFlags(
-          autoPlay: false, mute: false, hideControls: true),
+          autoPlay: false, mute: false, hideControls: false),
     );
   }
 
@@ -149,9 +150,8 @@ class GlobalDisplayPostsCubit extends Cubit<GlobalDisplayPostsStates> {
         print("Difference : $difference");
 
         final info = NetworkInfo();
-
         info.getWifiIP().then((value) async {
-          if (value!.contains("172.16.1.")) {
+          if (value!.contains("172.16.1.") || value.contains("١٧٢")) {
             print("Mobile Is in The Network \n");
 
             if (difference >= 24.0) {
@@ -168,11 +168,15 @@ class GlobalDisplayPostsCubit extends Cubit<GlobalDisplayPostsStates> {
                   navigateAndFinish(context, MechanHomeLayout());
                   emit(GlobalDisplayPostsNavigateSuccessState());
                   break;
+                case "إدارة الرقمنة":
+                  navigateAndFinish(context, ITHomeScreen());
+                  emit(GlobalDisplayPostsNavigateSuccessState());
+                  break;
               }
             }
           } else {
             showToast(
-              message: "برجاءالاتصال بشبكة المشروع اولاً",
+              message: "برجاءالاتصال بشبكة المشروع يابا اولاً",
               length: Toast.LENGTH_SHORT,
               gravity: ToastGravity.BOTTOM,
               timeInSecForIosWeb: 3,
@@ -188,9 +192,8 @@ class GlobalDisplayPostsCubit extends Cubit<GlobalDisplayPostsStates> {
         });
       } else {
         final info = NetworkInfo();
-
         info.getWifiIP().then((value) async {
-          if (value!.contains("172.16.1.")) {
+          if (value!.contains("172.16.1.") || value.contains("١٧٢")) {
             print("Mobile Is in The Network \n");
 
             navigateAndFinish(context, LoginScreen());

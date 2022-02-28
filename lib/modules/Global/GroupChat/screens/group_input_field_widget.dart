@@ -1,38 +1,39 @@
-import 'package:buildcondition/buildcondition.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mostaqbal_masr/modules/Global/Chat/cubit/conversation_cubit.dart';
 import 'package:mostaqbal_masr/modules/Global/Chat/cubit/conversation_states.dart';
-import 'package:mostaqbal_masr/modules/SocialMedia/cubit/social_conversation_cubit.dart';
-import 'package:mostaqbal_masr/modules/SocialMedia/cubit/social_conversation_states.dart';
+import 'package:mostaqbal_masr/modules/Global/GroupChat/cubit/group_conversation_cubit.dart';
+import 'package:mostaqbal_masr/modules/Global/GroupChat/cubit/group_conversation_states.dart';
 import 'package:mostaqbal_masr/shared/components.dart';
 import 'package:mostaqbal_masr/shared/constants.dart';
 
-class SocialInputFieldWidget extends StatefulWidget {
+class GroupInputFieldWidget extends StatefulWidget {
+  final String groupID;
+  final String groupName;
+  final String senderName;
 
-  final String userID;
-  final String userName;
-  final String userToken;
-
-  const SocialInputFieldWidget({Key? key, required this.userID, required this.userName, required this.userToken}) : super(key: key);
+  const GroupInputFieldWidget(
+      {Key? key, required this.groupID, required this.groupName, required this.senderName})
+      : super(key: key);
 
   @override
-  State<SocialInputFieldWidget> createState() => _SocialInputFieldWidgetState();
+  State<GroupInputFieldWidget> createState() => _GroupInputFieldWidgetState();
 }
 
-class _SocialInputFieldWidgetState extends State<SocialInputFieldWidget> {
+class _GroupInputFieldWidgetState extends State<GroupInputFieldWidget> {
   var messageController = TextEditingController();
 
   var formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<SocialConversationCubit, SocialConversationStates>(
+    return BlocConsumer<GroupConversationCubit, GroupConversationStates>(
       listener: (context, state) {},
       builder: (context, state) {
-        var cubit = SocialConversationCubit.get(context);
+        var cubit = GroupConversationCubit.get(context);
 
         return Form(
           key: formKey,
@@ -46,19 +47,19 @@ class _SocialInputFieldWidgetState extends State<SocialInputFieldWidget> {
               children: [
                 ValueListenableBuilder(
                   valueListenable: messageControllerValue,
-                  builder: (context, value, state){
+                  builder: (context, value, state) {
                     if (value.toString().trim().isNotEmpty) {
                       return ClipOval(
                         child: Material(
                           color: Colors.teal, // Button color
                           child: InkWell(
-                            onTap: ()async{
+                            onTap: () async {
                               if (cubit.isImageOnly) {
                               } else {
                                 if (messageController.text
-                                    .toString()
-                                    .trim()
-                                    .isEmpty ||
+                                        .toString()
+                                        .trim()
+                                        .isEmpty ||
                                     messageController.text.toString().trim() ==
                                         "") {
                                   showToast(
@@ -68,13 +69,11 @@ class _SocialInputFieldWidgetState extends State<SocialInputFieldWidget> {
                                       timeInSecForIosWeb: 3);
                                   return;
                                 }
-                                print("User Token : ${widget.userToken}\n");
                                 cubit.sendMessage(
-                                    widget.userID,
+                                    widget.groupID,
                                     messageController.text.toString(),
                                     "Text",
-                                    false,
-                                    widget.userToken);
+                                    false);
                                 messageController.text = "";
                                 messageControllerValue.value = "";
                               }
@@ -84,8 +83,7 @@ class _SocialInputFieldWidgetState extends State<SocialInputFieldWidget> {
                               width: 45,
                               child: CircleAvatar(
                                 radius: 40,
-                                backgroundColor:
-                                Colors.teal,
+                                backgroundColor: Colors.teal,
                                 child: Icon(
                                   IconlyBold.send,
                                   size: 24,
@@ -99,19 +97,19 @@ class _SocialInputFieldWidgetState extends State<SocialInputFieldWidget> {
                     } else {
                       return ValueListenableBuilder(
                         valueListenable: startedRecordValue,
-                        builder: (context, value, state){
+                        builder: (context, value, state) {
                           if (value == true) {
                             return InkWell(
-                              onTap: ()async {
-                                await cubit.stopRecord(widget.userID);
+                              onTap: () async {
+                                cubit.changeRecordingState();
+                                await cubit.stopRecord(widget.groupID);
                               },
                               child: const SizedBox(
                                 height: 45,
                                 width: 45,
                                 child: CircleAvatar(
                                   radius: 40,
-                                  backgroundColor:
-                                  Colors.teal,
+                                  backgroundColor: Colors.teal,
                                   child: Icon(
                                     IconlyBold.send,
                                     size: 24,
@@ -122,16 +120,15 @@ class _SocialInputFieldWidgetState extends State<SocialInputFieldWidget> {
                             );
                           } else {
                             return InkWell(
-                              onTap: ()async{
-                                await cubit.recordAudio(widget.userName);
+                              onTap: () async {
+                                await cubit.recordAudio(widget.groupName, widget.senderName);
                               },
                               child: const SizedBox(
                                 height: 45,
                                 width: 45,
                                 child: CircleAvatar(
                                   radius: 40,
-                                  backgroundColor:
-                                  Colors.teal,
+                                  backgroundColor: Colors.teal,
                                   child: Icon(
                                     Icons.mic,
                                     size: 24,
@@ -148,73 +145,74 @@ class _SocialInputFieldWidgetState extends State<SocialInputFieldWidget> {
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child:  !cubit.isRecording ?
-                  Container(
-                      padding: const EdgeInsets.only(
-                        left: 4,
-                        right: 16,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.teal,
-                        borderRadius: BorderRadius.circular(40),
-                      ),
-                      child: Row(
-                        children: [
-                          IconButton(
-                            onPressed: () {
-                              cubit.selectFile(widget.userID);
-                            },
-                            icon: const Icon(IconlyBroken.paperUpload,
-                                color: Colors.white),
-                            iconSize: 25,
-                            constraints: const BoxConstraints(maxWidth: 25),
+                  child: !cubit.isRecording
+                      ? Container(
+                          padding: const EdgeInsets.only(
+                            left: 4,
+                            right: 16,
                           ),
-                          const SizedBox(width: 5),
-                          IconButton(
-                            onPressed: () {
-                              cubit.selectImage(widget.userID);
-                            },
-                            icon: const Icon(IconlyBroken.camera,
-                                color: Colors.white),
-                            iconSize: 25,
-                            constraints: const BoxConstraints(maxWidth: 25),
+                          decoration: BoxDecoration(
+                            color: Colors.teal,
+                            borderRadius: BorderRadius.circular(40),
                           ),
-                          const SizedBox(width: 5),
-                          Expanded(
-                            child: TextFormField(
-                              controller: messageController,
-                              keyboardType: TextInputType.multiline,
-                              textInputAction: TextInputAction.newline,
-                              textDirection: TextDirection.rtl,
-                              style: const TextStyle(
-                                  color: Colors.white, fontSize: 14),
-                              maxLines: 3,
-                              minLines: 1,
-                              decoration: const InputDecoration(
-                                hintText: "رسالتك ... ",
-                                hintStyle:
-                                TextStyle(color: Colors.white, fontSize: 14),
-                                hintTextDirection: TextDirection.rtl,
-                                border: InputBorder.none,
+                          child: Row(
+                            children: [
+                              IconButton(
+                                onPressed: () {
+                                  cubit.selectFile(widget.groupID);
+                                },
+                                icon: const Icon(IconlyBroken.paperUpload,
+                                    color: Colors.white),
+                                iconSize: 25,
+                                constraints: const BoxConstraints(maxWidth: 25),
                               ),
-                              onChanged: (String value) {
+                              const SizedBox(width: 5),
+                              IconButton(
+                                onPressed: () {
+                                  cubit.selectImages(context,widget.groupID);
+                                },
+                                icon: const Icon(IconlyBroken.camera,
+                                    color: Colors.white),
+                                iconSize: 25,
+                                constraints: const BoxConstraints(maxWidth: 25),
+                              ),
+                              const SizedBox(width: 5),
+                              Expanded(
+                                child: TextFormField(
+                                  controller: messageController,
+                                  keyboardType: TextInputType.multiline,
+                                  textInputAction: TextInputAction.newline,
+                                  textDirection: TextDirection.rtl,
+                                  style: const TextStyle(
+                                      color: Colors.white, fontSize: 14),
+                                  maxLines: 3,
+                                  minLines: 1,
+                                  decoration: const InputDecoration(
+                                    hintText: "رسالتك ... ",
+                                    hintStyle: TextStyle(
+                                        color: Colors.white, fontSize: 14),
+                                    hintTextDirection: TextDirection.rtl,
+                                    border: InputBorder.none,
+                                  ),
+                                  onChanged: (String value) {
+                                    messageControllerValue.value =
+                                        value.toString();
 
-                                messageControllerValue.value = value.toString();
-
-                                if (value.isEmpty || value.characters.isEmpty) {
-                                  //cubit.changeUserState("متصل الان");
-                                }
-                                //cubit.changeUserState("يكتب ...");
-                              },
-                              onEditingComplete: () {
-                                //cubit.changeUserState("متصل الان");
-                              },
-                            ),
+                                    if (value.isEmpty ||
+                                        value.characters.isEmpty) {
+                                      //cubit.changeUserState("متصل الان");
+                                    }
+                                    //cubit.changeUserState("يكتب ...");
+                                  },
+                                  onEditingComplete: () {
+                                    //cubit.changeUserState("متصل الان");
+                                  },
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                    ) :
-                  Center(child: buildRecordingHolder(cubit)),
+                        )
+                      : Center(child: buildRecordingHolder(cubit)),
                 ),
               ],
             ),
@@ -224,13 +222,12 @@ class _SocialInputFieldWidgetState extends State<SocialInputFieldWidget> {
     );
   }
 
-  Widget buildRecordingHolder(SocialConversationCubit cubit){
-
+  Widget buildRecordingHolder(GroupConversationCubit cubit) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 4,left: 6, right: 6),
+      padding: const EdgeInsets.only(bottom: 4, left: 6, right: 6),
       child: InkWell(
-        onTap: ()async{
-          if(cubit.isRecording){
+        onTap: () async {
+          if (cubit.isRecording) {
             await cubit.cancelRecord();
           }
         },
@@ -255,7 +252,9 @@ class _SocialInputFieldWidgetState extends State<SocialInputFieldWidget> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                const SizedBox(width: 12,),
+                const SizedBox(
+                  width: 12,
+                ),
                 const Flexible(
                   child: Text(
                     "جارى التسجيل اضغط للإلغاء",
@@ -266,11 +265,21 @@ class _SocialInputFieldWidgetState extends State<SocialInputFieldWidget> {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                const SizedBox(width: 8,),
-                buildText(cubit),
-                const SizedBox(width: 6.0,),
-                const Icon(Icons.mic,color: Colors.white,size: 22,),
-                const SizedBox(width: 8.0,),
+                const SizedBox(
+                  width: 8,
+                ),
+                _buildText(cubit),
+                const SizedBox(
+                  width: 6.0,
+                ),
+                const Icon(
+                  Icons.mic,
+                  color: Colors.white,
+                  size: 22,
+                ),
+                const SizedBox(
+                  width: 8.0,
+                ),
               ],
             ),
           ),
@@ -278,14 +287,15 @@ class _SocialInputFieldWidgetState extends State<SocialInputFieldWidget> {
       ),
     );
   }
-  Widget buildText(SocialConversationCubit cubit) {
+
+  Widget _buildText(GroupConversationCubit cubit) {
     if (cubit.isRecording || cubit.isPaused) {
       return _buildTimer(cubit);
     }
     return const Text("");
   }
 
-  Widget _buildTimer(SocialConversationCubit cubit) {
+  Widget _buildTimer(GroupConversationCubit cubit) {
     final String minutes = _formatNumber(cubit.recordDuration ~/ 60);
     final String seconds = _formatNumber(cubit.recordDuration % 60);
 
@@ -293,7 +303,10 @@ class _SocialInputFieldWidgetState extends State<SocialInputFieldWidget> {
       '$minutes : $seconds',
       textDirection: TextDirection.ltr,
       textAlign: TextAlign.center,
-      style: const TextStyle(color: Colors.white, fontSize: 14.0,),
+      style: const TextStyle(
+        color: Colors.white,
+        fontSize: 14.0,
+      ),
     );
   }
 

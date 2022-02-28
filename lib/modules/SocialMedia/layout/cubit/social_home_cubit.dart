@@ -1,6 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
@@ -42,11 +44,22 @@ class SocialHomeCubit extends Cubit<SocialHomeStates> {
     } else if (!sectionFormsNameList!.contains("BtnViewPosts")) {
       bottomNavigationItems.removeAt(1);
       screens.removeAt(1);
-    }else if(!sectionFormsNameList!.contains("BtnViewChats")){
+    } else if (!sectionFormsNameList!.contains("BtnViewChats")) {
       bottomNavigationItems.removeAt(2);
       screens.removeAt(2);
     }
     emit(SocialHomeHandleUserTypeState());
+  }
+
+  void refreshToken() async {
+    var token = await FirebaseMessaging.instance.getToken();
+
+    FirebaseDatabase.instance
+        .reference()
+        .child("Users")
+        .child("Future Of Egypt")
+        .child("UserToken")
+        .set(token!);
   }
 
   List<BottomNavigationBarItem> bottomNavigationItems = [
@@ -93,8 +106,7 @@ class SocialHomeCubit extends Cubit<SocialHomeStates> {
   void changeBottomNavBarIndex(int index, BuildContext context) async {
     currentIndex = index;
 
-
-    if(index == bottomNavigationItems.length -1){
+    if (index == bottomNavigationItems.length - 1) {
       var connectivityResult = await (Connectivity().checkConnectivity());
       if ((connectivityResult == ConnectivityResult.none) ||
           (connectivityResult == ConnectivityResult.mobile)) {
@@ -131,12 +143,10 @@ class SocialHomeCubit extends Cubit<SocialHomeStates> {
       }
     }
 
-    if (index != bottomNavigationItems.length -1) {
+    if (index != bottomNavigationItems.length - 1) {
       emit(SocialHomeChangeBottomNavState());
     }
-
   }
-
 
   Future<void> logOut(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -165,9 +175,10 @@ class SocialHomeCubit extends Cubit<SocialHomeStates> {
 
       emit(SocialHomeLogOutSuccessState());
     }).catchError((error) {
-      if(error is DioError){
-        emit(SocialHomeLogOutErrorState("لقد حدث خطأ ما برجاء المحاولة لاحقاً"));
-      }else{
+      if (error is DioError) {
+        emit(
+            SocialHomeLogOutErrorState("لقد حدث خطأ ما برجاء المحاولة لاحقاً"));
+      } else {
         emit(SocialHomeLogOutErrorState(error.toString()));
       }
     });

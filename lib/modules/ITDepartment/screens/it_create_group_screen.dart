@@ -68,7 +68,7 @@ class _ITCreateGroupScreenState extends State<ITCreateGroupScreen> {
                   onPressed: () {
                     if(formKey.currentState!.validate()){
                       if(!cubit.emptyImage){
-                        cubit.createGroup(context,groupNameController.text.toString(), "403");
+                        cubit.createGroup(context,groupNameController.text.toString());
                       }else{
                         showToast(message: "يجب اختيار صورة الجروب", length: Toast.LENGTH_SHORT, gravity: ToastGravity.BOTTOM, timeInSecForIosWeb: 3);
                       }

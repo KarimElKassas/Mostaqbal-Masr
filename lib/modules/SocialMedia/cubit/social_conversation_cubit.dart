@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:collection';
+import 'dart:convert';
 import 'dart:io';
-
+import 'dart:math';
+import 'package:http/http.dart' as http;
 import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:external_path/external_path.dart';
@@ -18,6 +20,7 @@ import 'package:mostaqbal_masr/models/chat_model.dart';
 import 'package:mostaqbal_masr/modules/SocialMedia/cubit/social_conversation_states.dart';
 import 'package:mostaqbal_masr/shared/components.dart';
 import 'package:mostaqbal_masr/shared/constants.dart';
+import 'package:mostaqbal_masr/shared/gallery_item_model.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:record/record.dart';
 
@@ -64,15 +67,50 @@ class SocialConversationCubit extends Cubit<SocialConversationStates> {
   ChatModel? chatModel;
   List<ChatModel> chatList = [];
   List<ChatModel> chatListReversed = [];
+  List<XFile?>? messageImages = [];
+  List<File?>? messageImagesFilesList = [];
+  List<String>? messageImagesStringList = [];
+  GalleryModel? galleryItemModel;
 
   void navigate(BuildContext context, route) {
     navigateTo(context, route);
   }
 
+  void sendNotification(String message,String notificationID,String receiverToken)async {
+
+    var serverKey =
+        'AAAAnuydfc0:APA91bF3jkS5-JWRVnTk3mEBnj2WI70EYJ1zC7Q7TAI6GWlCPTd37SiEkhuRZMa8Uhu9HTZQi1oiCEQ2iKQgxljSyLtWTAxN4HoB3pyfTuyNQLjXtf58s99nAEivs2L6NzEL0laSykTK';
+
+    await http.post(
+      Uri.parse('https://fcm.googleapis.com/fcm/send'),
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+        'Authorization': 'key=$serverKey',
+      },
+      body: jsonEncode(
+        <String, dynamic>{
+          'notification': <String, dynamic>{
+            'body': message,
+            'title': 'لديك رسالة جديدة'
+          },
+          'priority': 'high',
+          'data': <String, dynamic>{
+            'click_action': 'FLUTTER_NOTIFICATION_CLICK',
+            'id': Random().nextInt(100),
+            'status': 'done'
+          },
+          'to': receiverToken,
+        },
+      ),
+    );
+
+  }
+
   void sendMessage(
-      String receiverID, String message, String type, bool isSeen) {
+      String receiverID, String message, String type, bool isSeen, String userToken) {
     DateTime now = DateTime.now();
-    String currentTime = DateFormat("kk:mm a").format(now);
+    String currentTime = DateFormat("hh:mm a").format(now);
+    String currentFullTime = DateFormat("yyyy-MM-dd HH:mm:ss").format(now);
 
     FirebaseDatabase database = FirebaseDatabase.instance;
     var messagesRef = database.reference().child("Messages");
@@ -85,9 +123,12 @@ class SocialConversationCubit extends Cubit<SocialConversationStates> {
     dataMap['type'] = type;
     dataMap["isSeen"] = isSeen;
     dataMap["messageTime"] = currentTime;
+    dataMap["messageFullTime"] = currentFullTime;
+    dataMap["messageImages"] = "emptyList";
     dataMap["fileName"] = "";
+    dataMap["hasImages"] = false;
 
-    messagesRef.push().set(dataMap).then((value) {
+    messagesRef.child(currentFullTime).set(dataMap).then((value) {
       database
           .reference()
           .child("Users")
@@ -102,6 +143,7 @@ class SocialConversationCubit extends Cubit<SocialConversationStates> {
             .child("UserLastMessageTime")
             .set(currentTime)
             .then((value) {
+              sendNotification(message, currentTime, userToken);
           emit(SocialConversationSendMessageState());
         });
       });
@@ -358,6 +400,10 @@ class SocialConversationCubit extends Cubit<SocialConversationStates> {
   void getMessages(String clientID) async {
     emit(SocialConversationLoadingMessageState());
 
+    List<String>? images = [];
+    galleryItemModel = null;
+    messageImages!.clear();
+    messageImagesStringList!.clear();
     FirebaseDatabase.instance
         .reference()
         .child('Messages')
@@ -372,18 +418,33 @@ class SocialConversationCubit extends Cubit<SocialConversationStates> {
           data.forEach((key, value) {
             print('Message Data : $value');
 
+            if (value["hasImages"] == true) {
+              value["messageImages"].forEach((image){
+                print("Test Image $image\n");
+                if(!messageImages!.contains(image)){
+                  messageImages!.add(XFile(image));
+                }
+
+                print("Test Image List  ${messageImages!.length}\n");
+              });
+              messageImagesStringList = messageImages!.map<String>((file) => file!.path).toList();
+              print("Test String Length ${messageImagesStringList!.length}\n");
+              print("Test String Length ${messageImagesStringList![0].toString()}\n");
+
+            }
+
             chatModel = ChatModel(
-                value["SenderID"],
-                value["ReceiverID"],
-                value["Message"],
-                value["messageTime"],
-                value["messageFullTime"],
-                value["messageImages"],
-                value["type"],
-                value["isSeen"],
-                value["fileName"],
-                value["hasImages"],
-                value["11"],
+              value["SenderID"],
+              value["ReceiverID"],
+              value["Message"],
+              value["messageTime"],
+              value["messageFullTime"],
+              messageImages,
+              value["type"],
+              value["isSeen"],
+              value["fileName"],
+              value["hasImages"],
+              messageImagesStringList,
             );
 
             if (((chatModel!.senderID.toString() == clientID) &&

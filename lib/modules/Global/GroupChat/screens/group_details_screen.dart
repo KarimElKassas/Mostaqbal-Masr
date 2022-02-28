@@ -5,19 +5,34 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mostaqbal_masr/modules/SocialMedia/cubit/social_display_chats_cubit.dart';
-import 'package:mostaqbal_masr/modules/SocialMedia/cubit/social_display_chats_states.dart';
-import 'package:mostaqbal_masr/modules/SocialMedia/screens/social_conversation_screen.dart';
+import 'package:flutter_iconly/flutter_iconly.dart';
+import 'package:mostaqbal_masr/modules/Global/GroupChat/cubit/display_groups_cubit.dart';
+import 'package:mostaqbal_masr/modules/Global/GroupChat/cubit/display_groups_states.dart';
+import 'package:mostaqbal_masr/modules/Global/GroupChat/cubit/group_details_cubit.dart';
+import 'package:mostaqbal_masr/modules/Global/GroupChat/cubit/group_details_states.dart';
+import 'package:mostaqbal_masr/modules/Global/GroupChat/screens/group_conversation_screen.dart';
 import 'package:mostaqbal_masr/shared/constants.dart';
 
-class SocialDisplayChats extends StatefulWidget {
-  const SocialDisplayChats({Key? key}) : super(key: key);
+class GroupDetailsScreen extends StatefulWidget {
+
+  final String groupID, groupImage, groupName, membersCount;
+  final List<Object?> membersList, adminsList;
+
+  const GroupDetailsScreen({
+    Key? key,
+    required this.groupID,
+    required this.groupName,
+    required this.groupImage,
+    required this.membersList,
+    required this.adminsList,
+    required this.membersCount,
+  }) : super(key: key);
 
   @override
-  State<SocialDisplayChats> createState() => _SocialDisplayChatsState();
+  State<GroupDetailsScreen> createState() => _GroupDetailsState();
 }
 
-class _SocialDisplayChatsState extends State<SocialDisplayChats> {
+class _GroupDetailsState extends State<GroupDetailsScreen> {
   var searchController = TextEditingController();
 
   String searchText = "";
@@ -25,11 +40,11 @@ class _SocialDisplayChatsState extends State<SocialDisplayChats> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => SocialDisplayChatsCubit()..getChats(),
-      child: BlocConsumer<SocialDisplayChatsCubit, SocialDisplayChatsStates>(
+      create: (context) => GroupDetailsCubit()..getGroups(),
+      child: BlocConsumer<GroupDetailsCubit, GroupDetailsStates>(
         listener: (context, state) {},
         builder: (context, state) {
-          var cubit = SocialDisplayChatsCubit.get(context);
+          var cubit = GroupDetailsCubit.get(context);
 
           return Scaffold(
             appBar: AppBar(
@@ -46,85 +61,79 @@ class _SocialDisplayChatsState extends State<SocialDisplayChats> {
             body: SafeArea(
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(
-                          top: 12.0, right: 12.0, left: 12.0),
-                      child: SizedBox(
-                        height: 60,
-                        width: double.infinity,
-                        child: TextFormField(
-                          textAlign: TextAlign.right,
-                          textAlignVertical: TextAlignVertical.center,
-                          textDirection: TextDirection.rtl,
-                          keyboardType: TextInputType.text,
-                          textInputAction: TextInputAction.search,
-                          autofocus: false,
-                          onChanged: (value) {
-                            setState(() {
-                              searchText = value;
-                            });
-
-                            cubit.searchChat(value);
-                          },
-                          style: TextStyle(
-                              color: greyThreeColor,
-                              fontFamily: "Open Sans",
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600),
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: greyFiveColor,
-                            hintText: 'بحث ..',
-                            hintStyle: TextStyle(
-                                color: greyThreeColor,
-                                fontFamily: "Open Sans",
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600),
-                            alignLabelWithHint: true,
-                            focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                    color: greyBorderColor, width: 1.0),
-                                borderRadius:
-                                    const BorderRadius.all(Radius.circular(12.0))),
-                            border: OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: greyBorderColor, width: 1.0),
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(12.0)),
+                child: Directionality(
+                  textDirection: TextDirection.rtl,
+                  child: Container(
+                    color: const Color(0xff141C27),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Align(
+                          alignment: Alignment.center,
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                                top: 48.0, ),
+                            child: CachedNetworkImage(
+                              imageUrl: widget.groupImage,
+                              imageBuilder: (context, imageProvider) => ClipOval(
+                                child: FadeInImage(
+                                  height: 140,
+                                  width: 140,
+                                  fit: BoxFit.fill,
+                                  image: imageProvider,
+                                  placeholder: const AssetImage(
+                                      "assets/images/placeholder.jpg"),
+                                  imageErrorBuilder:
+                                      (context, error, stackTrace) {
+                                    return Image.asset(
+                                      'assets/images/error.png',
+                                      fit: BoxFit.fill,
+                                      height: 140,
+                                      width: 140,
+                                    );
+                                  },
+                                ),
+                              ),
+                              placeholder: (context, url) => const CircularProgressIndicator(color: Colors.teal, strokeWidth: 0.8,),
+                              errorWidget: (context, url, error) =>
+                              const FadeInImage(
+                                height: 140,
+                                width: 140,
+                                fit: BoxFit.fill,
+                                image: AssetImage("assets/images/error.png"),
+                                placeholder:
+                                AssetImage("assets/images/placeholder.jpg"),
+                              ),
                             ),
-                            enabledBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                    color: greyBorderColor, width: 1.0),
-                                borderRadius:
-                                    const BorderRadius.all(Radius.circular(12.0))),
                           ),
                         ),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 16,
-                    ),
-                    BuildCondition(
-                      condition: state is SocialDisplayChatsLoadingChatsState,
-                      builder: (context) => Center(
-                        child: CircularProgressIndicator(
-                          color: Colors.teal[700],
+                        const SizedBox(
+                          height: 20,
                         ),
-                      ),
-                      fallback: (context) => ListView.separated(
-                        shrinkWrap: true,
-                        physics: const BouncingScrollPhysics(),
-                        scrollDirection: Axis.vertical,
-                        itemBuilder: (context, index) =>
-                            listItem(context, cubit, state, index),
-                        separatorBuilder: (context, index) =>
-                            const SizedBox(width: 10.0),
-                        itemCount: cubit.filteredUserList.length,
-                      ),
+                        Text(
+                          widget.groupName,
+                          style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white),
+                        ),
+                        const SizedBox(
+                          height: 8,
+                        ),
+                        Text(
+                          " اعضاء ${widget.membersCount} مجموعة ",
+                          style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.normal,
+                              color: Color(0xff939190)),
+                        ),
+                        const SizedBox(
+                          height: 8,
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
             ),
@@ -135,7 +144,7 @@ class _SocialDisplayChatsState extends State<SocialDisplayChats> {
   }
 
   Widget listItem(
-      BuildContext context, SocialDisplayChatsCubit cubit, state, int index) {
+      BuildContext context, GroupDetailsCubit cubit, state, int index) {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Card(
@@ -148,11 +157,12 @@ class _SocialDisplayChatsState extends State<SocialDisplayChats> {
           onTap: () {
             cubit.goToConversation(
                 context,
-                SocialConversationScreen(
-                    userID: cubit.filteredUserList[index].userID,
-                    userName: cubit.filteredUserList[index].userName,
-                    userImage: cubit.filteredUserList[index].userImage,
-                    userToken: cubit.filteredUserList[index].userToken,
+                GroupConversationScreen(
+                    groupID: cubit.filteredGroupList[index].groupID,
+                    groupName: cubit.filteredGroupList[index].groupName,
+                    groupImage: cubit.filteredGroupList[index].groupImage,
+                    adminsList: cubit.filteredGroupList[index].adminsList,
+                    membersList: cubit.filteredGroupList[index].membersList,
                 ));
           },
           child: Padding(
@@ -160,7 +170,7 @@ class _SocialDisplayChatsState extends State<SocialDisplayChats> {
             child: Row(
               children: [
                 BuildCondition(
-                  condition: state is SocialDisplayChatsLoadingChatsState,
+                  condition: state is GroupDetailsLoadingGroupsState,
                   builder: (context) => const Center(
                       child: CircularProgressIndicator(
                     color: Colors.teal,
@@ -189,8 +199,8 @@ class _SocialDisplayChatsState extends State<SocialDisplayChats> {
                                               builder: (_) {
                                                 return CachedNetworkImage(
                                                   imageUrl: cubit
-                                                      .filteredUserList[index]
-                                                      .userImage,
+                                                      .filteredGroupList[index]
+                                                      .groupImage,
                                                   imageBuilder: (context,
                                                           imageProvider) =>
                                                       ClipRRect(
@@ -246,8 +256,8 @@ class _SocialDisplayChatsState extends State<SocialDisplayChats> {
                                         },
                                         child: CachedNetworkImage(
                                           imageUrl: cubit
-                                              .filteredUserList[index]
-                                              .userImage,
+                                              .filteredGroupList[index]
+                                              .groupImage,
                                           imageBuilder:
                                               (context, imageProvider) =>
                                                   ClipRRect(
@@ -303,7 +313,7 @@ class _SocialDisplayChatsState extends State<SocialDisplayChats> {
                       );
                     },
                     child: CachedNetworkImage(
-                      imageUrl: cubit.filteredUserList[index].userImage,
+                      imageUrl: cubit.filteredGroupList[index].groupImage,
                       imageBuilder: (context, imageProvider) => ClipOval(
                         child: FadeInImage(
                           height: 50,
@@ -353,7 +363,7 @@ class _SocialDisplayChatsState extends State<SocialDisplayChats> {
                         height: 4.0,
                       ),
                       Text(
-                        cubit.filteredUserList[index].userName,
+                        cubit.filteredGroupList[index].groupName,
                         style: const TextStyle(
                             color: Colors.black,
                             fontSize: 14,
@@ -363,14 +373,9 @@ class _SocialDisplayChatsState extends State<SocialDisplayChats> {
                         height: 4.0,
                       ),
                       Text(
-                        cubit.filteredUserList[index].userState == "يكتب ..."
-                            ? "يكتب ..."
-                            : cubit.filteredUserList[index].userLastMessage,
-                        style: TextStyle(
-                          color: cubit.filteredUserList[index].userState ==
-                                  "يكتب ..."
-                              ? Colors.teal
-                              : Colors.grey,
+                        "${cubit.filteredGroupList[index].groupLastMessageSenderName} : ${cubit.filteredGroupList[index].groupLastMessage}",
+                        style: const TextStyle(
+                          color: Colors.grey,
                           fontSize: 11,
                           fontWeight: FontWeight.w200,
                           overflow: TextOverflow.ellipsis,
@@ -390,10 +395,7 @@ class _SocialDisplayChatsState extends State<SocialDisplayChats> {
                       valueListenable: lastMessageTimeValue,
                       builder: (context, value, widget) {
                         return Text(
-                          cubit.filteredUserList[index].userState == "يكتب ..."
-                              ? ""
-                              : cubit
-                                  .filteredUserList[index].userLastMessageTime,
+                          cubit.filteredGroupList[index].groupLastMessageTime,
                           style: const TextStyle(
                             color: Colors.black,
                             fontSize: 11,

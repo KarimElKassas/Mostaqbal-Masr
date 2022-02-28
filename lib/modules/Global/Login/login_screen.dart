@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:mostaqbal_masr/modules/Global/registration/screens/clerk_registration_screen.dart';
+import 'package:mostaqbal_masr/modules/ITDepartment/layout/it_home_layout.dart';
 import 'package:mostaqbal_masr/modules/Mechan/layout/mechan_home_layout.dart';
 import 'package:mostaqbal_masr/modules/SocialMedia/layout/social_home_layout.dart';
 import 'package:mostaqbal_masr/shared/components.dart';
@@ -53,6 +55,9 @@ class LoginScreen extends StatelessWidget {
             case "الميكنة الزراعية":
               navigateAndFinish(context, MechanHomeLayout());
               break;
+            case "إدارة الرقمنة" :
+              navigateAndFinish(context, ITHomeScreen());
+              break;
           }
         }
       }, builder: (context, state) {
@@ -86,6 +91,7 @@ class LoginScreen extends StatelessWidget {
                         },
                         heroTag: null,
                       ),
+
                     ),
                     const SizedBox(
                       height: 10,
@@ -147,10 +153,10 @@ class LoginScreen extends StatelessWidget {
                             TextFormField(
                               textDirection: TextDirection.rtl,
                               controller: nameController,
-                              keyboardType: TextInputType.text,
+                              keyboardType: TextInputType.number,
                               validator: (String? value) {
                                 if (value!.isEmpty) {
-                                  return 'يجب ادخال اسم المستخدم !';
+                                  return 'يجب ادخال رقم الهاتف !';
                                 }
                               },
                               decoration: InputDecoration(
@@ -161,7 +167,7 @@ class LoginScreen extends StatelessWidget {
                                         BorderRadius.all(Radius.circular(8.0))),
                                 floatingLabelStyle:
                                     TextStyle(color: Colors.teal[700]),
-                                labelText: 'اسم المستخدم',
+                                labelText: 'رقم الهاتف',
                                 alignLabelWithHint: true,
                                 hintTextDirection: TextDirection.rtl,
                                 prefixIcon: Icon(
@@ -215,6 +221,24 @@ class LoginScreen extends StatelessWidget {
                                 border: const OutlineInputBorder(
                                     borderRadius:
                                         BorderRadius.all(Radius.circular(8.0))),
+                              ),
+                            ),
+                            const SizedBox(height: 12.0,),
+                            InkWell(
+                              onTap: (){
+                                navigateTo(context, ClerkRegistrationScreen());
+                              },
+                              child: Align(
+                                alignment: Alignment.center,
+                                child: Text(
+                                  'انشاء حساب',
+                                  style: TextStyle(
+                                    color: Colors.teal[500],
+                                    fontSize: 16.0,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                  textDirection: TextDirection.rtl,
+                                ),
                               ),
                             ),
                             const SizedBox(

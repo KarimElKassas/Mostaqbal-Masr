@@ -12,8 +12,9 @@ import 'package:mostaqbal_masr/shared/constants.dart';
 
 class InputFieldWidget extends StatefulWidget {
   final String userID;
+  final String userToken;
 
-  const InputFieldWidget({Key? key, required this.userID}) : super(key: key);
+  const InputFieldWidget({Key? key, required this.userID, required this.userToken}) : super(key: key);
 
   @override
   State<InputFieldWidget> createState() => _InputFieldWidgetState();
@@ -68,8 +69,11 @@ class _InputFieldWidgetState extends State<InputFieldWidget> {
                               cubit.sendMessage(
                                   messageController.text.toString(),
                                   "Text",
-                                  false);
+                                  false,
+                                widget.userToken
+                              );
                               messageController.text = "";
+                              messageControllerValue.value = "";
                             }
                           },
                           child: const SizedBox(

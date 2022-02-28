@@ -1,11 +1,12 @@
 import 'dart:io';
 
 import 'package:external_path/external_path.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mostaqbal_masr/modules/Customer/layout/customer_home_layout.dart';
-import 'package:mostaqbal_masr/modules/Global/SplashScreen/cubit/spash_states.dart';
+import 'package:mostaqbal_masr/modules/Global/SplashScreen/cubit/splash_states.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class SplashCubit extends Cubit<SplashStates> {
@@ -28,6 +29,9 @@ class SplashCubit extends Cubit<SplashStates> {
   }
 
   Future<void> createMediaFolder() async {
+
+    await FirebaseMessaging.instance.subscribeToTopic("2022-02-20-22-26-32");
+
     var status = await Permission.storage.request();
 
     if (status == PermissionStatus.granted) {

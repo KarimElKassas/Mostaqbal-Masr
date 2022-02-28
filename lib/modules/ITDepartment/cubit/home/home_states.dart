@@ -10,6 +10,8 @@ class ITHomeChangeGroupImageState extends ITHomeStates{}
 
 class ITHomeChangeUsersSelectState extends ITHomeStates{}
 
+class ITHomeLogOutUserState extends ITHomeStates{}
+
 class ITHomeAddUsersSelectState extends ITHomeStates{}
 
 class ITHomeRemoveUsersSelectState extends ITHomeStates{}
@@ -32,5 +34,12 @@ class ITHomeCreateGroupErrorState extends ITHomeStates{
   final String error;
 
   ITHomeCreateGroupErrorState(this.error);
+
+}
+class ITHomeLogOutErrorState extends ITHomeStates{
+
+  final String error;
+
+  ITHomeLogOutErrorState(this.error);
 
 }

@@ -49,6 +49,9 @@ class _ClerkConfirmRegistrationScreenState extends State<ClerkConfirmRegistratio
                 gravity: ToastGravity.BOTTOM,
                 timeInSecForIosWeb: 3);
           }
+          if(state is ClerkRegisterErrorState){
+            showToast(message: state.error, length: Toast.LENGTH_SHORT, gravity: ToastGravity.BOTTOM, timeInSecForIosWeb: 3);
+          }
         },
         builder: (context, state) {
           var cubit = ClerkRegisterCubit.get(context);
@@ -73,7 +76,7 @@ class _ClerkConfirmRegistrationScreenState extends State<ClerkConfirmRegistratio
                           cubit.insertPersonName(
                               widget.clerkModel.clerkID??"", widget.clerkModel.clerkName??"",widget.clerkModel.personNumber??"", widget.clerkModel.personPhone??"", clerkPasswordController.text.toString(), widget.clerkModel.personAddress??"",
                               widget.clerkModel.managementName??"", widget.clerkModel.personTypeName??"", widget.clerkModel.rankName??"", widget.clerkModel.categoryName??"",
-                              widget.clerkModel.personTypeName??"", widget.clerkModel.presenceName??"", widget.clerkModel.coreStrengthName??"");
+                              widget.clerkModel.jobName??"", widget.clerkModel.presenceName??"", widget.clerkModel.coreStrengthName??"");
                         }
                       },
                       child: const Icon(

@@ -502,7 +502,7 @@ class ITGroupConversationCubit extends Cubit<ITGroupConversationStates>{
                 (chatModel!.receiverID.toString() == receiverID)) ||
                 (chatModel!.receiverID.toString() == userID) &&
                     (chatModel!.senderID.toString() == receiverID)) {
-              buildItemsList(messageImagesStringList!);
+              //buildItemsList(messageImagesStringList!);
               chatList.add(chatModel!);
               chatListReversed = chatList.reversed.toList();
             }
@@ -543,7 +543,7 @@ class ITGroupConversationCubit extends Cubit<ITGroupConversationStates>{
   }
   List<GalleryModel> galleryItems = <GalleryModel>[];
 
-  buildItemsList(List<String> items) {
+  /*buildItemsList(List<String> items) {
     galleryItems = [];
     for (var item in items) {
       galleryItemModel = GalleryModel(id: item, imageUrl: item);
@@ -551,7 +551,7 @@ class ITGroupConversationCubit extends Cubit<ITGroupConversationStates>{
           galleryItemModel!
       );
     }
-  }
+  }*/
 
   void getFireStoreMessages() async {
     emit(ITGroupConversationLoadingMessageState());

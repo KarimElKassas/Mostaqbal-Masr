@@ -1,13 +1,14 @@
 import 'package:bloc/bloc.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:mostaqbal_masr/modules/Customer/layout/customer_home_layout.dart';
 import 'package:mostaqbal_masr/modules/Global/Login/cubit/login_states.dart';
-import 'package:mostaqbal_masr/modules/Global/Posts/screens/global_display_posts_screen.dart';
 import 'package:mostaqbal_masr/network/remote/dio_helper.dart';
 import 'package:mostaqbal_masr/shared/components.dart';
 import 'package:network_info_plus/network_info_plus.dart';
@@ -29,9 +30,11 @@ class LoginCubit extends Cubit<LoginStates> {
   int? sectionUserID;
   int? sectionID;
   String? sectionName;
+  String? ip;
   List<int?>? userFormsIDList = [];
   List<String>? sectionFormsNameList = [];
   List<String>? sectionFormsFinalNameList = [];
+
 
   void changePasswordVisibility() {
     isPassword = !isPassword;
@@ -60,8 +63,8 @@ class LoginCubit extends Cubit<LoginStates> {
       final info = NetworkInfo();
 
       info.getWifiIP().then((deviceIP) async {
-        if (deviceIP!.contains("172.16.1.")) {
-         await DioHelper.getData(
+        if (deviceIP!.contains("172.16.1.") || deviceIP.contains("١٧٢")) {
+          await DioHelper.getData(
                   url: 'login/GetWithParams',
                   query: {'User_Name': userName, 'User_Password': userPassword})
               .then((value) async {
@@ -89,7 +92,7 @@ class LoginCubit extends Cubit<LoginStates> {
               classificationPersonID =
                   value.data[0]["Classification_Persons_ID"];
 
-              info.getWifiIP().then((ipValue)async {
+              info.getWifiIP().then((ipValue) async {
                 DateTime now = DateTime.now();
                 String formattedDate =
                     DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format(now);
@@ -102,21 +105,6 @@ class LoginCubit extends Cubit<LoginStates> {
                 await addLog(userID, formattedDate, "Flutter Application",
                     ipValue!.toString(), userName, userPassword);
               });
-
-                /*getUserSection(userID).then((userSectionValue) {
-                  getSectionName().then((nameValue) {
-                    getUserForms().then((userFormValue) {
-                      getSectionFormName().then((sectionFormNameValue) {
-                        getUserData(classificationPersonID!)
-                            .then((classificationPersonIdValue) {
-                          addLog(userID, formattedDate, "Flutter Application",
-                              ipValue!.toString(), userName, userPassword);
-                        });
-                      });
-                    });
-                  });
-                });
-              });*/
             }
           }).catchError((error) {
             if (error.type == DioErrorType.response) {
@@ -143,10 +131,10 @@ class LoginCubit extends Cubit<LoginStates> {
     }
   }
 
-  Future<void> getLoginLogID(int userID, String Login_Log_FDate) async {
+  Future<void> getLoginLogID(int userID, String LoginLogFDate) async {
     await DioHelper.getData(
             url: 'loginlog/GetWithParameters',
-            query: {'Login_Log_FDate': Login_Log_FDate, 'User_ID': userID})
+            query: {'Login_Log_FDate': LoginLogFDate, 'User_ID': userID})
         .then((value) {
       loginLogID = value.data[0]["Login_Log_ID"];
     });
@@ -176,18 +164,20 @@ class LoginCubit extends Cubit<LoginStates> {
 
   Future<void> addLog(
       int userID,
-      String Login_Log_FDate,
-      String Login_Log_HostName,
-      String Login_Log_IPAddress,
+      String LoginLogFDate,
+      String LoginLogHostName,
+      String LoginLogIPAddress,
       String userName,
       String userPassword) async {
     await DioHelper.postData(url: 'loginlog/POST', query: {
       'User_ID': userID,
-      'Login_Log_FDate': Login_Log_FDate,
-      'Login_Log_HostName': Login_Log_HostName,
-      'Login_Log_IPAddress': Login_Log_IPAddress
+      'Login_Log_FDate': LoginLogFDate,
+      'Login_Log_HostName': LoginLogHostName,
+      'Login_Log_IPAddress': LoginLogIPAddress
     }).then((value) {
-      getLoginLogID(userID, Login_Log_FDate).then((value) async {
+      getLoginLogID(userID, LoginLogFDate).then((value) async {
+        await getClerkFirebase(userName);
+
         SharedPreferences prefs = await SharedPreferences.getInstance();
 
         DateTime loginDate = DateTime.now();
@@ -214,14 +204,68 @@ class LoginCubit extends Cubit<LoginStates> {
           print("Person Name $personName");
 
           emit(LoginSuccessState(sectionName!));
-        })/*.catchError((error) {
+        }) /*.catchError((error) {
           emit(LoginSharedPrefErrorState(error.toString()));
-        })*/;
-      })/*.catchError((error) {
+        })*/
+            ;
+      }) /*.catchError((error) {
         emit(LoginSharedPrefErrorState(error.toString()));
-      })*/;
+      })*/
+          ;
     }).catchError((error) {
       emit(LoginErrorState(error.toString()));
+    });
+  }
+
+  Future<void> getClerkFirebase(String clerkPhone) async {
+    FirebaseDatabase.instance
+        .reference()
+        .child("Clerks")
+        .child(clerkPhone)
+        .once()
+        .then((value) async {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      List<String> groups = [];
+
+      print("DATAAA : ${value.value["ClerkName"]}\n");
+      print("DATAAA : ${value.value["ClerkID"]}\n");
+      print("DATAAA : ${value.value["ClerkTypeName"]}\n");
+
+      await prefs.setString("ClerkID", value.value["ClerkID"].toString());
+      await prefs.setString("ClerkName", value.value["ClerkName"].toString());
+      await prefs.setString("ClerkImage", value.value["ClerkImage"].toString());
+      await prefs.setString("ClerkPhone", value.value["ClerkPhone"].toString());
+      await prefs.setString(
+          "ClerkNumber", value.value["ClerkNumber"].toString());
+      await prefs.setString(
+          "ClerkPassword", value.value["ClerkPassword"].toString());
+      await prefs.setString(
+          "ClerkManagementName", value.value["ClerkManagementName"].toString());
+      await prefs.setString(
+          "ClerkTypeName", value.value["ClerkTypeName"].toString());
+      await prefs.setString(
+          "ClerkRankName", value.value["ClerkRankName"].toString());
+      await prefs.setString(
+          "ClerkCategoryName", value.value["ClerkCategoryName"].toString());
+      await prefs.setString("ClerkCoreStrengthName",
+          value.value["ClerkCoreStrengthName"].toString());
+      await prefs.setString(
+          "ClerkPresenceName", value.value["ClerkPresenceName"].toString());
+      await prefs.setString(
+          "ClerkJobName", value.value["ClerkJobName"].toString());
+
+      value.value["ClerkSubscriptions"].forEach((group) {
+        groups.add(group);
+      });
+      await prefs.setStringList("ClerkSubscriptions", groups);
+
+      var token = await FirebaseMessaging.instance.getToken();
+      await FirebaseDatabase.instance.reference().child("Clerks").child(clerkPhone).child("ClerkToken").set(token);
+      await prefs.setString("ClerkToken", token!);
+
+      emit(LoginGetClerkDataSuccessState());
+    }).catchError((error) {
+      emit(LoginGetClerkDataErrorState(error.toString()));
     });
   }
 
@@ -250,9 +294,9 @@ class LoginCubit extends Cubit<LoginStates> {
         url: 'person/GetWithParameters',
         query: {'Person_ID': personID!.round()}).then((value) {
       personName = value.data[0]["Person_Name"];
-      if(value.data[0]["Person_Pic"] != null){
+      if (value.data[0]["Person_Pic"] != null) {
         personImg = value.data[0]["Person_Pic"];
-      }else{
+      } else {
         personImg = "null";
       }
 

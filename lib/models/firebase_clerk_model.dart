@@ -13,6 +13,7 @@ class ClerkFirebaseModel{
   String? personPassword;
   String? personState;
   String? personToken;
+  List<Object?>? clerkSubscriptions;
 
   ClerkFirebaseModel(
       this.clerkID,
@@ -25,7 +26,8 @@ class ClerkFirebaseModel{
       this.personState,
       this.personToken,
       this.clerkLastMessage,
-      this.clerkLastMessageTime);
+      this.clerkLastMessageTime,
+      this.clerkSubscriptions);
 
 
   factory ClerkFirebaseModel.fromJson(Map<String, dynamic> jsonData) {
@@ -41,6 +43,7 @@ class ClerkFirebaseModel{
         jsonData['PersonToken'],
         jsonData['CategoryLastMessage'],
         jsonData['CategoryLastMessageTime'],
+        jsonData['ClerkSubscriptions'],
     );
   }
 
@@ -56,6 +59,7 @@ class ClerkFirebaseModel{
     'ClerkToken': clerkModel.personToken,
     'ClerkLastMessage': clerkModel.clerkLastMessage,
     'ClerkLastMessageTime': clerkModel.clerkLastMessageTime,
+    'ClerkSubscriptions': clerkModel.clerkSubscriptions,
   };
 
   static String encode(List<ClerkFirebaseModel> clerks) => json.encode(

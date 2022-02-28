@@ -12,7 +12,7 @@ class GalleryImageWrapper extends StatefulWidget {
   final BoxDecoration? backgroundDecoration;
   final int? initialIndex;
   final PageController pageController;
-  final List<XFile?> galleryItems;
+  final List<GalleryModel?> galleryItems;
   final Axis scrollDirection;
   final String? titleGallery;
 
@@ -63,7 +63,7 @@ class _GalleryImageWrapperState extends State<GalleryImageWrapper> {
 
 // build image with zooming
   PhotoViewGalleryPageOptions _buildImage(BuildContext context, int index) {
-    final XFile item = widget.galleryItems[index]!;
+    final XFile item = widget.galleryItems[index]!.imageUrl;
     return PhotoViewGalleryPageOptions.customChild(
       child: CachedNetworkImage(
         imageUrl: item.path,

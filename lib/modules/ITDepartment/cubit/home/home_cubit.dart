@@ -1,6 +1,9 @@
 import 'dart:collection';
+import 'dart:convert';
 import 'dart:io';
-
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -13,11 +16,13 @@ import 'package:mostaqbal_masr/models/clerk_model.dart';
 import 'package:mostaqbal_masr/models/clerk_model.dart';
 import 'package:mostaqbal_masr/models/firebase_clerk_model.dart';
 import 'package:mostaqbal_masr/models/user_model.dart';
+import 'package:mostaqbal_masr/modules/Global/Login/login_screen.dart';
 import 'package:mostaqbal_masr/modules/Global/registration/screens/clerk_registration_screen.dart';
 import 'package:mostaqbal_masr/modules/ITDepartment/cubit/home/home_states.dart';
 import 'package:mostaqbal_masr/modules/ITDepartment/screens/it_create_group_screen.dart';
 import 'package:mostaqbal_masr/modules/ITDepartment/screens/it_group_conversation_screen.dart';
 import 'package:mostaqbal_masr/modules/ITDepartment/screens/it_select_group_users_screen.dart';
+import 'package:mostaqbal_masr/network/remote/dio_helper.dart';
 import 'package:mostaqbal_masr/shared/components.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -34,6 +39,7 @@ class ITHomeCubit extends Cubit<ITHomeStates>{
   UserModel? userModel;
 
   List<ClerkFirebaseModel> clerkList = [];
+  List<Object?> clerkSubscriptionsList = [];
   List<ClerkFirebaseModel> filteredClerkList = [];
   List<ClerkFirebaseModel> selectedClerksList = [];
   List<String> selectedClerksIDList = [];
@@ -43,45 +49,105 @@ class ITHomeCubit extends Cubit<ITHomeStates>{
   bool emptyImage = true;
   String imageUrl = "";
   final ImagePicker imagePicker = ImagePicker();
+  double? loginLogID;
 
   void navigateToSelectUsers(BuildContext context){
     navigateTo(context, ITSelectGroupUsersScreen());
   }
+  Future<void> logOut(BuildContext context) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    loginLogID = prefs.getDouble("Login_Log_ID");
+    print("Login Log ID $loginLogID");
+
+    DateTime now = DateTime.now();
+    String formattedDate = DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format(now);
+
+    await DioHelper.updateData(url: 'loginlog/PutWithParams', query: {
+      'Login_Log_ID': loginLogID!.toInt(),
+      'Login_Log_TDate': formattedDate,
+    }).then((value)async {
+      await prefs.remove("Login_Log_ID");
+      await prefs.remove("LoginDate");
+      await prefs.remove("Section_User_ID");
+      await prefs.remove("Section_ID");
+      await prefs.remove("Section_Name");
+      await prefs.remove("Section_Forms_Name_List");
+      await prefs.remove("User_ID");
+      await prefs.remove("User_Name");
+      await prefs.remove("User_Password");
+      await prefs.remove("ClerkName");
+      await prefs.remove("ClerkPhone");
+      await prefs.remove(
+          "ClerkNumber");
+      await prefs.remove(
+          "ClerkPassword");
+      await prefs.remove(
+          "ClerkImage");
+      await prefs.remove(
+          "ClerkManagementName");
+      await prefs.remove(
+          "ClerkTypeName");
+      await prefs.remove(
+          "ClerkRankName");
+      await prefs.remove(
+          "ClerkCategoryName");
+      await prefs.remove("ClerkCoreStrengthName");
+      await prefs.remove(
+          "ClerkPresenceName");
+      await prefs.remove(
+          "ClerkJobName");
+      await prefs.remove("ClerkToken");
+      await prefs.remove("CustomerID");
+      await prefs.remove("CustomerName");
+      await prefs.remove("CustomerRegion");
+      await prefs.remove("CustomerCity");
+      await prefs.remove("CustomerPhone");
+      await prefs.remove("CustomerPassword");
+      await prefs.remove("CustomerToken");
+      await prefs.remove("CustomerImage");
+      await prefs.remove("CustomerDocType");
+      await prefs.remove("CustomerDocNumber");
+      await prefs.remove("UserType");
+
+      showToast(message: "تم تسجيل الخروج بنجاح",
+          length: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 3);
+      navigateAndFinish(context, LoginScreen());
+      emit(ITHomeLogOutUserState());
+    }).catchError((error) {
+
+      if(error is DioError){
+        emit(ITHomeLogOutErrorState("لقد حدث خطأ ما برجاء المحاولة لاحقاً"));
+      }else{
+        emit(ITHomeLogOutErrorState(error.toString()));
+      }
+
+    });
+  }
+
   void navigateToCreateClerk(BuildContext context){
     navigateTo(context, ClerkRegistrationScreen());
   }
   void navigateToGroupConversation(BuildContext context, String groupID, String groupName, String groupImage){
     navigateTo(context, ITGroupConversationScreen(groupID: groupID, groupImage: groupImage, groupName: groupName));
   }
-  /*void navigateToCreateGroup(BuildContext context)async {
 
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final String encodedData = UserModel.encode(selectedUsersList);
-    prefs.setString("selectedUsersModelList", encodedData);
-
-    final String userModelString = prefs.getString('selectedUsersModelList')!;
-    final List<UserModel> userModelList = UserModel.decode(userModelString);
-
-    navigateTo(context, ITCreateGroupScreen(selectedUsersList: selectedUsersList));
-    print("Navigate Selected Users Model List ${selectedUsersList.length}\n");
-    print("User Model List Decoded ${userModelList.length}\n");
-
-  }*/
-  
   void navigateToCreateClerksGroup(BuildContext context)async {
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    final String encodedData = UserModel.encode(selectedUsersList);
+    final String encodedData = ClerkFirebaseModel.encode(selectedClerksList);
     prefs.setString("selectedClerksModelList", encodedData);
 
     final String userModelString = prefs.getString('selectedClerksModelList')!;
-    final List<UserModel> clerkModelList = UserModel.decode(userModelString);
+    final List<ClerkFirebaseModel> clerkModelList = ClerkFirebaseModel.decode(userModelString);
 
     navigateTo(context, ITCreateGroupScreen(selectedUsersList: selectedClerksList));
     print("Navigate Selected Clerks Model List ${selectedClerksList.length}\n");
     print("Clerks Model List Decoded ${clerkModelList.length}\n");
 
   }
+
   void changeUserSelect(){
     isUserSelected = !isUserSelected;
     emit(ITHomeChangeUsersSelectState());
@@ -99,6 +165,7 @@ class ITHomeCubit extends Cubit<ITHomeStates>{
 
     emit(ITHomeRemoveUsersSelectState());
   }
+
   Future<void> getUsers() async {
     emit(ITHomeLoadingUsersState());
 
@@ -109,14 +176,22 @@ class ITHomeCubit extends Cubit<ITHomeStates>{
         .listen((event){
 
       clerkList.clear();
+      clerkSubscriptionsList = [];
       filteredClerkList.clear();
       clerkModel = null;
       if(event.snapshot.value != null){
-        Map<dynamic, dynamic> values = event.snapshot.value;
+        Map values = event.snapshot.value;
         values.forEach((key,user){
+
+          user["ClerkSubscriptions"].forEach((group){
+            clerkSubscriptionsList.add(group);
+          });
+          
           clerkModel = ClerkFirebaseModel(
               user["ClerkID"], user["ClerkName"], user["ClerkImage"], user["ClerkNumber"],
-              user["ClerkAddress"], user["ClerkPhone"], user["ClerkPassword"], user["ClerkState"], user["ClerkToken"], user["ClerkLastMessage"], user["ClerkLastMessageTime"]);
+              user["ClerkAddress"], user["ClerkPhone"], user["ClerkPassword"], user["ClerkState"], user["ClerkToken"], user["ClerkLastMessage"], user["ClerkLastMessageTime"],clerkSubscriptionsList);
+          
+          
 
           clerkList.add(clerkModel!);
           filteredClerkList = clerkList.toList();
@@ -127,9 +202,9 @@ class ITHomeCubit extends Cubit<ITHomeStates>{
       print("Clerks List Length Out : ${filteredClerkList.length}\n");
 
       emit(ITHomeGetUsersSuccessState());
-    }).onError((handleError){
+    })/*.catchError((handleError){
       emit(ITHomeGetUsersErrorState(handleError.toString()));
-    });
+    })*/;
 
   }
 
@@ -155,16 +230,17 @@ class ITHomeCubit extends Cubit<ITHomeStates>{
     emit(ITHomeChangeGroupImageState());
   }
 
-  Future<void> createGroup(BuildContext context,String groupName, String adminID)async {
+  Future<void> createGroup(BuildContext context,String groupName)async {
     emit(ITHomeLoadingCreateGroupState());
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    String clerkPhone = prefs.getString("ClerkPhone")!;
     final String clerkModelString = prefs.getString('selectedClerksModelList')!;
     final List<ClerkFirebaseModel> clerkModelList = ClerkFirebaseModel.decode(clerkModelString);
 
     selectedClerksIDList.clear();
     groupAdminsList.clear();
-    groupAdminsList.add(adminID);
+    groupAdminsList.add(clerkPhone);
 
     for (var clerkModel in clerkModelList) {
       selectedClerksIDList.add(clerkModel.clerkID!.toString());
@@ -187,6 +263,9 @@ class ITHomeCubit extends Cubit<ITHomeStates>{
     dataMap['DateCreated'] = currentFullTime;
     dataMap['Admins'] = groupAdminsList;
     dataMap['Members'] = selectedClerksIDList;
+    dataMap['GroupLastMessageSenderName'] = "";
+    dataMap['GroupLastMessage'] = "";
+    dataMap['GroupLastMessageTime'] = "";
 
     groupRef.child(currentFullTime).child("Info").set(dataMap).then((value) async {
       String fileName = imageUrl;
@@ -200,6 +279,37 @@ class ITHomeCubit extends Cubit<ITHomeStates>{
 
           groupRef.child(currentFullTime).child("Info").update(dataMap).then((
               realtimeDbValue) async {
+            clerkSubscriptionsList = [];
+            clerkSubscriptionsList.add(currentFullTime);
+            for (var element in selectedClerksIDList) {
+              Map<int, Object?> map = clerkSubscriptionsList.asMap();
+              Map<String, Object?> stringMap = <String, Object?>{};
+
+              map.forEach((key, value) {
+                stringMap.putIfAbsent(key.toString(), () => value);
+              });
+
+             await FirebaseDatabase.instance.reference().child("Clerks").child(element).child("ClerkSubscriptions")
+              .get().then((value){
+
+                value.value.forEach((group){
+                  print("GROUP : $group\n");
+                  clerkSubscriptionsList.add(group);
+                });
+
+              });
+              List<String> filtered = LinkedHashSet<String>.from(clerkSubscriptionsList).toList();
+              clerkSubscriptionsList.toSet().toList();
+              FirebaseDatabase.instance.reference().child("Clerks").child(element).child("ClerkSubscriptions")
+              .set(filtered);
+
+              for (var element in filtered) {
+
+                await FirebaseMessaging.instance.subscribeToTopic(element);
+
+              }
+              print("Clerk List After Set : ${filtered.length}\n");
+            }
 
             navigateToGroupConversation(context, currentFullTime, groupName, value.toString());
             emit(ITHomeCreateGroupSuccessState());

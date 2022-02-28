@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'dart:collection';
+import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
+import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:external_path/external_path.dart';
 import 'package:file_picker/file_picker.dart';
@@ -9,7 +12,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:galleryimage/gallery_Item_model.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:just_audio/just_audio.dart' as j;
@@ -150,8 +152,37 @@ class ConversationCubit extends Cubit<ConversationStates> {
       emit(ConversationSendMessageErrorState(error.toString()));
     });
   }
+  void sendNotification(String message,String notificationID,String receiverToken)async {
 
-  void sendMessage(String message, String type, bool isSeen) {
+    var serverKey =
+        'AAAAnuydfc0:APA91bF3jkS5-JWRVnTk3mEBnj2WI70EYJ1zC7Q7TAI6GWlCPTd37SiEkhuRZMa8Uhu9HTZQi1oiCEQ2iKQgxljSyLtWTAxN4HoB3pyfTuyNQLjXtf58s99nAEivs2L6NzEL0laSykTK';
+
+    await http.post(
+      Uri.parse('https://fcm.googleapis.com/fcm/send'),
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+        'Authorization': 'key=$serverKey',
+      },
+      body: jsonEncode(
+        <String, dynamic>{
+          'notification': <String, dynamic>{
+            'body': message,
+            'title': 'لديك رسالة جديدة'
+          },
+          'priority': 'high',
+          'data': <String, dynamic>{
+            'click_action': 'FLUTTER_NOTIFICATION_CLICK',
+            'id': Random().nextInt(100),
+            'status': 'done'
+          },
+          'to': receiverToken,
+        },
+      ),
+    );
+
+  }
+
+  void sendMessage(String message, String type, bool isSeen, String receiverToken) {
     DateTime now = DateTime.now();
     String currentTime = DateFormat("hh:mm a").format(now);
     String currentFullTime = DateFormat("yyyy-MM-dd HH:mm:ss").format(now);
@@ -194,6 +225,7 @@ class ConversationCubit extends Cubit<ConversationStates> {
               .child("UserState")
               .set("متصل الان")
               .then((value) {
+                sendNotification(message, currentFullTime, receiverToken);
             emit(ConversationSendMessageState());
           });
         });
@@ -509,7 +541,7 @@ class ConversationCubit extends Cubit<ConversationStates> {
                     (chatModel!.receiverID.toString() == receiverID)) ||
                 (chatModel!.receiverID.toString() == userID) &&
                     (chatModel!.senderID.toString() == receiverID)) {
-              buildItemsList(messageImagesStringList!);
+              //buildItemsList(messageImagesStringList!);
               chatList.add(chatModel!);
               chatListReversed = chatList.reversed.toList();
             }
@@ -550,7 +582,7 @@ class ConversationCubit extends Cubit<ConversationStates> {
   }
   List<GalleryModel> galleryItems = <GalleryModel>[];
 
-  buildItemsList(List<String> items) {
+  /*buildItemsList(List<String> items) {
     galleryItems = [];
     for (var item in items) {
       galleryItemModel = GalleryModel(id: item, imageUrl: item);
@@ -558,7 +590,7 @@ class ConversationCubit extends Cubit<ConversationStates> {
         galleryItemModel!
       );
     }
-  }
+  }*/
 
   void getFireStoreMessages() async {
     emit(ConversationLoadingMessageState());

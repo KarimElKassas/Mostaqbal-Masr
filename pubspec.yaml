@@ -30,6 +30,7 @@ dependencies:
   flutter:
     sdk: flutter
   dio: ^4.0.4
+  http: ^0.13.4
   bloc: ^7.1.0
   flutter_bloc: ^7.2.0
   shared_preferences: ^2.0.8
@@ -46,6 +47,7 @@ dependencies:
   firebase_storage: ^10.2.3
   cloud_firestore: ^3.1.4
   firebase_messaging: ^11.2.6
+  firebase_analytics: ^9.1.0
   firebase_auth: ^3.3.5
   video_player: ^2.2.7
   youtube_player_flutter: ^8.0.0
@@ -68,6 +70,7 @@ dependencies:
   auto_size_text: ^3.0.0
   flutter_screenutil: ^5.1.1
   flutter_local_notifications: ^9.2.0
+  awesome_notifications: ^0.6.21
   onesignal_flutter: ^3.2.8
   flutter_svg: ^1.0.3
   custom_full_image_screen: ^0.0.4
@@ -83,6 +86,7 @@ dependencies:
   just_audio: ^0.9.19
   percent_indicator: ^4.0.0
   galleryimage: ^1.1.0
+  anim_search_bar: ^2.0.2
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2

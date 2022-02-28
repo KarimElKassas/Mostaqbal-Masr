@@ -26,6 +26,8 @@ class LoginSuccessState extends LoginStates {
 
 }
 
+class LoginGetClerkDataSuccessState extends LoginStates {}
+
 class LoginGetUserSectionSuccessState extends LoginStates {}
 
 class LoginGetUserPersonIDSuccessState extends LoginStates {}
@@ -46,6 +48,12 @@ class LoginSharedPrefErrorState extends LoginStates {
   final String error;
 
   LoginSharedPrefErrorState(this.error);
+}
+
+class LoginGetClerkDataErrorState extends LoginStates {
+  final String error;
+
+  LoginGetClerkDataErrorState(this.error);
 }
 
 class LoginGetUserSectionErrorState extends LoginStates {

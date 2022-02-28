@@ -70,7 +70,7 @@ class CustomerDisplayChats extends StatelessWidget {
         shadowColor: Colors.black,
         child: InkWell(
           onTap: (){
-                cubit.goToConversation(context, ConversationScreen(userID: cubit.userList[index].userID,userName: cubit.userList[index].userName,userImage: cubit.userList[index].userImage));
+                cubit.goToConversation(context, ConversationScreen(userID: cubit.userList[index].userID,userName: cubit.userList[index].userName,userImage: cubit.userList[index].userImage, userToken: cubit.userList[index].userToken,));
           },
           splashColor: Colors.white70,
           child: Padding(

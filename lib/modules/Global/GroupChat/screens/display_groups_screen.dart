@@ -1,3 +1,4 @@
+import 'package:anim_search_bar/anim_search_bar.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:buildcondition/buildcondition.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -5,31 +6,52 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mostaqbal_masr/modules/SocialMedia/cubit/social_display_chats_cubit.dart';
-import 'package:mostaqbal_masr/modules/SocialMedia/cubit/social_display_chats_states.dart';
-import 'package:mostaqbal_masr/modules/SocialMedia/screens/social_conversation_screen.dart';
+import 'package:flutter_iconly/flutter_iconly.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:mostaqbal_masr/modules/Global/GroupChat/cubit/display_groups_cubit.dart';
+import 'package:mostaqbal_masr/modules/Global/GroupChat/cubit/display_groups_states.dart';
+import 'package:mostaqbal_masr/modules/Global/GroupChat/screens/group_conversation_screen.dart';
+import 'package:mostaqbal_masr/shared/components.dart';
 import 'package:mostaqbal_masr/shared/constants.dart';
 
-class SocialDisplayChats extends StatefulWidget {
-  const SocialDisplayChats({Key? key}) : super(key: key);
+class DisplayGroupsScreen extends StatefulWidget {
+  const DisplayGroupsScreen({Key? key}) : super(key: key);
 
   @override
-  State<SocialDisplayChats> createState() => _SocialDisplayChatsState();
+  State<DisplayGroupsScreen> createState() => _DisplayGroupsState();
 }
 
-class _SocialDisplayChatsState extends State<SocialDisplayChats> {
+class _DisplayGroupsState extends State<DisplayGroupsScreen> with SingleTickerProviderStateMixin {
+
+
+  Animation<double>? animation;
+  AnimationController? animationController;
+  bool isForward = false;
+
   var searchController = TextEditingController();
+  var search2Controller = TextEditingController();
 
   String searchText = "";
 
   @override
+  void initState() {
+    super.initState();
+
+    animationController = AnimationController(duration: const Duration(milliseconds: 1000), vsync: this);
+    final curvedAnimation = CurvedAnimation(parent: animationController!, curve: Curves.fastOutSlowIn);
+
+    animation = Tween<double>(begin: 0, end: 220).animate(curvedAnimation)..addListener(() {setState(() {});});
+
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => SocialDisplayChatsCubit()..getChats(),
-      child: BlocConsumer<SocialDisplayChatsCubit, SocialDisplayChatsStates>(
+      create: (context) => DisplayGroupsCubit()..getGroups(),
+      child: BlocConsumer<DisplayGroupsCubit, DisplayGroupsStates>(
         listener: (context, state) {},
         builder: (context, state) {
-          var cubit = SocialDisplayChatsCubit.get(context);
+          var cubit = DisplayGroupsCubit.get(context);
 
           return Scaffold(
             appBar: AppBar(
@@ -46,85 +68,100 @@ class _SocialDisplayChatsState extends State<SocialDisplayChats> {
             body: SafeArea(
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(
-                          top: 12.0, right: 12.0, left: 12.0),
-                      child: SizedBox(
-                        height: 60,
-                        width: double.infinity,
-                        child: TextFormField(
-                          textAlign: TextAlign.right,
-                          textAlignVertical: TextAlignVertical.center,
-                          textDirection: TextDirection.rtl,
-                          keyboardType: TextInputType.text,
-                          textInputAction: TextInputAction.search,
-                          autofocus: false,
-                          onChanged: (value) {
-                            setState(() {
-                              searchText = value;
-                            });
+                child: Directionality(
+                  textDirection: TextDirection.rtl,
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            top: 12.0, right: 12.0, left: 12.0),
+                        child: Column(
+                          children: [
+                            Directionality(
+                              textDirection: TextDirection.ltr,
+                              child: Container(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                      Container(
+                                        decoration: const BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.only(topLeft: Radius.circular(50), bottomLeft: Radius.circular(50)),
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.only(left: 20, bottom: 5),
+                                          child: TextFormField(
+                                            cursorColor: Colors.teal,
+                                            controller: searchController,
+                                            textDirection: TextDirection.rtl,
+                                            keyboardType: TextInputType.text,
+                                            textInputAction: TextInputAction.search,
+                                            onChanged: (String value){
+                                              cubit.searchGroup(value);
+                                            },
+                                            style: TextStyle(color: Colors.teal[700], fontSize: 14.0, fontWeight: FontWeight.bold),
+                                            decoration: const InputDecoration(
+                                              border: InputBorder.none,
+                                            ),
+                                          ),
+                                        ),
+                                        width: animation!.value,
+                                      ),
+                                    Container(
+                                      width: 50,
+                                      height: 50,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: animation!.value < 1 ? const BorderRadius.all(Radius.circular(50)) : const BorderRadius.only(topLeft: Radius.circular(0), bottomLeft: Radius.circular(0), topRight: Radius.circular(50), bottomRight: Radius.circular(50)),
+                                      ),
+                                      child: IconButton(
+                                        icon: const Icon(IconlyBroken.search),
+                                        color: Colors.teal,
+                                        onPressed: (){
+                                          print("Pressed Anim Value : ${animation!.value}\n");
+                                          if(!isForward){
+                                            animationController!.forward();
+                                            isForward = true;
+                                          }else{
+                                            animationController!.reverse();
+                                            isForward = false;
+                                          }
 
-                            cubit.searchChat(value);
-                          },
-                          style: TextStyle(
-                              color: greyThreeColor,
-                              fontFamily: "Open Sans",
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600),
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: greyFiveColor,
-                            hintText: 'بحث ..',
-                            hintStyle: TextStyle(
-                                color: greyThreeColor,
-                                fontFamily: "Open Sans",
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600),
-                            alignLabelWithHint: true,
-                            focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                    color: greyBorderColor, width: 1.0),
-                                borderRadius:
-                                    const BorderRadius.all(Radius.circular(12.0))),
-                            border: OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: greyBorderColor, width: 1.0),
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(12.0)),
+                                        },
+                                      ),
+                                    )
+                                  ],
+                                ),
+                                height: 50,
+                              ),
                             ),
-                            enabledBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                    color: greyBorderColor, width: 1.0),
-                                borderRadius:
-                                    const BorderRadius.all(Radius.circular(12.0))),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 16,
+                      ),
+                      BuildCondition(
+                        condition: state is DisplayGroupsLoadingGroupsState,
+                        builder: (context) => Center(
+                          child: CircularProgressIndicator(
+                            color: Colors.teal[700],
+                            strokeWidth: 0.8,
                           ),
                         ),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 16,
-                    ),
-                    BuildCondition(
-                      condition: state is SocialDisplayChatsLoadingChatsState,
-                      builder: (context) => Center(
-                        child: CircularProgressIndicator(
-                          color: Colors.teal[700],
+                        fallback: (context) => ListView.separated(
+                          shrinkWrap: true,
+                          physics: const BouncingScrollPhysics(),
+                          scrollDirection: Axis.vertical,
+                          itemBuilder: (context, index) =>
+                              listItem(context, cubit, state, index),
+                          separatorBuilder: (context, index) =>
+                              const SizedBox(width: 10.0),
+                          itemCount: cubit.filteredGroupList.length,
                         ),
                       ),
-                      fallback: (context) => ListView.separated(
-                        shrinkWrap: true,
-                        physics: const BouncingScrollPhysics(),
-                        scrollDirection: Axis.vertical,
-                        itemBuilder: (context, index) =>
-                            listItem(context, cubit, state, index),
-                        separatorBuilder: (context, index) =>
-                            const SizedBox(width: 10.0),
-                        itemCount: cubit.filteredUserList.length,
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -135,7 +172,7 @@ class _SocialDisplayChatsState extends State<SocialDisplayChats> {
   }
 
   Widget listItem(
-      BuildContext context, SocialDisplayChatsCubit cubit, state, int index) {
+      BuildContext context, DisplayGroupsCubit cubit, state, int index) {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Card(
@@ -148,11 +185,12 @@ class _SocialDisplayChatsState extends State<SocialDisplayChats> {
           onTap: () {
             cubit.goToConversation(
                 context,
-                SocialConversationScreen(
-                    userID: cubit.filteredUserList[index].userID,
-                    userName: cubit.filteredUserList[index].userName,
-                    userImage: cubit.filteredUserList[index].userImage,
-                    userToken: cubit.filteredUserList[index].userToken,
+                GroupConversationScreen(
+                    groupID: cubit.filteredGroupList[index].groupID,
+                    groupName: cubit.filteredGroupList[index].groupName,
+                    groupImage: cubit.filteredGroupList[index].groupImage,
+                    adminsList: cubit.filteredGroupList[index].adminsList,
+                    membersList: cubit.filteredGroupList[index].membersList,
                 ));
           },
           child: Padding(
@@ -160,7 +198,7 @@ class _SocialDisplayChatsState extends State<SocialDisplayChats> {
             child: Row(
               children: [
                 BuildCondition(
-                  condition: state is SocialDisplayChatsLoadingChatsState,
+                  condition: state is DisplayGroupsLoadingGroupsState,
                   builder: (context) => const Center(
                       child: CircularProgressIndicator(
                     color: Colors.teal,
@@ -189,8 +227,8 @@ class _SocialDisplayChatsState extends State<SocialDisplayChats> {
                                               builder: (_) {
                                                 return CachedNetworkImage(
                                                   imageUrl: cubit
-                                                      .filteredUserList[index]
-                                                      .userImage,
+                                                      .filteredGroupList[index]
+                                                      .groupImage,
                                                   imageBuilder: (context,
                                                           imageProvider) =>
                                                       ClipRRect(
@@ -219,15 +257,7 @@ class _SocialDisplayChatsState extends State<SocialDisplayChats> {
                                                     ),
                                                   ),
                                                   placeholder: (context, url) =>
-                                                      const FadeInImage(
-                                                    height: double.infinity,
-                                                    width: double.infinity,
-                                                    fit: BoxFit.fill,
-                                                    image: AssetImage(
-                                                        "assets/images/placeholder.jpg"),
-                                                    placeholder: AssetImage(
-                                                        "assets/images/placeholder.jpg"),
-                                                  ),
+                                                      const CircularProgressIndicator(color: Colors.teal, strokeWidth: 0.8,),
                                                   errorWidget:
                                                       (context, url, error) =>
                                                           const FadeInImage(
@@ -246,8 +276,8 @@ class _SocialDisplayChatsState extends State<SocialDisplayChats> {
                                         },
                                         child: CachedNetworkImage(
                                           imageUrl: cubit
-                                              .filteredUserList[index]
-                                              .userImage,
+                                              .filteredGroupList[index]
+                                              .groupImage,
                                           imageBuilder:
                                               (context, imageProvider) =>
                                                   ClipRRect(
@@ -272,15 +302,7 @@ class _SocialDisplayChatsState extends State<SocialDisplayChats> {
                                             ),
                                           ),
                                           placeholder: (context, url) =>
-                                              const FadeInImage(
-                                            height: 50,
-                                            width: 50,
-                                            fit: BoxFit.fill,
-                                            image: AssetImage(
-                                                "assets/images/placeholder.jpg"),
-                                            placeholder: AssetImage(
-                                                "assets/images/placeholder.jpg"),
-                                          ),
+                                          const CircularProgressIndicator(color: Colors.teal, strokeWidth: 0.8,),
                                           errorWidget: (context, url, error) =>
                                               const FadeInImage(
                                             height: 50,
@@ -303,7 +325,7 @@ class _SocialDisplayChatsState extends State<SocialDisplayChats> {
                       );
                     },
                     child: CachedNetworkImage(
-                      imageUrl: cubit.filteredUserList[index].userImage,
+                      imageUrl: cubit.filteredGroupList[index].groupImage,
                       imageBuilder: (context, imageProvider) => ClipOval(
                         child: FadeInImage(
                           height: 50,
@@ -322,14 +344,7 @@ class _SocialDisplayChatsState extends State<SocialDisplayChats> {
                           },
                         ),
                       ),
-                      placeholder: (context, url) => const FadeInImage(
-                        height: 50,
-                        width: 50,
-                        fit: BoxFit.fill,
-                        image: AssetImage("assets/images/placeholder.jpg"),
-                        placeholder:
-                            AssetImage("assets/images/placeholder.jpg"),
-                      ),
+                      placeholder: (context, url) => const CircularProgressIndicator(color: Colors.teal, strokeWidth: 0.8,),
                       errorWidget: (context, url, error) => const FadeInImage(
                         height: 50,
                         width: 50,
@@ -353,7 +368,7 @@ class _SocialDisplayChatsState extends State<SocialDisplayChats> {
                         height: 4.0,
                       ),
                       Text(
-                        cubit.filteredUserList[index].userName,
+                        cubit.filteredGroupList[index].groupName,
                         style: const TextStyle(
                             color: Colors.black,
                             fontSize: 14,
@@ -363,14 +378,9 @@ class _SocialDisplayChatsState extends State<SocialDisplayChats> {
                         height: 4.0,
                       ),
                       Text(
-                        cubit.filteredUserList[index].userState == "يكتب ..."
-                            ? "يكتب ..."
-                            : cubit.filteredUserList[index].userLastMessage,
-                        style: TextStyle(
-                          color: cubit.filteredUserList[index].userState ==
-                                  "يكتب ..."
-                              ? Colors.teal
-                              : Colors.grey,
+                        "${cubit.filteredGroupList[index].groupLastMessageSenderName} : ${cubit.filteredGroupList[index].groupLastMessage}",
+                        style: const TextStyle(
+                          color: Colors.grey,
                           fontSize: 11,
                           fontWeight: FontWeight.w200,
                           overflow: TextOverflow.ellipsis,
@@ -390,10 +400,7 @@ class _SocialDisplayChatsState extends State<SocialDisplayChats> {
                       valueListenable: lastMessageTimeValue,
                       builder: (context, value, widget) {
                         return Text(
-                          cubit.filteredUserList[index].userState == "يكتب ..."
-                              ? ""
-                              : cubit
-                                  .filteredUserList[index].userLastMessageTime,
+                          cubit.filteredGroupList[index].groupLastMessageTime,
                           style: const TextStyle(
                             color: Colors.black,
                             fontSize: 11,

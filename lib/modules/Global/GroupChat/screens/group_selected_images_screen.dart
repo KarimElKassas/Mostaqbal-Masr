@@ -1,37 +1,47 @@
 import 'dart:io';
+
 import 'package:animate_do/animate_do.dart';
 import 'package:buildcondition/buildcondition.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mostaqbal_masr/modules/Customer/cubit/customer_selected_images_cubit.dart';
 import 'package:mostaqbal_masr/modules/Customer/cubit/customer_selected_images_states.dart';
+import 'package:mostaqbal_masr/modules/Global/GroupChat/cubit/group_selected_images_cubit.dart';
+import 'package:mostaqbal_masr/modules/Global/GroupChat/cubit/group_selected_images_states.dart';
+import 'package:mostaqbal_masr/shared/components.dart';
 
-class CustomerSelectedImagesScreen extends StatefulWidget {
+class GroupSelectedImagesScreen extends StatefulWidget {
   final List<XFile?>? chatImages;
-  //final String groupID;
-  const CustomerSelectedImagesScreen({Key? key, required this.chatImages, String? groupID}) : super(key: key);
+  final String groupID;
+  const GroupSelectedImagesScreen({Key? key, required this.chatImages, required this.groupID}) : super(key: key);
 
   @override
-  State<CustomerSelectedImagesScreen> createState() => _CustomerSelectedImagesScreenState();
+  State<GroupSelectedImagesScreen> createState() => _GroupSelectedImagesScreenState();
 }
 
-class _CustomerSelectedImagesScreenState extends State<CustomerSelectedImagesScreen> {
+class _GroupSelectedImagesScreenState extends State<GroupSelectedImagesScreen> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => CustomerSelectedImagesCubit()..getUserData(),
-      child: BlocConsumer<CustomerSelectedImagesCubit, CustomerSelectedImagesStates>(
-        listener: (context, state){},
+      create: (context) => GroupSelectedImagesCubit()..getUserData(),
+      child: BlocConsumer<GroupSelectedImagesCubit, GroupSelectedImagesStates>(
+        listener: (context, state){
+          if(state is GroupSelectedImagesUploadErrorState){
+            showToast(message: state.error, length: Toast.LENGTH_SHORT, gravity: ToastGravity.BOTTOM, timeInSecForIosWeb: 3);
+          }
+        },
         builder: (context, state){
 
-          var cubit = CustomerSelectedImagesCubit.get(context);
+          var cubit = GroupSelectedImagesCubit.get(context);
 
           return Scaffold(
             backgroundColor: Colors.black,
             floatingActionButton: BuildCondition(
-              condition: state is CustomerSelectedImagesUploadingState,
+              condition: state is GroupSelectedImagesUploadingState,
               builder: (context) => CircularProgressIndicator(
                 color: Colors.teal[700],
                 strokeWidth: 0.8,
@@ -40,7 +50,7 @@ class _CustomerSelectedImagesScreenState extends State<CustomerSelectedImagesScr
                 duration: const Duration(seconds: 1),
                 child: FloatingActionButton(
                   onPressed: () async {
-                    cubit.uploadMultipleImages(context);
+                    cubit.uploadMultipleImages(context, widget.groupID);
                   },
                   child: const Icon(
                     Icons.done,
