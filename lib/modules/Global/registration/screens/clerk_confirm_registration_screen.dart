@@ -118,51 +118,51 @@ class _ClerkConfirmRegistrationScreenState extends State<ClerkConfirmRegistratio
               const SizedBox(height: 18.0,),
               Align(
                 alignment: Alignment.center,
-                child: Stack(
-                  alignment: Alignment.bottomCenter,
-                  clipBehavior: Clip.none ,
-                  children: [
-                    SizedBox(
-                      width: 90,
-                      height: 90,
-                      child: CircleAvatar(
-                        radius: 90,
-                        child: ClipRRect(
-                          borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(48.0),
-                              topRight: Radius.circular(48.0),
-                              bottomLeft: Radius.circular(48.0),
-                              bottomRight: Radius.circular(48.0)),
-                          child: BuildCondition(
-                            condition: cubit.emptyImage == true,
-                            builder: (context) => CircleAvatar(
-                              child: const Icon(
-                                IconlyBold.user2,
-                                color: Colors.white,
-                                size: 50,
+                child: GestureDetector(
+                  onTap: (){
+                    cubit.selectImage();
+                  },
+                  child: Stack(
+                    alignment: Alignment.bottomCenter,
+                    clipBehavior: Clip.none ,
+                    children: [
+                      SizedBox(
+                        width: 90,
+                        height: 90,
+                        child: CircleAvatar(
+                          radius: 90,
+                          child: ClipRRect(
+                            borderRadius: const BorderRadius.only(
+                                topLeft: Radius.circular(48.0),
+                                topRight: Radius.circular(48.0),
+                                bottomLeft: Radius.circular(48.0),
+                                bottomRight: Radius.circular(48.0)),
+                            child: BuildCondition(
+                              condition: cubit.emptyImage == true,
+                              builder: (context) => CircleAvatar(
+                                child: const Icon(
+                                  IconlyBold.user2,
+                                  color: Colors.white,
+                                  size: 50,
+                                ),
+                                backgroundColor: Colors.grey.shade600,
+                                maxRadius: 90,
                               ),
-                              backgroundColor: Colors.grey.shade600,
-                              maxRadius: 90,
-                            ),
-                            fallback: (context) => SizedBox(
-                              width: 90,
-                              height: 90,
-                              child: Image.file(
-                                File(cubit.imageUrl),
-                                fit: BoxFit.fill,
+                              fallback: (context) => SizedBox(
+                                width: 90,
+                                height: 90,
+                                child: Image.file(
+                                  File(cubit.imageUrl),
+                                  fit: BoxFit.fill,
+                                ),
                               ),
                             ),
                           ),
+                          backgroundColor: Colors.transparent,
                         ),
-                        backgroundColor: Colors.transparent,
                       ),
-                    ),
-                    Positioned(
-                      bottom: -18,
-                      child: InkWell(
-                        onTap: (){
-                          cubit.selectImage();
-                        },
+                      Positioned(
+                        bottom: -18,
                         child: SizedBox(
                           width: 45,
                           height: 45,
@@ -177,8 +177,8 @@ class _ClerkConfirmRegistrationScreenState extends State<ClerkConfirmRegistratio
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 18.0,),

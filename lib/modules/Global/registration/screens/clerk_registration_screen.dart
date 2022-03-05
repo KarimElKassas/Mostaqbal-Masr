@@ -59,11 +59,14 @@ class _ClerkRegistrationScreenState extends State<ClerkRegistrationScreen> {
                     onPressed: () async {
 
                       if(cubit.clerkList.isNotEmpty){
-                        navigateTo(context, ClerkConfirmRegistrationScreen(clerkModel: cubit.clerkModel!,));
+                        if(cubit.isUserExist){
+                          showToast(message: "هذا الموظف مسجل من قبل", length: Toast.LENGTH_SHORT, gravity: ToastGravity.BOTTOM, timeInSecForIosWeb: 3);
+                        }else{
+                          navigateTo(context, ClerkConfirmRegistrationScreen(clerkModel: cubit.clerkModel!,));
+                        }
                       }else{
                         showToast(message: "يجب تحديد الموظف اولاً", length: Toast.LENGTH_SHORT, gravity: ToastGravity.BOTTOM, timeInSecForIosWeb: 3);
                       }
-
                     },
                     child: const Icon(
                       IconlyBold.arrowLeft3,

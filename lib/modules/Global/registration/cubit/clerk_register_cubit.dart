@@ -30,6 +30,7 @@ class ClerkRegisterCubit extends Cubit<ClerkRegisterStates> {
   var regionBottomSheetController;
   bool isCityBottomSheetShown = false;
   bool isRegionBottomSheetShown = false;
+  bool isUserExist = false;
 
   String selectedCityName = "";
   double? selectedCityID;
@@ -81,13 +82,15 @@ class ClerkRegisterCubit extends Cubit<ClerkRegisterStates> {
         url: 'userInfo/GetUserInfo',
         query: {'PR_Person_Number': personNumber}).then((value) {
           if(value.statusCode == 200){
-            value.data.forEach((clerk) {
+            value.data.forEach((clerk)async {
 
-              FirebaseDatabase.instance.reference().child("Clerks").child(clerk['PR_Persons_MobilNum1'].toString()).get().then((value){
+             await FirebaseDatabase.instance.reference().child("Clerks").child(clerk['PR_Persons_MobilNum1'].toString()).get().then((value){
                 if(value.exists){
                   print("USER EXISTS \n");
+                  isUserExist = true;
                 }else{
                   print("USER Doesn't EXIST \n");
+                  isUserExist = false;
                 }
               });
 
