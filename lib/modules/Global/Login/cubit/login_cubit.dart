@@ -182,21 +182,21 @@ class LoginCubit extends Cubit<LoginStates> {
 
         DateTime loginDate = DateTime.now();
 
-        prefs.setDouble("Login_Log_ID", loginLogID!);
-        prefs.setString("LoginDate", loginDate.toString());
-        prefs.setInt("Section_User_ID", sectionUserID!);
-        prefs.setInt("Section_ID", sectionID!);
-        prefs.setString("Section_Name", sectionName!);
-        prefs.setStringList(
+        await prefs.setDouble("Login_Log_ID", loginLogID!);
+        await prefs.setString("LoginDate", loginDate.toString());
+        await prefs.setInt("Section_User_ID", sectionUserID!);
+        await prefs.setInt("Section_ID", sectionID!);
+        await prefs.setString("Section_Name", sectionName!);
+        await prefs.setStringList(
             "Section_Forms_Name_List", sectionFormsFinalNameList!);
-        prefs.setString("UserIDMessage", "Future Of Egypt");
-        prefs.setString("User_Name", userName);
-        prefs.setString("User_Password", userPassword);
-        prefs.setDouble("Classification_Person_ID", classificationPersonID!);
-        prefs.setDouble("Person_ID", personID!);
-        prefs.setString("Person_Name", personName!);
-        prefs.setString("Person_Img", personImg!);
-        prefs.setInt("User_ID", userID).then((value) {
+        await prefs.setString("UserIDMessage", "Future Of Egypt");
+        await prefs.setString("User_Name", userName);
+        await prefs.setString("User_Password", userPassword);
+        await prefs.setDouble("Classification_Person_ID", classificationPersonID!);
+        await prefs.setDouble("Person_ID", personID!);
+        await prefs.setString("Person_Name", personName!);
+        await prefs.setString("Person_Img", personImg!);
+        await prefs.setInt("User_ID", userID).then((value) {
           print("Login Log ID $loginLogID");
           print("LoginDate ${loginDate.toString()}");
           print("User_Name $userName");
@@ -218,7 +218,7 @@ class LoginCubit extends Cubit<LoginStates> {
   }
 
   Future<void> getClerkFirebase(String clerkPhone) async {
-    FirebaseDatabase.instance
+    await FirebaseDatabase.instance
         .reference()
         .child("Clerks")
         .child(clerkPhone)

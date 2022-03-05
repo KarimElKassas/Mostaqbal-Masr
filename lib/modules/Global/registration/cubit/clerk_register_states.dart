@@ -20,6 +20,8 @@ class ClerkRegisterChangeCityState extends ClerkRegisterStates{
 
 class ClerkRegisterLoadingClerksState extends ClerkRegisterStates{}
 
+class ClerkRegisterClerkExistState extends ClerkRegisterStates{}
+
 class ClerkRegisterLoadingUploadClerksState extends ClerkRegisterStates{}
 
 class ClerkRegisterGetClerksSuccessState extends ClerkRegisterStates{}
