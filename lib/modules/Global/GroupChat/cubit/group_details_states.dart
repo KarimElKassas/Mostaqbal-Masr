@@ -2,7 +2,14 @@ abstract class GroupDetailsStates{}
 
 class GroupDetailsInitialState extends GroupDetailsStates{}
 
+class GroupDetailsLoadingMembersInfoState extends GroupDetailsStates{}
+
+class GroupDetailsMembersInfoState extends GroupDetailsStates{}
+
+class GroupDetailsGetMediaState extends GroupDetailsStates{}
+
 class GroupDetailsLoadingGroupsState extends GroupDetailsStates{}
+
 
 class GroupDetailsGetGroupsSuccessState extends GroupDetailsStates{}
 

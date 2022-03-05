@@ -11,6 +11,7 @@ import 'package:mostaqbal_masr/modules/Global/GroupChat/cubit/display_groups_sta
 import 'package:mostaqbal_masr/modules/Global/GroupChat/cubit/group_details_cubit.dart';
 import 'package:mostaqbal_masr/modules/Global/GroupChat/cubit/group_details_states.dart';
 import 'package:mostaqbal_masr/modules/Global/GroupChat/screens/group_conversation_screen.dart';
+import 'package:mostaqbal_masr/modules/Global/GroupChat/screens/transition_app_bar.dart';
 import 'package:mostaqbal_masr/shared/constants.dart';
 
 class GroupDetailsScreen extends StatefulWidget {
@@ -34,106 +35,321 @@ class GroupDetailsScreen extends StatefulWidget {
 
 class _GroupDetailsState extends State<GroupDetailsScreen> {
   var searchController = TextEditingController();
-
   String searchText = "";
+  String? group_title = 'مستقبل مصر';
+  int? group_number = 50;
+  String? description = "^_^ مستقبل مصر للزراعه المستدامه إدارة النظم ^_^";
+  List<String>? media_path = [
+    'assets/images/2.jpg',
+    'assets/images/3.jpg',
+    'assets/images/4.jpg',
+    'assets/images/5.jpg',
+    'assets/images/6.jpg'
+  ];
+  List<Map<String, String>> member = [
+    {'name': 'Kareem', 'photo': 'assets/images/me.jpg', 'type': 'admin'},
+    {'name': 'mazen', 'photo': 'assets/images/me.jpg', 'type': 'user'},
+    {'name': 'mazen', 'photo': 'assets/images/me.jpg', 'type': 'user'},
+    {'name': 'mazen', 'photo': 'assets/images/me.jpg', 'type': 'user'},
+    {'name': 'mazen', 'photo': 'assets/images/me.jpg', 'type': 'user'},
+    {'name': 'mazen', 'photo': 'assets/images/me.jpg', 'type': 'user'},
+  ];
+
+  int darkcolor = 0xff141c27;
+  int lightcolor = 0xff232c38;
+  void audio_call_function() {}
+  void video_call_function() {}
+  void add_function() {}
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => GroupDetailsCubit()..getGroups(),
+      create: (context) =>
+      GroupDetailsCubit()..getClerkInfo(widget.membersList)..getGroupMedia(widget.groupID),
       child: BlocConsumer<GroupDetailsCubit, GroupDetailsStates>(
         listener: (context, state) {},
         builder: (context, state) {
           var cubit = GroupDetailsCubit.get(context);
 
+
           return Scaffold(
-            appBar: AppBar(
-              systemOverlayStyle: const SystemUiOverlayStyle(
-                statusBarColor: Colors.transparent,
-                statusBarIconBrightness: Brightness.dark,
-                // For Android (dark icons)
-                statusBarBrightness: Brightness.light, // For iOS (dark icons)
-              ),
-              elevation: 0.0,
-              toolbarHeight: 0.0,
-              backgroundColor: Colors.transparent,
-            ),
+            backgroundColor: Color(lightcolor),
             body: SafeArea(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: Directionality(
-                  textDirection: TextDirection.rtl,
-                  child: Container(
-                    color: const Color(0xff141C27),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Align(
-                          alignment: Alignment.center,
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                                top: 48.0, ),
-                            child: CachedNetworkImage(
-                              imageUrl: widget.groupImage,
-                              imageBuilder: (context, imageProvider) => ClipOval(
-                                child: FadeInImage(
-                                  height: 140,
-                                  width: 140,
+              child: Directionality(
+                textDirection: TextDirection.rtl,
+                child: CustomScrollView(
+                  slivers: <Widget>[
+                    TransitionAppBar(
+                        extent: 240,
+                        avatar: CachedNetworkImage(
+                          imageUrl: widget.groupImage,
+                          imageBuilder: (context, imageProvider) => ClipOval(
+                            child: FadeInImage(
+                              height:150,
+                              width: 150,
+                              fit: BoxFit.fill,
+                              image: imageProvider,
+                              placeholder:
+                              const AssetImage("assets/images/placeholder.jpg"),
+                              imageErrorBuilder: (context, error, stackTrace) {
+                                return Image.asset(
+                                  'assets/images/error.png',
                                   fit: BoxFit.fill,
-                                  image: imageProvider,
-                                  placeholder: const AssetImage(
-                                      "assets/images/placeholder.jpg"),
-                                  imageErrorBuilder:
-                                      (context, error, stackTrace) {
-                                    return Image.asset(
-                                      'assets/images/error.png',
-                                      fit: BoxFit.fill,
-                                      height: 140,
-                                      width: 140,
-                                    );
-                                  },
-                                ),
-                              ),
-                              placeholder: (context, url) => const CircularProgressIndicator(color: Colors.teal, strokeWidth: 0.8,),
-                              errorWidget: (context, url, error) =>
-                              const FadeInImage(
-                                height: 140,
-                                width: 140,
-                                fit: BoxFit.fill,
-                                image: AssetImage("assets/images/error.png"),
-                                placeholder:
-                                AssetImage("assets/images/placeholder.jpg"),
-                              ),
+                                  height:150,
+                                  width: 150,
+                                );
+                              },
                             ),
                           ),
+                          placeholder: (context, url) => const CircularProgressIndicator(color: Colors.teal, strokeWidth: 0.8,),
+                          errorWidget: (context, url, error) => const FadeInImage(
+                            height: 150,
+                            width: 150,
+                            fit: BoxFit.fill,
+                            image: AssetImage("assets/images/error.png"),
+                            placeholder:
+                            AssetImage("assets/images/placeholder.jpg"),
+                          ),
                         ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          widget.groupName,
-                          style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white),
-                        ),
-                        const SizedBox(
-                          height: 8,
-                        ),
-                        Text(
-                          " اعضاء ${widget.membersCount} مجموعة ",
-                          style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.normal,
-                              color: Color(0xff939190)),
-                        ),
-                        const SizedBox(
-                          height: 8,
-                        ),
-                      ],
+                        title: group_title!,
                     ),
-                  ),
+                    SliverList(
+                        delegate: SliverChildListDelegate(
+                            [
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Container(
+                                width: double.infinity,
+                                height: 50,
+                                color: Color(darkcolor),
+                                child: Center(
+                                    child:  Padding(
+                                      padding: EdgeInsets.all(5),
+                                      child: Text(description!,
+                                            style: TextStyle(
+                                                color: Colors.grey, fontSize: 15)),
+                                    ),
+                                    ),),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Container(
+                                color: Color(darkcolor),
+                                padding: EdgeInsets.all(5),
+                                child: Column(
+                                  children: [
+                                    Padding(
+                                      padding:
+                                      const EdgeInsets.only(
+                                          left: 7, right: 5, bottom: 3),
+                                      child: InkWell(
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment
+                                                .spaceBetween,
+                                            children: [
+                                              Text('الصور , التسجيلات الصوتيه , الملفات',
+                                                  style: TextStyle(
+                                                      color: Colors.grey,
+                                                      fontSize: 15)),
+                                              Text('>',
+                                                  style: TextStyle(
+                                                      color: Colors.grey,
+                                                      fontSize: 20,
+                                                      fontWeight: FontWeight
+                                                          .bold))
+                                            ],
+                                          )),
+                                    ),
+                                    Container(
+                                      height: 100,
+                                      child: ListView.builder(
+                                          physics: BouncingScrollPhysics(),
+                                          scrollDirection: Axis.horizontal,
+                                          itemCount: cubit.messagesHasImages.length,
+                                          itemBuilder: (ctx, index) {
+                                            return Container(
+                                              margin: EdgeInsets.all(2),
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                BorderRadius.all(
+                                                    Radius.circular(8.0)),
+                                              ),
+                                              width: 100,
+                                              height: 70,
+                                              child: ClipRRect(
+                                                  borderRadius: BorderRadius
+                                                      .circular(10),
+                                                  child: Image.network(
+                                                   cubit.messagesHasImages[index],
+                                                    fit: BoxFit.cover,
+                                                  )),
+                                            );
+                                          }),
+                                    )],
+                                ),),
+                              SizedBox(height: 10,),
+                              Container(
+                                color: Color(darkcolor),
+                                padding: EdgeInsets.all(5),
+                                child: Column(
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 7,right: 7),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text('${member.length} عضو ',
+                                              style: TextStyle(color: Colors.grey,
+                                                  fontSize: 15)),
+                                          IconButton(onPressed: () {},
+                                              icon: Icon(Icons.search,
+                                                color: Colors.grey,))
+                                        ],
+                                      ),
+                                    ),
+                                    ListTile(
+                                      leading: CircleAvatar(
+                                        radius: 25,
+                                        child: Icon(Icons.group_add,
+                                          color: Color(darkcolor),),
+                                        backgroundColor: Colors.greenAccent,
+                                      ),
+                                      title: Text('إضافة أعضاء',
+                                          style: TextStyle(
+                                              color: Colors.grey, fontSize: 15)),
+                                    ),
+                                    SizedBox(
+                                      height: 5,
+                                    ),
+                                    ListTile(
+                                      leading: CircleAvatar(
+                                        radius: 25,
+                                        child: Icon(
+                                          Icons.link, color: Color(darkcolor),),
+                                        backgroundColor: Colors.greenAccent,
+                                      ),
+                                      title: const Text('إضافه من خلال الرابط',
+                                          style: TextStyle(
+                                              color: Colors.grey, fontSize: 15)),
+                                    ),
+                                    const SizedBox(
+                                      height: 2,
+                                    ),
+                                    SizedBox(
+                                      height: 245,
+                                      child:  state is GroupDetailsLoadingMembersInfoState ? const CircularProgressIndicator(color: Colors.teal,strokeWidth: 0.8,) :ListView.builder(
+                                          physics: const NeverScrollableScrollPhysics(),
+                                          itemCount: cubit.membersinfolist.length,
+                                          itemBuilder: (ctx, index) {
+                                            return Column(
+                                              children: [
+                                                ListTile(
+                                                  leading: CachedNetworkImage(
+                                                    imageUrl: cubit.membersinfolist[index].clerkImage!,
+                                                    imageBuilder: (context, imageProvider) => ClipOval(
+                                                      child: FadeInImage(
+                                                        height: 50,
+                                                        width: 50,
+                                                        fit: BoxFit.fill,
+                                                        image: imageProvider,
+                                                        placeholder:
+                                                        const AssetImage("assets/images/placeholder.jpg"),
+                                                        imageErrorBuilder: (context, error, stackTrace) {
+                                                          return Image.asset(
+                                                            'assets/images/error.png',
+                                                            fit: BoxFit.fill,
+                                                            height: 50,
+                                                            width: 50,
+                                                          );
+                                                        },
+                                                      ),
+                                                    ),
+                                                    placeholder: (context, url) => const CircularProgressIndicator(color: Colors.teal, strokeWidth: 0.8,),
+                                                    errorWidget: (context, url, error) => const FadeInImage(
+                                                      height: 50,
+                                                      width: 50,
+                                                      fit: BoxFit.fill,
+                                                      image: AssetImage("assets/images/error.png"),
+                                                      placeholder:
+                                                      AssetImage("assets/images/placeholder.jpg"),
+                                                    ),
+                                                  ),
+                                                  title: Text(
+                                                    cubit.membersinfolist[index].clerkName!,
+                                                    style: TextStyle(
+                                                        color: Colors.grey,
+                                                        fontSize: 14),),
+
+                                                ),
+                                                SizedBox(height: 7,)
+                                              ],
+                                            );
+                                          }),
+                                    ),
+                                    SizedBox(height: 15,),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.start,
+                                      children: [
+                                        SizedBox(
+                                            width: 51
+                                        ),
+                                        TextButton(
+
+                                            onPressed: () {},
+                                            child: Text(
+                                              'إظهار المزيد (${member.length -
+                                                  4} أخرين)', style: TextStyle(
+                                                color: Colors.greenAccent,
+                                                fontSize: 17),)),
+                                      ],
+                                    )
+                                  ],
+                                ),
+                              ),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Container(
+                                color: Color(darkcolor),
+                                child: Column(
+                                  children: [
+                                    ListTile(
+                                      leading: CircleAvatar(
+                                        radius: 25,
+                                        child: Icon(
+                                          Icons.exit_to_app,
+                                          color: Colors.redAccent,
+                                          size: 30,
+                                        ),
+                                        backgroundColor: Colors.transparent,
+                                      ),
+                                      title: Text('Exit Group', style: TextStyle(
+                                          color: Colors.redAccent, fontSize: 15)),
+                                    ),
+                                    ListTile(
+
+                                      leading: CircleAvatar(
+                                        radius: 25,
+                                        child: Icon(
+                                          Icons.report,
+                                          color: Colors.redAccent,
+                                          size: 30,
+                                        ),
+                                        backgroundColor: Colors.transparent,
+                                      ),
+                                      title: Text('Report Group',
+                                          style: TextStyle(
+                                              color: Colors.redAccent,
+                                              fontSize: 15)),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            ]
+                        ))
+
+                  ],
                 ),
               ),
             ),
@@ -143,275 +359,4 @@ class _GroupDetailsState extends State<GroupDetailsScreen> {
     );
   }
 
-  Widget listItem(
-      BuildContext context, GroupDetailsCubit cubit, state, int index) {
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Card(
-        margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 16.0),
-        elevation: 2,
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
-        shadowColor: Colors.black,
-        child: InkWell(
-          onTap: () {
-            cubit.goToConversation(
-                context,
-                GroupConversationScreen(
-                    groupID: cubit.filteredGroupList[index].groupID,
-                    groupName: cubit.filteredGroupList[index].groupName,
-                    groupImage: cubit.filteredGroupList[index].groupImage,
-                    adminsList: cubit.filteredGroupList[index].adminsList,
-                    membersList: cubit.filteredGroupList[index].membersList,
-                ));
-          },
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                BuildCondition(
-                  condition: state is GroupDetailsLoadingGroupsState,
-                  builder: (context) => const Center(
-                      child: CircularProgressIndicator(
-                    color: Colors.teal,
-                  )),
-                  fallback: (context) => InkWell(
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          return StatefulBuilder(
-                            builder: (context, setState) {
-                              return SlideInUp(
-                                duration: const Duration(milliseconds: 500),
-                                child: Dialog(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12.0),
-                                  ),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      InkWell(
-                                        onTap: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (_) {
-                                                return CachedNetworkImage(
-                                                  imageUrl: cubit
-                                                      .filteredGroupList[index]
-                                                      .groupImage,
-                                                  imageBuilder: (context,
-                                                          imageProvider) =>
-                                                      ClipRRect(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            0.0),
-                                                    child: FadeInImage(
-                                                      height: double.infinity,
-                                                      width: double.infinity,
-                                                      fit: BoxFit.fill,
-                                                      image: imageProvider,
-                                                      placeholder: const AssetImage(
-                                                          "assets/images/placeholder.jpg"),
-                                                      imageErrorBuilder:
-                                                          (context, error,
-                                                              stackTrace) {
-                                                        return Image.asset(
-                                                          'assets/images/error.png',
-                                                          fit: BoxFit.fill,
-                                                          height:
-                                                              double.infinity,
-                                                          width:
-                                                              double.infinity,
-                                                        );
-                                                      },
-                                                    ),
-                                                  ),
-                                                  placeholder: (context, url) =>
-                                                      const FadeInImage(
-                                                    height: double.infinity,
-                                                    width: double.infinity,
-                                                    fit: BoxFit.fill,
-                                                    image: AssetImage(
-                                                        "assets/images/placeholder.jpg"),
-                                                    placeholder: AssetImage(
-                                                        "assets/images/placeholder.jpg"),
-                                                  ),
-                                                  errorWidget:
-                                                      (context, url, error) =>
-                                                          const FadeInImage(
-                                                    height: double.infinity,
-                                                    width: double.infinity,
-                                                    fit: BoxFit.fill,
-                                                    image: AssetImage(
-                                                        "assets/images/error.png"),
-                                                    placeholder: AssetImage(
-                                                        "assets/images/placeholder.jpg"),
-                                                  ),
-                                                );
-                                              },
-                                            ),
-                                          );
-                                        },
-                                        child: CachedNetworkImage(
-                                          imageUrl: cubit
-                                              .filteredGroupList[index]
-                                              .groupImage,
-                                          imageBuilder:
-                                              (context, imageProvider) =>
-                                                  ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(12.0),
-                                            child: FadeInImage(
-                                              height: 400,
-                                              width: double.infinity,
-                                              fit: BoxFit.fill,
-                                              image: imageProvider,
-                                              placeholder: const AssetImage(
-                                                  "assets/images/placeholder.jpg"),
-                                              imageErrorBuilder:
-                                                  (context, error, stackTrace) {
-                                                return Image.asset(
-                                                  'assets/images/error.png',
-                                                  fit: BoxFit.fill,
-                                                  height: 50,
-                                                  width: 50,
-                                                );
-                                              },
-                                            ),
-                                          ),
-                                          placeholder: (context, url) =>
-                                              const FadeInImage(
-                                            height: 50,
-                                            width: 50,
-                                            fit: BoxFit.fill,
-                                            image: AssetImage(
-                                                "assets/images/placeholder.jpg"),
-                                            placeholder: AssetImage(
-                                                "assets/images/placeholder.jpg"),
-                                          ),
-                                          errorWidget: (context, url, error) =>
-                                              const FadeInImage(
-                                            height: 50,
-                                            width: 50,
-                                            fit: BoxFit.fill,
-                                            image: AssetImage(
-                                                "assets/images/error.png"),
-                                            placeholder: AssetImage(
-                                                "assets/images/placeholder.jpg"),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            },
-                          );
-                        },
-                      );
-                    },
-                    child: CachedNetworkImage(
-                      imageUrl: cubit.filteredGroupList[index].groupImage,
-                      imageBuilder: (context, imageProvider) => ClipOval(
-                        child: FadeInImage(
-                          height: 50,
-                          width: 50,
-                          fit: BoxFit.fill,
-                          image: imageProvider,
-                          placeholder:
-                              const AssetImage("assets/images/placeholder.jpg"),
-                          imageErrorBuilder: (context, error, stackTrace) {
-                            return Image.asset(
-                              'assets/images/error.png',
-                              fit: BoxFit.fill,
-                              height: 50,
-                              width: 50,
-                            );
-                          },
-                        ),
-                      ),
-                      placeholder: (context, url) => const FadeInImage(
-                        height: 50,
-                        width: 50,
-                        fit: BoxFit.fill,
-                        image: AssetImage("assets/images/placeholder.jpg"),
-                        placeholder:
-                            AssetImage("assets/images/placeholder.jpg"),
-                      ),
-                      errorWidget: (context, url, error) => const FadeInImage(
-                        height: 50,
-                        width: 50,
-                        fit: BoxFit.fill,
-                        image: AssetImage("assets/images/error.png"),
-                        placeholder:
-                            AssetImage("assets/images/placeholder.jpg"),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  width: 16.0,
-                ),
-                Expanded(
-                  flex: 4,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(
-                        height: 4.0,
-                      ),
-                      Text(
-                        cubit.filteredGroupList[index].groupName,
-                        style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600),
-                      ),
-                      const SizedBox(
-                        height: 4.0,
-                      ),
-                      Text(
-                        "${cubit.filteredGroupList[index].groupLastMessageSenderName} : ${cubit.filteredGroupList[index].groupLastMessage}",
-                        style: const TextStyle(
-                          color: Colors.grey,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w200,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                        textDirection: TextDirection.rtl,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(
-                  width: 8.0,
-                ),
-                Expanded(
-                  flex: 1,
-                  child: ValueListenableBuilder(
-                      valueListenable: lastMessageTimeValue,
-                      builder: (context, value, widget) {
-                        return Text(
-                          cubit.filteredGroupList[index].groupLastMessageTime,
-                          style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w200,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          textDirection: TextDirection.ltr,
-                          overflow: TextOverflow.ellipsis,
-                        );
-                      }),
-                )
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 }

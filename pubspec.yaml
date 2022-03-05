@@ -70,7 +70,6 @@ dependencies:
   auto_size_text: ^3.0.0
   flutter_screenutil: ^5.1.1
   flutter_local_notifications: ^9.2.0
-  awesome_notifications: ^0.6.21
   onesignal_flutter: ^3.2.8
   flutter_svg: ^1.0.3
   custom_full_image_screen: ^0.0.4

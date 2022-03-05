@@ -18,6 +18,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:just_audio/just_audio.dart' as j;
 import 'package:mostaqbal_masr/models/chat_model.dart';
+import 'package:mostaqbal_masr/models/clerk_model.dart';
+import 'package:mostaqbal_masr/models/firebase_clerk_model.dart';
 import 'package:mostaqbal_masr/models/group_model.dart';
 import 'package:mostaqbal_masr/modules/Customer/screens/customer_selected_images_screen.dart';
 import 'package:mostaqbal_masr/modules/Global/GroupChat/cubit/display_groups_states.dart';
@@ -59,13 +61,16 @@ class GroupDetailsCubit extends Cubit<GroupDetailsStates> {
   List<GroupModel> filteredGroupList = [];
   List<Object?> adminsList = [];
   List<Object?> membersList = [];
+  List<ClerkFirebaseModel> membersinfolist = [];
+  List messagesHasImages =[];
+
 
   Future<void> getUserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     userID = prefs.getString("ClerkID");
     userName = prefs.getString("ClerkName");
-    userPhone =  prefs.getString("ClerkPhone");
+    userPhone = prefs.getString("ClerkPhone");
     userNumber = prefs.getString("ClerkNumber");
     userPassword = prefs.getString("ClerkPassword");
     userManagementName = prefs.getString("ClerkManagementName");
@@ -77,87 +82,48 @@ class GroupDetailsCubit extends Cubit<GroupDetailsStates> {
     userJobName = prefs.getString("ClerkJobName");
 
     var token = await FirebaseMessaging.instance.getToken();
-    await FirebaseDatabase.instance.reference().child("Clerks").child(userPhone!).child("ClerkToken").set(token);
+    await FirebaseDatabase.instance.reference().child("Clerks").child(
+        userPhone!).child("ClerkToken").set(token);
     await prefs.setString("ClerkToken", token!);
 
     userToken = prefs.getString("ClerkToken");
     userImage = prefs.getString("ClerkImage");
-
   }
 
-  void getGroups() async {
-    emit(GroupDetailsLoadingGroupsState());
+  ClerkFirebaseModel? clerkModel;
 
-    await getUserData();
+  Future<void> getClerkInfo(List<Object?> membersIDList) async{
+    emit(GroupDetailsLoadingMembersInfoState());
+    membersinfolist =[];
+    print('testttttttttttttt : ${membersIDList}\n');
+     for (var element in membersIDList) {
+       await FirebaseDatabase.instance.reference().child('Clerks').child(element.toString()).get().then((event) {
+         clerkModel = ClerkFirebaseModel(event.value["ClerkID"], event.value["ClerkName"], event.value["ClerkImage"], event.value["PersonNumber"], event.value["PersonAddress"], event.value["PersonPhone"], event.value["PersonPassword"], event.value["PersonState"], event.value["PersonToken"], event.value["CategoryLastMessage"], event.value["CategoryLastMessageTime"], event.value["ClerkSubscriptions"]);
+         print("DATA DETAILS : ${event.value["ClerkName"]}\n");
+         print('tesssssssss : ${membersinfolist.length}\n');
+         membersinfolist.add(clerkModel!);
+      });
+    }
+    print('tesssssssss : ${membersinfolist.length}\n');
+    print('tesssssssss : ${membersinfolist.length}\n');
 
-    FirebaseDatabase.instance
-        .reference()
-        .child('Groups')
-        .onValue
-        .listen((event) {
-      adminsList = [];
-      membersList = [];
-      groupList.clear();
-      groupListReversed.clear();
-      filteredGroupList.clear();
-      groupModel = null;
-
-      if (event.snapshot.exists) {
-        Map data = event.snapshot.value;
-        if (data.isNotEmpty) {
-          data.forEach((key, val) {
-
-              print('Groups Data INSIDE : ${val["Info"]["GroupName"]}\n');
-
-              adminsList = val["Info"]["Admins"];
-              membersList = val["Info"]["Members"];
-
-              groupModel = GroupModel(
-                val["Info"]["GroupID"],
-                val["Info"]["GroupName"],
-                val["Info"]["GroupImageUrl"],
-                val["Info"]["GroupLastMessageSenderName"],
-                val["Info"]["GroupLastMessage"],
-                val["Info"]["GroupLastMessageTime"],
-                adminsList,
-                membersList
-              );
-              print("USER  : $userID\n");
-
-              if(membersList.contains(userID) || adminsList.contains(userID)){
-                groupList.add(groupModel!);
-                groupListReversed = groupList.reversed.toList();
-                filteredGroupList = groupList;
-                print("GROUPS : $groupList\n");
-              }
-
-
-              print("MEMBERS : $membersList\n");
-              print("ADMINS : $adminsList\n");
-          });
-        }
-      }
-
-      emit(GroupDetailsGetGroupsSuccessState());
-    }).onError((error) {
-      emit(GroupDetailsGetGroupsErrorState(error.toString()));
-    });
-  }
-
-  void searchGroup(String value){
-
-    filteredGroupList = groupList
-        .where(
-            (user) => user.groupName.toLowerCase().contains(value.toString()))
-        .toList();
-    print("${filteredGroupList.length}\n");
-    emit(GroupDetailsFilterGroupState());
+    emit(GroupDetailsMembersInfoState());
 
   }
+   Future<void> getGroupMedia(String groupId)async{
+    messagesHasImages =[];
+   await FirebaseDatabase.instance.reference().child('Groups').child(groupId).child('Messages').get().then((event){
+     Map data = event.value;
+     data.forEach((key, value) {
+       if(value["hasImages"] == true){
+         print("Images : ${value["messageImages"][0]}\n");
+         messagesHasImages.add(value["messageImages"][0]);
+       }
+     });
+     print("LIST OF IMAGES LENGTH ### : ${messagesHasImages.length}\n");
+     print("LIST OF IMAGES LENGTH ### : ${messagesHasImages[0]}\n");
 
-  void goToConversation(BuildContext context, route){
-
-    navigateTo(context, route);
-
+   });
+    emit(GroupDetailsGetMediaState());
   }
 }
