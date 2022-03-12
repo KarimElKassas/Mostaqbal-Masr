@@ -70,9 +70,21 @@ class _GlobalDisplayPostsScreenState extends State<GlobalDisplayPostsScreen>
                   statusBarIconBrightness: Brightness.light, // For Android (dark icons)
                   statusBarBrightness: Brightness.dark, // For iOS (dark icons)
                 ),
+
                 backgroundColor: Colors.teal[700],
                 title: const Text("اخبار المشروع"),
                 actions: [
+                  IconButton(
+                    icon: const Icon(
+                      Icons.brightness_4_outlined,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {
+                      cubit.postsList.clear();
+                      cubit.postsListReversed.clear();
+                      cubit.getPosts();
+                    },
+                  ),
                   IconButton(
                     icon: const Icon(
                       Icons.refresh_rounded,

@@ -4,9 +4,10 @@ import 'package:flutter/material.dart';
 class TransitionAppBar extends StatelessWidget {
   final Widget? avatar;
   final String? title;
+  final String? membersCount;
   final double extent;
 
-  TransitionAppBar({this.avatar, this.title, this.extent = 250, Key? key})
+  const TransitionAppBar({this.avatar, this.title, this.membersCount, this.extent = 250, Key? key})
       : super(key: key);
 
   @override
@@ -16,7 +17,7 @@ class TransitionAppBar extends StatelessWidget {
 
       pinned: true,
       delegate: _TransitionAppBarDelegate(
-          avatar: avatar!, title: title!, extent: extent > 200 ? extent : 200),
+          avatar: avatar!, title: title!, membersCount: membersCount!, extent: extent > 200 ? extent : 200),
     );
   }
 }
@@ -39,15 +40,13 @@ class _TransitionAppBarDelegate extends SliverPersistentHeaderDelegate {
 
   final Widget? avatar;
   final String? title;
+  final String? membersCount;
   final double extent;
 
-  int darkcolor = 0xff141c27;
-  int lightcolor = 0xff232c38;
+  int lightcolor = 0xff141c27;
+  int darkcolor = 0xff232c38;
 
-  _TransitionAppBarDelegate({this.avatar, this.title, this.extent = 250})
-      : assert(avatar != null),
-        assert(extent == null || extent >= 200),
-        assert(title != null);
+  _TransitionAppBarDelegate({this.avatar, this.title, this.membersCount, this.extent = 250});
 
   @override
   Widget build(
@@ -67,13 +66,13 @@ class _TransitionAppBarDelegate extends SliverPersistentHeaderDelegate {
       children: <Widget>[
         progress==1?
         AnimatedContainer(
-          duration: Duration(milliseconds: 100),
+          duration: const Duration(milliseconds: 100),
           height: 50,
           constraints: BoxConstraints(maxHeight: minExtent),
-          color: Color(darkcolor),
-        ):SizedBox(),
+          color: Color(lightcolor),
+        ):const SizedBox(),
         Container(
-          color: Color(darkcolor),
+          color: Color(lightcolor),
 
           padding: avatarMargin,
           child: Align(
@@ -88,16 +87,14 @@ class _TransitionAppBarDelegate extends SliverPersistentHeaderDelegate {
         Container(
           padding: titleMargin,
           child: Align(
-
             alignment: titleAlign,
-            child:Container(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text('مستقبل مصر',style: TextStyle(color: Colors.white,fontSize: 25),),
-                  Text('6 عضو ',style: TextStyle(color: Colors.grey,fontSize: 15),),
-                ],
-              ),
+            child:Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(title!,style: const TextStyle(color: Colors.white,fontSize: 20),),
+                const SizedBox(height: 4,),
+                Text("$membersCount  عضو",style: const TextStyle(color: Colors.grey,fontSize: 14),),
+              ],
             ),
           ),
         ),
@@ -114,6 +111,6 @@ class _TransitionAppBarDelegate extends SliverPersistentHeaderDelegate {
 
   @override
   bool shouldRebuild(_TransitionAppBarDelegate oldDelegate) {
-    return avatar != oldDelegate.avatar || title != oldDelegate.title;
+    return avatar != oldDelegate.avatar || title != oldDelegate.title || membersCount != oldDelegate.membersCount;
   }
 }

@@ -145,6 +145,17 @@ class _MyAppState extends State<MyApp> {
         child: MaterialApp(
           title: 'مستقبل مصر',
           theme: ThemeData(
+            appBarTheme: const AppBarTheme(
+                backgroundColor: Color(0xff232c38),
+                elevation: 0,
+                titleTextStyle: TextStyle(
+                    fontFamily: "Tajwal",
+                    color: Colors.white,
+                    fontSize: 16
+                )
+            ),
+            primarySwatch: Colors.teal,
+            scaffoldBackgroundColor: Colors.white,
             fontFamily: "Tajwal",
             bottomNavigationBarTheme: const BottomNavigationBarThemeData(
               selectedLabelStyle: TextStyle(fontFamily: "Roboto"),
@@ -152,6 +163,25 @@ class _MyAppState extends State<MyApp> {
             ),
             primaryColor: Colors.teal[700],
           ),
+          darkTheme: ThemeData(
+            appBarTheme: const AppBarTheme(
+              backgroundColor: Color(0xff232c38),
+              elevation: 0,
+              titleTextStyle: TextStyle(
+                fontFamily: "Tajwal",
+                color: Colors.white,
+                fontSize: 16
+              )
+            ),
+            scaffoldBackgroundColor: const Color(0xff232c38),
+            fontFamily: "Tajwal",
+            bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+              selectedLabelStyle: TextStyle(fontFamily: "Roboto"),
+              unselectedLabelStyle: TextStyle(fontFamily: "Roboto", color: Colors.white),
+              elevation: 0
+            ),
+          ),
+          themeMode: ThemeMode.light,
           debugShowCheckedModeBanner: false,
           home: SplashScreen(),
         ),

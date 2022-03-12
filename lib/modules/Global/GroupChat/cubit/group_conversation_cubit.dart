@@ -56,6 +56,10 @@ class GroupConversationCubit extends Cubit<GroupConversationStates> {
   String imageUrl = "";
   String fileUrl = "";
   String downloadingFileName = "";
+  String downloadingRecordName = "";
+  String uploadingFileName = "";
+  String uploadingRecordName = "";
+  String uploadingImageName = "";
   String totalDuration = '0:00';
   String loadingTime = '0:00';
   String audioPath = "";
@@ -134,8 +138,7 @@ class GroupConversationCubit extends Cubit<GroupConversationStates> {
       String message, String notificationID, String groupID,String senderName) async {
     var serverKey =
         'AAAAnuydfc0:APA91bF3jkS5-JWRVnTk3mEBnj2WI70EYJ1zC7Q7TAI6GWlCPTd37SiEkhuRZMa8Uhu9HTZQi1oiCEQ2iKQgxljSyLtWTAxN4HoB3pyfTuyNQLjXtf58s99nAEivs2L6NzEL0laSykTK';
-    
-    
+
     for (var element in groupMembersList){ 
       
       if(element.toString() != userID){
@@ -265,8 +268,6 @@ class GroupConversationCubit extends Cubit<GroupConversationStates> {
   Future<void> sendFileMessage(
       String groupID, String type, bool isSeen, FilePickerResult file) async {
 
-    emit(GroupConversationUploadingFileState());
-
     DateTime now = DateTime.now();
     String currentTime = DateFormat("hh:mm a").format(now);
     String currentFullTime = DateFormat("yyyy-MM-dd HH:mm:ss").format(now);
@@ -285,6 +286,7 @@ class GroupConversationCubit extends Cubit<GroupConversationStates> {
     dataMap['SenderImage'] = userImage;
     dataMap['groupID'] = groupID;
     dataMap['type'] = type;
+    dataMap['Message'] = "";
     dataMap["isSeen"] = isSeen;
     dataMap["messageTime"] = currentTime;
     dataMap["messageFullTime"] = currentFullTime;
@@ -292,28 +294,64 @@ class GroupConversationCubit extends Cubit<GroupConversationStates> {
     dataMap["hasImages"] = false;
     dataMap["fileName"] = file.files.first.name;
 
-    File docFile = File(file.files.first.path!);
+    //send data then update with file url
+    messagesRef.child(currentFullTime).set(dataMap).then((value)async {
+      emit(GroupConversationUploadingFileState(file.files.first.name));
+      uploadingFileName = file.files.first.name;
+      print("FILE NAME UPLOADING : $uploadingFileName \n");
+      File docFile = File(file.files.first.path!);
 
-    var uploadTask = storageRef.putFile(docFile);
-    await uploadTask.then((p0) {
-      p0.ref.getDownloadURL().then((value) {
-        dataMap["Message"] = value.toString();
+      var uploadTask = storageRef.putFile(docFile);
+       uploadTask.then((p0) {
+        p0.ref.getDownloadURL().then((value) {
+          dataMap["Message"] = value.toString();
 
-        messagesRef
-            .child(currentFullTime)
-            .set(dataMap)
-            .then((realtimeDbValue) async {
-              chatListTempReversed.removeLast();
-          emit(GroupConversationSendMessageState());
+          messagesRef
+              .child(currentFullTime)
+              .update(dataMap)
+              .then((realtimeDbValue) async {
+
+            database
+                .reference()
+                .child("Groups")
+                .child(groupID)
+                .child("Info")
+                .child("GroupLastMessageSenderName")
+                .set(userName);
+            database
+                .reference()
+                .child("Groups")
+                .child(groupID)
+                .child("Info")
+                .child("GroupLastMessage")
+                .set("ملف");
+            database
+                .reference()
+                .child("Groups")
+                .child(groupID)
+                .child("Info")
+                .child("GroupLastMessageTime")
+                .set(currentTime);
+
+            chatListTempReversed.removeLast();
+            uploadingFileName = "";
+            emit(GroupConversationSendMessageState());
+          }).catchError((error) {
+            uploadingFileName = "";
+            emit(GroupConversationSendMessageErrorState(error.toString()));
+          });
         }).catchError((error) {
+          uploadingFileName = "";
           emit(GroupConversationSendMessageErrorState(error.toString()));
         });
       }).catchError((error) {
+        uploadingFileName = "";
         emit(GroupConversationSendMessageErrorState(error.toString()));
       });
-    }).catchError((error) {
-      emit(GroupConversationSendMessageErrorState(error.toString()));
     });
+
+
+
   }
 
   Future<void> sendAudioMessage(String groupID, String type, bool isSeen, File file) async {
@@ -337,33 +375,160 @@ class GroupConversationCubit extends Cubit<GroupConversationStates> {
     dataMap['SenderImage'] = userImage;
     dataMap['groupID'] = groupID;
     dataMap['type'] = type;
+    dataMap['Message'] = "";
     dataMap["isSeen"] = isSeen;
     dataMap["messageTime"] = currentTime;
     dataMap["messageFullTime"] = currentFullTime;
     dataMap["messageImages"] = "emptyList";
     dataMap["hasImages"] = false;
     dataMap["fileName"] = fileName;
-    File audioFile = File(file.path.toString());
 
-    var uploadTask = storageRef.putFile(audioFile);
-    await uploadTask.then((p0) {
-      p0.ref.getDownloadURL().then((value) {
-        dataMap["Message"] = value.toString();
+    messagesRef.child(currentFullTime).set(dataMap).then((value)async {
+      emit(GroupConversationUploadingRecordState(fileName));
+      uploadingRecordName = fileName;
+      print("RECORD NAME UPLOADING : $uploadingRecordName \n");
 
-        messagesRef
-            .child(currentFullTime)
-            .set(dataMap)
-            .then((realtimeDbValue) async {
-              emit(GroupConversationSendMessageState());
+      File audioFile = File(file.path.toString());
+
+      var uploadTask = storageRef.putFile(audioFile);
+      uploadTask.then((p0) {
+        p0.ref.getDownloadURL().then((value) {
+          dataMap["Message"] = value.toString();
+
+          messagesRef
+              .child(currentFullTime)
+              .update(dataMap)
+              .then((realtimeDbValue) async {
+            database
+                .reference()
+                .child("Groups")
+                .child(groupID)
+                .child("Info")
+                .child("GroupLastMessageSenderName")
+                .set(userName);
+            database
+                .reference()
+                .child("Groups")
+                .child(groupID)
+                .child("Info")
+                .child("GroupLastMessage")
+                .set("تسجيل صوتى");
+            database
+                .reference()
+                .child("Groups")
+                .child(groupID)
+                .child("Info")
+                .child("GroupLastMessageTime")
+                .set(currentTime);
+                uploadingRecordName = "";
+            emit(GroupConversationSendMessageState());
+          }).catchError((error) {
+            uploadingRecordName = "";
+            emit(GroupConversationSendMessageErrorState(error.toString()));
+          });
         }).catchError((error) {
+          uploadingRecordName = "";
           emit(GroupConversationSendMessageErrorState(error.toString()));
         });
       }).catchError((error) {
+        uploadingRecordName = "";
         emit(GroupConversationSendMessageErrorState(error.toString()));
       });
-    }).catchError((error) {
-      emit(GroupConversationSendMessageErrorState(error.toString()));
     });
+  }
+
+  Future uploadMultipleImages(BuildContext context, String groupID) async {
+
+    DateTime now = DateTime.now();
+    String currentFullTime = DateFormat("yyyy-MM-dd HH:mm:ss").format(now);
+    String currentTime = DateFormat("hh:mm a").format(now);
+
+    var storageRef = FirebaseStorage.instance.ref("Groups").child(groupID).child("Media");
+    FirebaseDatabase database = FirebaseDatabase.instance;
+    var messagesRef = database.reference().child("Groups").child(groupID).child("Messages").child(currentFullTime);
+    String currentFullTime1 =
+    DateFormat("yyyy-MM-dd-HH-mm-ss").format(DateTime.now());
+    List<String> urlsList = [];
+
+    Map<String, Object> dataMap = HashMap();
+
+    dataMap['Message'] = "صورة";
+    dataMap['SenderID'] = userID;
+    dataMap['SenderName'] = userName;
+    dataMap['SenderImage'] = userImage;
+    dataMap['groupID'] = groupID;
+    dataMap['fileName'] = "";
+    dataMap["isSeen"] = false;
+    dataMap["messageTime"] = currentTime;
+    dataMap["messageFullTime"] = currentFullTime;
+    dataMap["type"] = "Image";
+    dataMap["hasImages"] = true;
+
+    //for (int i = 0; i < messageImagesStaticList!.length; i++) {
+    messagesRef.set(dataMap).then((value) async {
+      String fileName = messageImagesStaticList![0].path.toString();
+
+      emit(GroupConversationUploadingImagesState(fileName));
+      uploadingImageName = fileName;
+      print("IMAGE NAME UPLOADING : $uploadingImageName \n");
+
+      File imageFile = File(fileName);
+
+      var uploadTask = storageRef.child(fileName).putFile(imageFile);
+      uploadTask.then((p0) {
+        p0.ref.getDownloadURL().then((value) {
+          urlsList.add(value.toString());
+
+          dataMap["fileName"] = value.toString();
+          dataMap["messageImages"] = urlsList;
+
+          messagesRef.update(dataMap).then((value) {
+            if(Navigator.canPop(context)){
+              Navigator.pop(context);
+            }
+
+            database
+                .reference()
+                .child("Groups")
+                .child(groupID)
+                .child("Info")
+                .child("GroupLastMessageSenderName")
+                .set(userName);
+            database
+                .reference()
+                .child("Groups")
+                .child(groupID)
+                .child("Info")
+                .child("GroupLastMessage")
+                .set("صورة");
+            database
+                .reference()
+                .child("Groups")
+                .child(groupID)
+                .child("Info")
+                .child("GroupLastMessageTime")
+                .set(currentTime);
+
+            messageImagesStaticList = [];
+            uploadingImageName = "";
+            emit(GroupConversationUploadImagesSuccessState());
+          }).catchError((error) {
+            uploadingImageName = "";
+            emit(GroupConversationUploadingImageErrorState(error.toString()));
+          });
+        }).catchError((error) {
+          uploadingImageName = "";
+          emit(GroupConversationUploadingImageErrorState(error.toString()));
+        });
+      }).catchError((error) {
+        uploadingImageName = "";
+        emit(GroupConversationUploadingImageErrorState(error.toString()));
+      });
+    }).catchError((error) {
+      uploadingImageName = "";
+      emit(GroupConversationUploadingImageErrorState(error.toString()));
+    });
+    //}
   }
 
   void getGroupMembers(String groupID) async {
@@ -486,7 +651,6 @@ class GroupConversationCubit extends Cubit<GroupConversationStates> {
     });
   }
 
-
   buildItemsList(List<XFile?> items) {
     galleryItems = [];
     for (var item in items) {
@@ -536,7 +700,7 @@ class GroupConversationCubit extends Cubit<GroupConversationStates> {
   Future<void> downloadAudioFile(
       String fileName,String senderName,String groupName, String groupID, int index) async {
     emit(GroupConversationLoadingDownloadFileState(fileName));
-    downloadingFileName = fileName;
+    downloadingRecordName = fileName;
 
     var status = await Permission.storage.request();
     if (status == PermissionStatus.granted) {
@@ -549,12 +713,12 @@ class GroupConversationCubit extends Cubit<GroupConversationStates> {
         await FirebaseStorage.instance
             .ref('Groups/$groupID/Media/$fileName')
             .writeToFile(downloadToFile);
-        downloadingFileName = "";
+        downloadingRecordName = "";
         emit(GroupConversationDownloadFileSuccessState());
 
         chatMicrophoneOnTapAction(index, fileName, groupName,senderName);
       } on FirebaseException catch (e) {
-        downloadingFileName = "";
+        downloadingRecordName = "";
         emit(GroupConversationDownloadFileErrorState(e.message.toString()));
       }
     } else {
@@ -563,13 +727,13 @@ class GroupConversationCubit extends Cubit<GroupConversationStates> {
           length: Toast.LENGTH_SHORT,
           gravity: ToastGravity.BOTTOM,
           timeInSecForIosWeb: 3);
-      downloadingFileName = "";
+      downloadingRecordName = "";
       emit(GroupConversationPermissionDeniedState());
     }
   }
 
   Future<void> downloadImageFile(
-      String fileName, String senderID,String senderName, String receiverID, String groupName, String groupID) async {
+      String fileName, String senderID,String senderName, String groupName, String groupID) async {
     emit(GroupConversationLoadingDownloadFileState(fileName));
     downloadingFileName = fileName;
 
@@ -619,6 +783,11 @@ class GroupConversationCubit extends Cubit<GroupConversationStates> {
     bool isFileExist = File(
         "/storage/emulated/0/Download/Future Of Egypt Media/Images/$groupName/$fileName")
         .existsSync();
+
+    if(!isFileExist){
+      downloadImageFile(fileName, userID, userName, groupName, groupID);
+    }
+
     return isFileExist;
   }
 

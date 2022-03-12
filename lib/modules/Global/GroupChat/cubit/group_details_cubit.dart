@@ -111,6 +111,7 @@ class GroupDetailsCubit extends Cubit<GroupDetailsStates> {
 
   }
    Future<void> getGroupMedia(String groupId)async{
+    emit(GroupDetailsLoadingMediaState());
     messagesHasImages =[];
    await FirebaseDatabase.instance.reference().child('Groups').child(groupId).child('Messages').get().then((event){
      Map data = event.value;

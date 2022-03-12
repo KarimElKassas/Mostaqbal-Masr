@@ -19,6 +19,7 @@ class SocialDisplayPostsCubit extends Cubit<SocialDisplayPostsStates> {
       initialVideoId: videoID,
       flags: const YoutubePlayerFlags(
           autoPlay: false, mute: false, hideControls: false),
+
     );
   }
 

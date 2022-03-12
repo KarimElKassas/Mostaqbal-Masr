@@ -42,7 +42,12 @@ class _GroupInputFieldWidgetState extends State<GroupInputFieldWidget> {
               horizontal: 10,
               vertical: 10,
             ),
-            color: Colors.transparent,
+            decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/images/dark_chat_background.jpg'),
+                  fit: BoxFit.fitWidth,
+                ),
+                color: Colors.white),
             child: Row(
               children: [
                 ValueListenableBuilder(

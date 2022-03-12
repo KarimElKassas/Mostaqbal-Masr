@@ -24,9 +24,7 @@ class SplashScreen extends StatelessWidget {
               child: FadeInDown(
                 duration: const Duration(milliseconds: 2000),
                 child: const FadeInImage(
-                  height: 300,
-                  width: 300,
-                  fit: BoxFit.fill,
+                  fit: BoxFit.cover,
                   fadeInDuration: Duration(milliseconds: 1500),
                   image: AssetImage('assets/images/logo.jpg'),
                   placeholder: AssetImage("assets/images/black_back.png"),

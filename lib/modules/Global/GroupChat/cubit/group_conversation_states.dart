@@ -4,11 +4,29 @@ class GroupConversationInitialState extends GroupConversationStates{}
 
 class GroupConversationChangeUserTypeState extends GroupConversationStates{}
 
-class GroupConversationUploadingImagesState extends GroupConversationStates{}
+class GroupConversationUploadingImagesState extends GroupConversationStates{
+  final String imageName;
 
-class GroupConversationUploadImagesState extends GroupConversationStates{}
+  GroupConversationUploadingImagesState(this.imageName);
+}
+class GroupConversationUploadingRecordState extends GroupConversationStates{
+  final String recordName;
 
-class GroupConversationUploadingFileState extends GroupConversationStates{}
+  GroupConversationUploadingRecordState(this.recordName);
+}
+class GroupConversationUploadImagesSuccessState extends GroupConversationStates{}
+
+class GroupConversationUploadingImageErrorState extends GroupConversationStates{
+  final String error;
+
+  GroupConversationUploadingImageErrorState(this.error);
+}
+
+class GroupConversationUploadingFileState extends GroupConversationStates{
+  final String fileName;
+
+  GroupConversationUploadingFileState(this.fileName);
+}
 
 class GroupConversationSendMessageState extends GroupConversationStates{}
 

@@ -10,6 +10,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mostaqbal_masr/modules/Customer/cubit/customer_selected_images_cubit.dart';
 import 'package:mostaqbal_masr/modules/Customer/cubit/customer_selected_images_states.dart';
+import 'package:mostaqbal_masr/modules/Global/GroupChat/cubit/group_conversation_cubit.dart';
+import 'package:mostaqbal_masr/modules/Global/GroupChat/cubit/group_conversation_states.dart';
 import 'package:mostaqbal_masr/modules/Global/GroupChat/cubit/group_selected_images_cubit.dart';
 import 'package:mostaqbal_masr/modules/Global/GroupChat/cubit/group_selected_images_states.dart';
 import 'package:mostaqbal_masr/shared/components.dart';
@@ -27,21 +29,21 @@ class _GroupSelectedImagesScreenState extends State<GroupSelectedImagesScreen> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => GroupSelectedImagesCubit()..getUserData(),
-      child: BlocConsumer<GroupSelectedImagesCubit, GroupSelectedImagesStates>(
+      create: (context) => GroupConversationCubit()..getUserData(),
+      child: BlocConsumer<GroupConversationCubit, GroupConversationStates>(
         listener: (context, state){
-          if(state is GroupSelectedImagesUploadErrorState){
+          if(state is GroupConversationUploadingImageErrorState){
             showToast(message: state.error, length: Toast.LENGTH_SHORT, gravity: ToastGravity.BOTTOM, timeInSecForIosWeb: 3);
           }
         },
         builder: (context, state){
 
-          var cubit = GroupSelectedImagesCubit.get(context);
+          var cubit = GroupConversationCubit.get(context);
 
           return Scaffold(
             backgroundColor: Colors.black,
             floatingActionButton: BuildCondition(
-              condition: state is GroupSelectedImagesUploadingState,
+              condition: state is GroupConversationUploadingImagesState,
               builder: (context) => CircularProgressIndicator(
                 color: Colors.teal[700],
                 strokeWidth: 0.8,

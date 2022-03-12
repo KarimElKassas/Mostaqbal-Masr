@@ -16,6 +16,7 @@ import 'package:mostaqbal_masr/models/clerk_model.dart';
 import 'package:mostaqbal_masr/models/clerk_model.dart';
 import 'package:mostaqbal_masr/models/firebase_clerk_model.dart';
 import 'package:mostaqbal_masr/models/user_model.dart';
+import 'package:mostaqbal_masr/modules/Global/GroupChat/screens/group_conversation_screen.dart';
 import 'package:mostaqbal_masr/modules/Global/Login/login_screen.dart';
 import 'package:mostaqbal_masr/modules/Global/registration/screens/clerk_registration_screen.dart';
 import 'package:mostaqbal_masr/modules/ITDepartment/cubit/home/home_states.dart';
@@ -129,8 +130,14 @@ class ITHomeCubit extends Cubit<ITHomeStates>{
   void navigateToCreateClerk(BuildContext context){
     navigateTo(context, ClerkRegistrationScreen());
   }
-  void navigateToGroupConversation(BuildContext context, String groupID, String groupName, String groupImage){
-    navigateTo(context, ITGroupConversationScreen(groupID: groupID, groupImage: groupImage, groupName: groupName));
+  void navigateToGroupConversation(BuildContext context, String groupID, String groupName, String groupImage)async {
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    List<Object?> adminsList = [];
+    adminsList.add(prefs.getString("ClerkID"));
+
+    navigateTo(context, GroupConversationScreen(groupID: groupID, groupName: groupName, groupImage: groupImage, adminsList: adminsList, membersList: selectedClerksIDList,));
   }
 
   void navigateToCreateClerksGroup(BuildContext context)async {
@@ -266,6 +273,7 @@ class ITHomeCubit extends Cubit<ITHomeStates>{
     dataMap['GroupLastMessageSenderName'] = "";
     dataMap['GroupLastMessage'] = "";
     dataMap['GroupLastMessageTime'] = "";
+    dataMap['GroupImageUrl'] = "";
 
     groupRef.child(currentFullTime).child("Info").set(dataMap).then((value) async {
       String fileName = imageUrl;
@@ -304,9 +312,7 @@ class ITHomeCubit extends Cubit<ITHomeStates>{
               .set(filtered);
 
               for (var element in filtered) {
-
                 await FirebaseMessaging.instance.subscribeToTopic(element);
-
               }
               print("Clerk List After Set : ${filtered.length}\n");
             }

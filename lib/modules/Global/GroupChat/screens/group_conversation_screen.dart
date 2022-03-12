@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:buildcondition/buildcondition.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
@@ -15,8 +17,8 @@ import 'package:mostaqbal_masr/shared/gallery_item_thumbnail.dart';
 import 'package:mostaqbal_masr/shared/gallery_item_wrapper_view.dart';
 import 'package:open_file/open_file.dart';
 import 'package:percent_indicator/percent_indicator.dart';
+import 'package:swipe/swipe.dart';
 import 'package:url_launcher/url_launcher.dart';
-
 import '../cubit/group_conversation_states.dart';
 
 class GroupConversationScreen extends StatefulWidget {
@@ -77,7 +79,7 @@ class _GroupConversationScreenState extends State<GroupConversationScreen> {
           return Container(
             decoration: const BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage('assets/images/logoWhite.png'),
+                  image: AssetImage('assets/images/dark_chat_background.jpg'),
                   fit: BoxFit.fitWidth,
                 ),
                 color: Colors.white),
@@ -85,14 +87,14 @@ class _GroupConversationScreenState extends State<GroupConversationScreen> {
               backgroundColor: Colors.transparent,
               appBar: AppBar(
                 systemOverlayStyle: const SystemUiOverlayStyle(
-                  statusBarColor: Colors.white,
-                  statusBarIconBrightness: Brightness.dark,
+                  statusBarColor: Color(0xff141c27),
+                  statusBarIconBrightness: Brightness.light,
                   // For Android (dark icons)
-                  statusBarBrightness: Brightness.light, // For iOS (dark icons)
+                  statusBarBrightness: Brightness.dark, // For iOS (dark icons)
                 ),
                 elevation: 0,
                 automaticallyImplyLeading: false,
-                backgroundColor: Colors.white,
+                backgroundColor: Color(0xff141c27),
                 flexibleSpace: SafeArea(
                   child: Container(
                     padding: const EdgeInsets.only(left: 2.0, right: 2.0),
@@ -106,7 +108,7 @@ class _GroupConversationScreenState extends State<GroupConversationScreen> {
                             },
                             icon: const Icon(
                               IconlyBroken.arrowRightCircle,
-                              color: Colors.black,
+                              color: Colors.white,
                             ),
                           ),
                           const SizedBox(
@@ -165,7 +167,7 @@ class _GroupConversationScreenState extends State<GroupConversationScreen> {
                                     widget.groupName,
                                     style: const TextStyle(
                                         fontSize: 14,
-                                        fontWeight: FontWeight.w600),
+                                        fontWeight: FontWeight.w600, color: Colors.white),
                                   ),
                                   const SizedBox(
                                     height: 4,
@@ -222,89 +224,94 @@ class _GroupConversationScreenState extends State<GroupConversationScreen> {
   Widget chatView(BuildContext context, GroupConversationCubit cubit, int index,
       GroupConversationStates state) {
     if (cubit.chatListReversed[index].type == "Text") {
-      return Container(
-        padding: const EdgeInsets.only(top: 10, bottom: 10),
-        child: Align(
-          alignment: (cubit.chatListReversed[index].senderID == cubit.userID
-              ? Alignment.topRight
-              : Alignment.topLeft),
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius:
-                  cubit.chatListReversed[index].senderID == cubit.userID
-                      ? const BorderRadius.only(
-                          topLeft: Radius.circular(14.0),
-                          bottomLeft: Radius.circular(14.0),
-                          bottomRight: Radius.circular(14.0),
+      return Swipe(
+        onSwipeRight: (){
+          print("SWIPE\n");
+        },
+        child: Container(
+          padding: const EdgeInsets.only(top: 10, bottom: 10),
+          child: Align(
+            alignment: (cubit.chatListReversed[index].senderID == cubit.userID
+                ? Alignment.topRight
+                : Alignment.topLeft),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius:
+                    cubit.chatListReversed[index].senderID == cubit.userID
+                        ? const BorderRadius.only(
+                            topLeft: Radius.circular(14.0),
+                            bottomLeft: Radius.circular(14.0),
+                            bottomRight: Radius.circular(14.0),
+                          )
+                        : const BorderRadius.only(
+                            topRight: Radius.circular(14.0),
+                            bottomLeft: Radius.circular(14.0),
+                            bottomRight: Radius.circular(14.0),
+                          ),
+                color: (cubit.chatListReversed[index].senderID == cubit.userID
+                    ? Colors.teal
+                    : Colors.grey.shade200),
+              ),
+              padding:
+                  const EdgeInsets.only(top: 10, bottom: 10, right: 10, left: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  cubit.chatListReversed[index].senderID != cubit.userID
+                      ? Text(
+                          cubit.chatListReversed[index].senderName,
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: cubit.chatListReversed[index].senderID ==
+                                    cubit.userID
+                                ? Colors.yellow
+                                : Colors.redAccent.shade700,
+                          ),
                         )
-                      : const BorderRadius.only(
-                          topRight: Radius.circular(14.0),
-                          bottomLeft: Radius.circular(14.0),
-                          bottomRight: Radius.circular(14.0),
-                        ),
-              color: (cubit.chatListReversed[index].senderID == cubit.userID
-                  ? Colors.teal
-                  : Colors.grey.shade200),
-            ),
-            padding:
-                const EdgeInsets.only(top: 10, bottom: 10, right: 10, left: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                cubit.chatListReversed[index].senderID != cubit.userID
-                    ? Text(
-                        cubit.chatListReversed[index].senderName,
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: cubit.chatListReversed[index].senderID ==
-                                  cubit.userID
-                              ? Colors.yellow
-                              : Colors.redAccent.shade700,
-                        ),
-                      )
-                    : getEmptyWidget(),
-                const SizedBox(
-                  height: 6.0,
-                ),
-                Linkify(
-                  onOpen: (link) async {
-                    if (await canLaunch(link.url)) {
-                      await launch(link.url);
-                    } else {
-                      throw 'Could not launch $link';
-                    }
-                  },
-                  text: cubit.chatListReversed[index].message.toString(),
-                  style: TextStyle(
-                    color:
-                        cubit.chatListReversed[index].senderID == cubit.userID
-                            ? Colors.white.withOpacity(0.9)
-                            : Colors.black,
-                    fontSize: 11.0,
-                    overflow: TextOverflow.ellipsis,
+                      : getEmptyWidget(),
+                  const SizedBox(
+                    height: 6.0,
                   ),
-                  linkStyle: TextStyle(
-                    color: Colors.cyanAccent.shade700,
-                    fontSize: 11.0,
-                    overflow: TextOverflow.ellipsis,
+                  Linkify(
+                    onOpen: (link) async {
+                      if (await canLaunch(link.url)) {
+                        await launch(link.url);
+                      } else {
+                        throw 'Could not launch $link';
+                      }
+                    },
+                    text: cubit.chatListReversed[index].message.toString(),
+                    style: TextStyle(
+                      color:
+                          cubit.chatListReversed[index].senderID == cubit.userID
+                              ? Colors.white.withOpacity(0.9)
+                              : Colors.black,
+                      fontSize: 11.0,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    linkStyle: TextStyle(
+                      color: Colors.cyanAccent.shade700,
+                      fontSize: 11.0,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    textDirection: TextDirection.rtl,
+                    textAlign: TextAlign.start,
                   ),
-                  textDirection: TextDirection.rtl,
-                  textAlign: TextAlign.start,
-                ),
-                const SizedBox(
-                  height: 8.0,
-                ),
-                Text(
-                  cubit.chatListReversed[index].messageTime,
-                  style: TextStyle(
-                    fontSize: 10,
-                    color:
-                        cubit.chatListReversed[index].senderID == cubit.userID
-                            ? Colors.white.withOpacity(0.9)
-                            : Colors.black,
+                  const SizedBox(
+                    height: 8.0,
                   ),
-                ),
-              ],
+                  Text(
+                    cubit.chatListReversed[index].messageTime,
+                    style: TextStyle(
+                      fontSize: 10,
+                      color:
+                          cubit.chatListReversed[index].senderID == cubit.userID
+                              ? Colors.white.withOpacity(0.9)
+                              : Colors.black,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -331,6 +338,7 @@ class _GroupConversationScreenState extends State<GroupConversationScreen> {
                   builder: (_) {
                     return InteractiveViewer(
                       child: Scaffold(
+                        backgroundColor: Colors.black,
                         appBar: AppBar(
                           systemOverlayStyle: const SystemUiOverlayStyle(
                             statusBarColor: Colors.black,
@@ -343,45 +351,42 @@ class _GroupConversationScreenState extends State<GroupConversationScreen> {
                           elevation: 0.0,
                           toolbarHeight: 0,
                         ),
-                        body: CachedNetworkImage(
-                          imageUrl: cubit.chatListReversed[index].fileName,
-                          imageBuilder: (context, imageProvider) => ClipRRect(
-                            borderRadius: BorderRadius.circular(0.0),
-                            child: FadeInImage(
-                              height: double.infinity,
-                              width: double.infinity,
-                              fit: BoxFit.fill,
-                              image: imageProvider,
-                              placeholder: const AssetImage(
-                                  "assets/images/placeholder.jpg"),
-                              imageErrorBuilder: (context, error, stackTrace) {
-                                return Image.asset(
-                                  'assets/images/error.png',
-                                  fit: BoxFit.fill,
-                                  height: double.infinity,
-                                  width: double.infinity,
-                                );
-                              },
+                        body: Center(
+                          child: CachedNetworkImage(
+                            imageUrl: cubit.chatListReversed[index].fileName,
+                            imageBuilder: (context, imageProvider) => ClipRRect(
+                              borderRadius: BorderRadius.circular(0.0),
+                              child: FadeInImage(
+                                fit: BoxFit.cover,
+                                image: imageProvider,
+                                placeholder: const AssetImage(
+                                    "assets/images/placeholder.jpg"),
+                                imageErrorBuilder: (context, error, stackTrace) {
+                                  return Image.asset(
+                                    'assets/images/error.png',
+                                    fit: BoxFit.cover,
+                                  );
+                                },
+                              ),
                             ),
-                          ),
-                          placeholder: (context, url) => const Center(
-                              child: CircularProgressIndicator(
-                            color: Colors.teal,
-                            strokeWidth: 0.8,
-                          )),
-                          errorWidget: (context, url, error) =>
-                              const FadeInImage(
-                            height: double.infinity,
-                            width: double.infinity,
-                            fit: BoxFit.fill,
-                            image: AssetImage("assets/images/error.png"),
-                            placeholder:
-                                AssetImage("assets/images/placeholder.jpg"),
+                            placeholder: (context, url) => const Center(
+                                child: CircularProgressIndicator(
+                              color: Colors.teal,
+                              strokeWidth: 0.8,
+                            )),
+                            errorWidget: (context, url, error) =>
+                                const FadeInImage(
+                              fit: BoxFit.cover,
+                              image: AssetImage("assets/images/error.png"),
+                              placeholder:
+                                  AssetImage("assets/images/placeholder.jpg"),
+                            ),
                           ),
                         ),
                       ),
                       maxScale: 3.5,
-                      panEnabled: false,
+                      panEnabled: true,
+                      scaleEnabled: true,
                     );
                   },
                 ),
@@ -453,9 +458,7 @@ class _GroupConversationScreenState extends State<GroupConversationScreen> {
                                       ClipRRect(
                                     borderRadius: BorderRadius.circular(14.0),
                                     child: FadeInImage(
-                                      height: double.infinity,
-                                      width: double.infinity,
-                                      fit: BoxFit.fill,
+                                      fit: BoxFit.cover,
                                       image: imageProvider,
                                       placeholder: const AssetImage(
                                           "assets/images/placeholder.jpg"),
@@ -463,9 +466,7 @@ class _GroupConversationScreenState extends State<GroupConversationScreen> {
                                           (context, error, stackTrace) {
                                         return Image.asset(
                                           'assets/images/error.png',
-                                          fit: BoxFit.fill,
-                                          height: double.infinity,
-                                          width: double.infinity,
+                                          fit: BoxFit.cover,
                                         );
                                       },
                                     ),
@@ -477,9 +478,7 @@ class _GroupConversationScreenState extends State<GroupConversationScreen> {
                                   )),
                                   errorWidget: (context, url, error) =>
                                       const FadeInImage(
-                                    height: double.infinity,
-                                    width: double.infinity,
-                                    fit: BoxFit.fill,
+                                    fit: BoxFit.cover,
                                     image:
                                         AssetImage("assets/images/error.png"),
                                     placeholder: AssetImage(
@@ -512,9 +511,7 @@ class _GroupConversationScreenState extends State<GroupConversationScreen> {
                             imageBuilder: (context, imageProvider) => ClipRRect(
                               borderRadius: BorderRadius.circular(0.0),
                               child: FadeInImage(
-                                height: 300,
-                                width: double.infinity,
-                                fit: BoxFit.fill,
+                                fit: BoxFit.cover,
                                 image: imageProvider,
                                 placeholder: const AssetImage(
                                     "assets/images/placeholder.jpg"),
@@ -522,9 +519,7 @@ class _GroupConversationScreenState extends State<GroupConversationScreen> {
                                     (context, error, stackTrace) {
                                   return Image.asset(
                                     'assets/images/error.png',
-                                    fit: BoxFit.fill,
-                                    height: double.infinity,
-                                    width: double.infinity,
+                                    fit: BoxFit.cover,
                                   );
                                 },
                               ),
@@ -536,9 +531,7 @@ class _GroupConversationScreenState extends State<GroupConversationScreen> {
                             )),
                             errorWidget: (context, url, error) =>
                                 const FadeInImage(
-                              height: double.infinity,
-                              width: double.infinity,
-                              fit: BoxFit.fill,
+                              fit: BoxFit.cover,
                               image: AssetImage("assets/images/error.png"),
                               placeholder:
                                   AssetImage("assets/images/placeholder.jpg"),
@@ -552,7 +545,7 @@ class _GroupConversationScreenState extends State<GroupConversationScreen> {
         ),
       );
     } else {
-      return fileMessageView(cubit, index);
+      return fileMessageView(cubit, index, state);
     }
   }
 
@@ -666,7 +659,7 @@ class _GroupConversationScreenState extends State<GroupConversationScreen> {
         ),
       );
     } else {
-      return fileMessageView(cubit, index);
+      return fileMessageView(cubit, index, state);
     }
   }
 
@@ -729,11 +722,11 @@ class _GroupConversationScreenState extends State<GroupConversationScreen> {
         ),
       );
     } else {
-      return fileMessageView(cubit, index);
+      return fileMessageView(cubit, index, state);
     }
   }
 
-  Widget fileMessageView(GroupConversationCubit cubit, int index) {
+  Widget fileMessageView(GroupConversationCubit cubit, int index, GroupConversationStates state) {
     return cubit.chatListReversed[index].type == "file"
         ? Align(
             alignment: cubit.chatListReversed[index].senderID == cubit.userID
@@ -820,11 +813,7 @@ class _GroupConversationScreenState extends State<GroupConversationScreen> {
                                             MainAxisAlignment.spaceBetween,
                                         children: [
                                           BuildCondition(
-                                            condition:
-                                                cubit.downloadingFileName ==
-                                                    cubit
-                                                        .chatListReversed[index]
-                                                        .fileName,
+                                            condition: (cubit.downloadingFileName == cubit.chatListReversed[index].fileName) || (cubit.uploadingFileName == cubit.chatListReversed[index].fileName),
                                             fallback: (context) => Icon(
                                               IconlyBroken.document,
                                               color:
@@ -940,10 +929,7 @@ class _GroupConversationScreenState extends State<GroupConversationScreen> {
                                         children: [
                                           BuildCondition(
                                             condition:
-                                                cubit.downloadingFileName ==
-                                                    cubit
-                                                        .chatListReversed[index]
-                                                        .fileName,
+                                            (cubit.downloadingFileName == cubit.chatListReversed[index].fileName) || (cubit.uploadingFileName == cubit.chatListReversed[index].fileName),
                                             fallback: (context) => Icon(
                                               IconlyBroken.document,
                                               color:
@@ -1114,8 +1100,7 @@ class _GroupConversationScreenState extends State<GroupConversationScreen> {
                               }
                             },
                             child: BuildCondition(
-                              condition: cubit.downloadingFileName ==
-                                  cubit.chatListReversed[index].fileName,
+                              condition: (cubit.downloadingRecordName == cubit.chatListReversed[index].fileName) || (cubit.uploadingRecordName == cubit.chatListReversed[index].fileName),
                               builder: (context) => CircularProgressIndicator(
                                 color: cubit.chatListReversed[index].senderID ==
                                         cubit.userID
@@ -1398,8 +1383,9 @@ class _GroupConversationScreenState extends State<GroupConversationScreen> {
                               }
                             },
                             child: BuildCondition(
-                              condition: cubit.downloadingFileName ==
-                                  cubit.chatListReversed[index].fileName,
+                              condition: (cubit.downloadingRecordName ==
+                                  cubit.chatListReversed[index].fileName) || (cubit.uploadingRecordName ==
+                                  cubit.chatListReversed[index].fileName),
                               builder: (context) => CircularProgressIndicator(
                                 color: cubit.chatListReversed[index].senderID ==
                                         cubit.userID

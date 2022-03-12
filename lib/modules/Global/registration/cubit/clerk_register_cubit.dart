@@ -83,8 +83,7 @@ class ClerkRegisterCubit extends Cubit<ClerkRegisterStates> {
         query: {'PR_Person_Number': personNumber}).then((value) {
           if(value.statusCode == 200){
             value.data.forEach((clerk)async {
-
-             await FirebaseDatabase.instance.reference().child("Clerks").child(clerk['PR_Persons_MobilNum1'].toString()).get().then((value){
+              FirebaseDatabase.instance.reference().child("Clerks").child(clerk['PR_Persons_MobilNum1'].toString()).get().then((value){
                 if(value.exists){
                   print("USER EXISTS \n");
                   isUserExist = true;

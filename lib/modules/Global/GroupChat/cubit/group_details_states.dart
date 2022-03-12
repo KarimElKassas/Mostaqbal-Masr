@@ -6,6 +6,8 @@ class GroupDetailsLoadingMembersInfoState extends GroupDetailsStates{}
 
 class GroupDetailsMembersInfoState extends GroupDetailsStates{}
 
+class GroupDetailsLoadingMediaState extends GroupDetailsStates{}
+
 class GroupDetailsGetMediaState extends GroupDetailsStates{}
 
 class GroupDetailsLoadingGroupsState extends GroupDetailsStates{}
