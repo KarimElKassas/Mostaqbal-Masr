@@ -23,6 +23,7 @@ import 'package:mostaqbal_masr/models/firebase_clerk_model.dart';
 import 'package:mostaqbal_masr/models/group_model.dart';
 import 'package:mostaqbal_masr/modules/Customer/screens/customer_selected_images_screen.dart';
 import 'package:mostaqbal_masr/modules/Global/GroupChat/cubit/display_groups_states.dart';
+import 'package:mostaqbal_masr/modules/Global/GroupChat/screens/groupMediaScreen.dart';
 import 'package:mostaqbal_masr/shared/components.dart';
 import 'package:mostaqbal_masr/shared/constants.dart';
 import 'package:mostaqbal_masr/shared/gallery_item_model.dart';
@@ -110,6 +111,7 @@ class GroupDetailsCubit extends Cubit<GroupDetailsStates> {
     emit(GroupDetailsMembersInfoState());
 
   }
+
    Future<void> getGroupMedia(String groupId)async{
     emit(GroupDetailsLoadingMediaState());
     messagesHasImages =[];
@@ -126,5 +128,9 @@ class GroupDetailsCubit extends Cubit<GroupDetailsStates> {
 
    });
     emit(GroupDetailsGetMediaState());
+  }
+
+  void goToMediaGroup (context,String groupName){
+    navigateTo(context, GroupMediaScreen(images: messagesHasImages,groupname: groupName));
   }
 }

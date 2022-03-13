@@ -451,6 +451,7 @@ class _GroupConversationScreenState extends State<GroupConversationScreen> {
                                     bottomLeft: Radius.circular(14.0),
                                     bottomRight: Radius.circular(14.0)),
                                 child: CachedNetworkImage(
+                                  width: double.infinity,
                                   imageUrl: cubit
                                       .chatListReversed[index].fileName
                                       .toString(),

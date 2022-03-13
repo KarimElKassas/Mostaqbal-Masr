@@ -7,6 +7,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart' as d;
 import 'package:mostaqbal_masr/modules/Customer/cubit/customer_support_cubit.dart';
 import 'package:mostaqbal_masr/modules/Global/GroupChat/screens/display_groups_screen.dart';
+import 'package:mostaqbal_masr/modules/Global/GroupChat/screens/groupMediaScreen.dart';
 import 'package:mostaqbal_masr/modules/Global/SplashScreen/splash_screen.dart';
 import 'package:mostaqbal_masr/modules/ITDepartment/layout/it_home_layout.dart';
 import 'package:mostaqbal_masr/modules/SocialMedia/cubit/display_posts_cubit.dart';
@@ -184,6 +185,8 @@ class _MyAppState extends State<MyApp> {
           themeMode: ThemeMode.light,
           debugShowCheckedModeBanner: false,
           home: SplashScreen(),
+          routes: {
+          },
         ),
       ),
     );

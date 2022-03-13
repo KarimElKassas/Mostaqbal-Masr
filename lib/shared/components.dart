@@ -62,6 +62,8 @@ Future<bool?> showToast({
 
 int purpleColor = 0xFF0500A0;
 Color primaryGreen = const Color(0xff416d6d);
+Color lightColor =const Color(0xff141c27);
+Color darkColor =const Color(0xff232c38);
 
 Future<bool> noInternetConnection()async{
   bool noConnection = false;

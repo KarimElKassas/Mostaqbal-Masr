@@ -7,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:mostaqbal_masr/modules/Global/GroupChat/cubit/group_details_cubit.dart';
 import 'package:mostaqbal_masr/modules/Global/GroupChat/cubit/group_details_states.dart';
+import 'package:mostaqbal_masr/modules/Global/GroupChat/screens/groupMediaScreen.dart';
 import 'package:mostaqbal_masr/modules/Global/GroupChat/screens/transition_app_bar.dart';
 import 'package:mostaqbal_masr/shared/components.dart';
 
@@ -33,8 +34,7 @@ class _GroupDetailsState extends State<GroupDetailsScreen> {
   String searchText = "";
   String? description = "جروب إدارة البلح";
 
-  int lightColor = 0xff141c27;
-  int darkColor = 0xff232c38;
+
 
   @override
   Widget build(BuildContext context) {
@@ -46,9 +46,10 @@ class _GroupDetailsState extends State<GroupDetailsScreen> {
         listener: (context, state) {},
         builder: (context, state) {
           var cubit = GroupDetailsCubit.get(context);
+          print('group name ################### ${widget.groupName}');
 
           return Scaffold(
-            backgroundColor: Color(darkColor),
+            backgroundColor: darkColor,
             body: SafeArea(
               child: Directionality(
                 textDirection: TextDirection.rtl,
@@ -101,7 +102,7 @@ class _GroupDetailsState extends State<GroupDetailsScreen> {
                       Container(
                         width: double.infinity,
                         height: 50,
-                        color: Color(lightColor),
+                        color: lightColor,
                         child: Center(
                           child: Padding(
                             padding: const EdgeInsets.all(5),
@@ -110,69 +111,95 @@ class _GroupDetailsState extends State<GroupDetailsScreen> {
                                     color: Colors.grey, fontSize: 14)),
                           ),
                         ),
-                      ),
+                      ),//group description container
                       SizedBox(
                         height: 1,
                       ),
-                      cubit.messagesHasImages.isNotEmpty ? Container(
-                        color: Color(lightColor),
-                        padding: EdgeInsets.all(5),
-                        child: Column(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 7, right: 5, bottom: 6,top: 6),
-                              child: InkWell(
-                                onTap: (){},
-                                  child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.start,
-                                children: const [
-                                  Text('الصور , التسجيلات الصوتيه , الملفات',
-                                      style: TextStyle(
-                                          color: Colors.grey, fontSize: 12)),
-                                ],
-                              )),
-                            ),
-                            SizedBox(
-                              height: 110,
-                              child: state
-                              is GroupDetailsLoadingMediaState
-                              ? const CircularProgressIndicator(
-                              color: Colors.teal,
-                              strokeWidth: 0.8,
-                            ) : ListView.builder(
-                                  physics: BouncingScrollPhysics(),
-                                  scrollDirection: Axis.horizontal,
-                                  itemCount: cubit.messagesHasImages.length,
-                                  itemBuilder: (ctx, index) {
-                                    return Container(
-                                      margin: EdgeInsets.all(2),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(8.0)),
-                                      ),
-                                      width: 100,
-                                      //height: 50,
-                                      child: ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                          child: Image.network(
-                                            cubit.messagesHasImages[index],
-                                            fit: BoxFit.cover,
+                      cubit.messagesHasImages.isNotEmpty ?
+                      InkWell(
+                        onTap: (){cubit.goToMediaGroup(context,widget.groupName );},
+                        child: Container(
+                          color: lightColor,
+                          padding: EdgeInsets.all(5),
+                          child: Column(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                    left: 7, right: 5, bottom: 6,top: 6),
+                                child: InkWell(
+                                  onTap: (){},
+                                    child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.start,
+                                  children: const [
+                                    Text('الصور , التسجيلات الصوتيه , الملفات',
+                                        style: TextStyle(
+                                            color: Colors.grey, fontSize: 12)),
+                                  ],
+                                )),
+                              ),
+                              SizedBox(
+                                height: 110,
+                                child: state
+                                is GroupDetailsLoadingMediaState
+                                ? const CircularProgressIndicator(
+                                color: Colors.teal,
+                                strokeWidth: 0.8,
+                              ) : ListView.builder(
+                                    physics: BouncingScrollPhysics(),
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount: cubit.messagesHasImages.length,
+                                    itemBuilder: (ctx, index) {
+                                      return Container(
+                                        margin: EdgeInsets.all(2),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(8.0)),
+                                        ),
+                                        width: 100,
+                                        //height: 50,
+                                        child: CachedNetworkImage(
+                                          imageUrl: cubit.messagesHasImages[index],
+                                          imageBuilder: (context, imageProvider) => ClipRRect(
+                                            borderRadius: BorderRadius.circular(8.0),
+                                            child: FadeInImage(
+                                              fit: BoxFit.cover,
+                                              image: imageProvider,
+                                              placeholder: const AssetImage(
+                                                  "assets/images/placeholder.jpg"),
+                                              imageErrorBuilder: (context, error, stackTrace) {
+                                                return Image.asset(
+                                                  'assets/images/error.png',
+                                                  fit: BoxFit.cover,
+                                                );
+                                              },
+                                            ),
                                           ),
-                                      ),
-                                    );
-                                  }),
-                            )
-                          ],
+                                          placeholder: (context, url) => const Center(
+                                              child: CircularProgressIndicator(
+                                                color: Colors.teal,
+                                                strokeWidth: 0.8,
+                                              )),
+                                          errorWidget: (context, url, error) =>
+                                          const FadeInImage(
+                                            fit: BoxFit.cover,
+                                            image: AssetImage("assets/images/error.png"),
+                                            placeholder:
+                                            AssetImage("assets/images/placeholder.jpg"),
+                                          ),
+                                        ),
+                                      );
+                                    }),
+                              )
+                            ],
+                          ),
                         ),
                       ) : getEmptyWidget(),
                           cubit.messagesHasImages.isNotEmpty ? SizedBox(
                         height: 1,
                       ) : getEmptyWidget(),
                       Container(
-                        color: Color(lightColor),
+                        color: lightColor,
                         child: Column(
                           children: [
                             Padding(
@@ -198,7 +225,7 @@ class _GroupDetailsState extends State<GroupDetailsScreen> {
                                 radius: 25,
                                 child: Icon(
                                   Icons.group_add,
-                                  color: Color(lightColor),
+                                  color: lightColor,
                                 ),
                                 backgroundColor: Colors.teal[400],
                               ),
@@ -214,7 +241,7 @@ class _GroupDetailsState extends State<GroupDetailsScreen> {
                                 radius: 25,
                                 child: Icon(
                                   Icons.link,
-                                  color: Color(lightColor),
+                                  color: lightColor,
                                 ),
                                 backgroundColor: Colors.teal[400],
                               ),
@@ -329,7 +356,7 @@ class _GroupDetailsState extends State<GroupDetailsScreen> {
                         height: 1,
                       ),
                       Container(
-                        color: Color(lightColor),
+                        color: lightColor,
                         child: Column(
                           children: [
                             InkWell(

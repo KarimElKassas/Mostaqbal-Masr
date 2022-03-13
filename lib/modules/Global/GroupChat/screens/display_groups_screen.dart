@@ -11,6 +11,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mostaqbal_masr/modules/Global/GroupChat/cubit/display_groups_cubit.dart';
 import 'package:mostaqbal_masr/modules/Global/GroupChat/cubit/display_groups_states.dart';
 import 'package:mostaqbal_masr/modules/Global/GroupChat/screens/group_conversation_screen.dart';
+import 'package:mostaqbal_masr/modules/Global/SplashScreen/splash_screen.dart';
 import 'package:mostaqbal_masr/shared/components.dart';
 import 'package:mostaqbal_masr/shared/constants.dart';
 
