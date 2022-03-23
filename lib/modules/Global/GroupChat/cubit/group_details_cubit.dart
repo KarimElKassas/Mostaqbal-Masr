@@ -32,6 +32,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:record/record.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../screens/group_details_add_members_screen.dart';
 import 'group_conversation_states.dart';
 import 'group_details_states.dart';
 
@@ -112,7 +113,11 @@ class GroupDetailsCubit extends Cubit<GroupDetailsStates> {
 
   }
 
-   Future<void> getGroupMedia(String groupId)async{
+  void goToAddMembers(BuildContext context,String groupID){
+    navigateTo(context, GroupDetailsAddMembersScreen(groupID: groupID,membersList: membersinfolist,));
+  }
+
+  Future<void> getGroupMedia(String groupId)async{
     emit(GroupDetailsLoadingMediaState());
     messagesHasImages =[];
    await FirebaseDatabase.instance.reference().child('Groups').child(groupId).child('Messages').get().then((event){

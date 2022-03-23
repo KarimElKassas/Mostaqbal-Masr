@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
@@ -44,50 +45,101 @@ class _ITGroupInputFieldWidgetState extends State<ITGroupInputFieldWidget> {
                   valueListenable: messageControllerValue,
                   builder: (context, value, state){
                     if (value.toString().trim().isNotEmpty) {
-                      return ClipOval(
-                      child: Material(
-                        color: Colors.teal, // Button color
-                        child: InkWell(
-                          onTap: ()async{
-                            if (cubit.isImageOnly) {
-                            } else {
-                              if (messageController.text
-                                  .toString()
-                                  .trim()
-                                  .isEmpty ||
-                                  messageController.text.toString().trim() ==
-                                      "") {
-                                showToast(
-                                    message: "لا يمكن ارسال رسالة فارغة",
-                                    length: Toast.LENGTH_SHORT,
-                                    gravity: ToastGravity.BOTTOM,
-                                    timeInSecForIosWeb: 3);
-                                return;
-                              }
-                              /*cubit.sendMessage(
-                                  messageController.text.toString(),
-                                  "Text",
-                                  false);*/
-                              messageController.text = "";
-                            }
-                          },
-                          child: const SizedBox(
-                            height: 45,
-                            width: 45,
-                            child: CircleAvatar(
-                              radius: 40,
-                              backgroundColor:
-                              Colors.teal,
-                              child: Icon(
-                                IconlyBold.send,
-                                size: 24,
-                                color: Colors.white,
+                      return Listener(
+                        onPointerMove: (_){cubit.cancelRecord();},
+                        child: LongPressDraggable(
+                          axis: Axis.horizontal,
+                          feedback: ClipOval(
+                          child: Material(
+                            color: Colors.teal, // Button color
+                            child: InkWell(
+                              onTap: ()async{
+                                if (cubit.isImageOnly) {
+                                } else {
+                                  if (messageController.text
+                                      .toString()
+                                      .trim()
+                                      .isEmpty ||
+                                      messageController.text.toString().trim() ==
+                                          "") {
+                                    showToast(
+                                        message: "لا يمكن ارسال رسالة فارغة",
+                                        length: Toast.LENGTH_SHORT,
+                                        gravity: ToastGravity.BOTTOM,
+                                        timeInSecForIosWeb: 3);
+                                    return;
+                                  }
+                                  /*cubit.sendMessage(
+                                      messageController.text.toString(),
+                                      "Text",
+                                      false);*/
+                                  messageController.text = "";
+                                }
+                              },
+                              child: const SizedBox(
+                                height: 45,
+                                width: 45,
+                                child: CircleAvatar(
+                                  radius: 40,
+                                  backgroundColor:
+                                  Colors.teal,
+                                  child: Icon(
+                                    IconlyBold.send,
+                                    size: 24,
+                                    color: Colors.white,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
+                    ),
+                          child: ClipOval(
+                          child: Material(
+                            color: Colors.teal, // Button color
+                            child: InkWell(
+                              onTap: ()async{
+                                if (cubit.isImageOnly) {
+                                } else {
+                                  if (messageController.text
+                                      .toString()
+                                      .trim()
+                                      .isEmpty ||
+                                      messageController.text.toString().trim() ==
+                                          "") {
+                                    showToast(
+                                        message: "لا يمكن ارسال رسالة فارغة",
+                                        length: Toast.LENGTH_SHORT,
+                                        gravity: ToastGravity.BOTTOM,
+                                        timeInSecForIosWeb: 3);
+                                    return;
+                                  }
+                                  /*cubit.sendMessage(
+                                      messageController.text.toString(),
+                                      "Text",
+                                      false);*/
+                                  messageController.text = "";
+                                }
+                              },
+                              child: const SizedBox(
+                                height: 45,
+                                width: 45,
+                                child: CircleAvatar(
+                                  radius: 40,
+                                  backgroundColor:
+                                  Colors.teal,
+                                  child: Icon(
+                                    IconlyBold.send,
+                                    size: 24,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                    ),
+                          childWhenDragging: getEmptyWidget(),
                         ),
-                      ),
-                    );
+                      );
                     } else {
                       return ValueListenableBuilder(
                         valueListenable: startedRecordValue,

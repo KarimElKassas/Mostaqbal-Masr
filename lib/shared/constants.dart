@@ -87,6 +87,21 @@ class BlurryDialog extends StatelessWidget {
     );
   }
 }
+class BlurryProgressDialog extends StatelessWidget {
+
+  @override
+  Widget build(BuildContext context) {
+    return Directionality(
+      textDirection: ui.TextDirection.rtl,
+      child: BackdropFilter(
+          filter: ui.ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+          child:  AlertDialog(
+            content: Center(child: CircularProgressIndicator(color: Colors.teal[500], strokeWidth: 0.8,),),
+          )),
+    );
+  }
+}
+
 class PulsatingCircleIconButton extends StatefulWidget {
   const PulsatingCircleIconButton({
     Key? key,

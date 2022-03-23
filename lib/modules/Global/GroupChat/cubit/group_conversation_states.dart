@@ -68,6 +68,8 @@ class GroupConversationSelectFilesState extends GroupConversationStates{}
 
 class GroupConversationLoadingMessageState extends GroupConversationStates{}
 
+class GroupConversationLoadingMembersState extends GroupConversationStates{}
+
 class GroupConversationGetGroupMembersSuccessState extends GroupConversationStates{}
 
 class GroupConversationGetMessageSuccessState extends GroupConversationStates{}

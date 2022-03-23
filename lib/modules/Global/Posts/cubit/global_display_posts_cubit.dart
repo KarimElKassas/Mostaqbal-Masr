@@ -18,6 +18,8 @@ import 'package:network_info_plus/network_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
+import '../../Login/clerk_login_screen.dart';
+
 class GlobalDisplayPostsCubit extends Cubit<GlobalDisplayPostsStates> {
   GlobalDisplayPostsCubit() : super(GlobalDisplayPostsInitialState());
 
@@ -196,7 +198,7 @@ class GlobalDisplayPostsCubit extends Cubit<GlobalDisplayPostsStates> {
           if (value!.contains("172.16.1.") || value.contains("١٧٢")) {
             print("Mobile Is in The Network \n");
 
-            navigateAndFinish(context, LoginScreen());
+            navigateAndFinish(context, ClerkLoginScreen());
             emit(GlobalDisplayPostsNavigateSuccessState());
           } else {
             showToast(

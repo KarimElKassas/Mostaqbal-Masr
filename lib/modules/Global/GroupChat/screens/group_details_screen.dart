@@ -203,7 +203,7 @@ class _GroupDetailsState extends State<GroupDetailsScreen> {
                         child: Column(
                           children: [
                             Padding(
-                              padding: const EdgeInsets.only(left: 8, right: 12,top: 6, bottom: 6),
+                              padding: const EdgeInsets.only(left: 8, right: 14,top: 6, bottom: 6),
                               child: Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
@@ -220,40 +220,67 @@ class _GroupDetailsState extends State<GroupDetailsScreen> {
                                 ],
                               ),
                             ),
-                            ListTile(
-                              leading: CircleAvatar(
-                                radius: 25,
-                                child: Icon(
-                                  Icons.group_add,
-                                  color: lightColor,
-                                ),
-                                backgroundColor: Colors.teal[400],
+                            InkWell(
+                              onTap: (){
+                                  cubit.goToAddMembers(context, widget.groupID);
+                              },
+                              child: Row(
+                                children: [
+                                  const SizedBox(width: 14,),
+                                  CircleAvatar(
+                                    radius: 25,
+                                    child: Icon(
+                                      Icons.group_add,
+                                      color: lightColor,
+                                    ),
+                                    backgroundColor: Colors.teal[400],
+                                  ),
+                                  const SizedBox(width: 12,),
+                                  Text(
+                                    "اضافة اعضاء",
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                        color: Colors.grey,
+                                        fontSize: 12),
+                                  ),
+                                ],
                               ),
-                              title: Text('إضافة أعضاء',
-                                  style: TextStyle(
-                                      color: Colors.grey, fontSize: 12)),
                             ),
                             SizedBox(
-                              height: 6,
+                              height: 16,
                             ),
-                            ListTile(
-                              leading: CircleAvatar(
-                                radius: 25,
-                                child: Icon(
-                                  Icons.link,
-                                  color: lightColor,
-                                ),
-                                backgroundColor: Colors.teal[400],
+                            InkWell(
+                              onTap: (){
+
+                              },
+                              child: Row(
+                                children: [
+                                  const SizedBox(width: 14,),
+                                  CircleAvatar(
+                                    radius: 25,
+                                    child: Icon(
+                                      Icons.link,
+                                      color: lightColor,
+                                    ),
+                                    backgroundColor: Colors.teal[400],
+                                  ),
+                                  const SizedBox(width: 12,),
+                                  Text(
+                                      "اضافة من خلال الرابط",
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                        color: Colors.grey,
+                                        fontSize: 12),
+                                  ),
+                                ],
                               ),
-                              title: const Text('إضافه من خلال الرابط',
-                                  style: TextStyle(
-                                      color: Colors.grey, fontSize: 12)),
                             ),
                             const SizedBox(
-                              height: 6,
+                              height: 16,
                             ),
                             SizedBox(
-                              //height: 245,
                               child: state
                                       is GroupDetailsLoadingMembersInfoState
                                   ? const CircularProgressIndicator(
@@ -264,7 +291,7 @@ class _GroupDetailsState extends State<GroupDetailsScreen> {
                                       physics:
                                           const NeverScrollableScrollPhysics(),
                                       shrinkWrap: true,
-                                      itemCount: cubit.membersinfolist.length > 5 ? 5 : cubit.membersinfolist.length,
+                                      itemCount: cubit.membersinfolist.length > 10 ? 10 : cubit.membersinfolist.length,
                                       itemBuilder: (ctx, index) {
                                         return InkWell(
                                           onTap: (){
@@ -272,77 +299,88 @@ class _GroupDetailsState extends State<GroupDetailsScreen> {
                                           },
                                           child: Column(
                                             children: [
-                                              ListTile(
-                                                leading: CachedNetworkImage(
-                                                  imageUrl: cubit
-                                                      .membersinfolist[index]
-                                                      .clerkImage!,
-                                                  imageBuilder:
-                                                      (context, imageProvider) =>
-                                                          ClipOval(
-                                                    child: FadeInImage(
+                                              Row(
+                                                children: [
+                                                  const SizedBox(width: 14,),
+                                                  CachedNetworkImage(
+                                                    imageUrl: cubit
+                                                        .membersinfolist[index]
+                                                        .clerkImage!,
+                                                    imageBuilder:
+                                                        (context, imageProvider) =>
+                                                        ClipOval(
+                                                          child: FadeInImage(
+                                                            height: 50,
+                                                            width: 50,
+                                                            fit: BoxFit.fill,
+                                                            image: imageProvider,
+                                                            placeholder: const AssetImage(
+                                                                "assets/images/placeholder.jpg"),
+                                                            imageErrorBuilder: (context,
+                                                                error, stackTrace) {
+                                                              return Image.asset(
+                                                                'assets/images/error.png',
+                                                                fit: BoxFit.fill,
+                                                                height: 50,
+                                                                width: 50,
+                                                              );
+                                                            },
+                                                          ),
+                                                        ),
+                                                    placeholder: (context, url) =>
+                                                    const CircularProgressIndicator(
+                                                      color: Colors.teal,
+                                                      strokeWidth: 0.8,
+                                                    ),
+                                                    errorWidget:
+                                                        (context, url, error) =>
+                                                    const FadeInImage(
                                                       height: 50,
                                                       width: 50,
                                                       fit: BoxFit.fill,
-                                                      image: imageProvider,
-                                                      placeholder: const AssetImage(
+                                                      image: AssetImage(
+                                                          "assets/images/error.png"),
+                                                      placeholder: AssetImage(
                                                           "assets/images/placeholder.jpg"),
-                                                      imageErrorBuilder: (context,
-                                                          error, stackTrace) {
-                                                        return Image.asset(
-                                                          'assets/images/error.png',
-                                                          fit: BoxFit.fill,
-                                                          height: 50,
-                                                          width: 50,
-                                                        );
-                                                      },
                                                     ),
                                                   ),
-                                                  placeholder: (context, url) =>
-                                                      const CircularProgressIndicator(
-                                                    color: Colors.teal,
-                                                    strokeWidth: 0.8,
+                                                  const SizedBox(width: 12,),
+                                                  Text(
+                                                    cubit.membersinfolist[index]
+                                                        .clerkName!,
+                                                    maxLines: 1,
+                                                    overflow: TextOverflow.ellipsis,
+                                                    style: TextStyle(
+                                                        color: Colors.grey,
+                                                        fontSize: 12),
                                                   ),
-                                                  errorWidget:
-                                                      (context, url, error) =>
-                                                          const FadeInImage(
-                                                    height: 50,
-                                                    width: 50,
-                                                    fit: BoxFit.fill,
-                                                    image: AssetImage(
-                                                        "assets/images/error.png"),
-                                                    placeholder: AssetImage(
-                                                        "assets/images/placeholder.jpg"),
-                                                  ),
-                                                ),
-                                                title: Text(
-                                                  cubit.membersinfolist[index]
-                                                      .clerkName!,
-                                                  style: TextStyle(
-                                                      color: Colors.grey,
-                                                      fontSize: 12),
-                                                ),
+                                                  Spacer(),
+                                                  widget.adminsList.contains(cubit.membersinfolist[index].clerkID!) ? Container(
+                                                    margin: const EdgeInsets.all(10.0),
+                                                    padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+                                                    decoration: BoxDecoration(
+                                                        border: Border.all(color: Colors.grey),
+                                                        borderRadius: BorderRadius.circular(4)
+                                                    ),
+                                                    child: Text('مسؤول', style: TextStyle(fontSize: 10, color: Colors.grey),),
+                                                  ) : getEmptyWidget(),
+                                                ],
                                               ),
-                                              SizedBox(
-                                                height: 7,
-                                              )
+                                              const SizedBox(height: 16,),
                                             ],
                                           ),
                                         );
                                       }),
                             ),
-                            SizedBox(
-                              height: 15,
-                            ),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
                                 SizedBox(width: 6),
-                                cubit.membersinfolist.length > 5 ?
+                                cubit.membersinfolist.length > 10 ?
                                 TextButton(
                                     onPressed: () {},
                                     child: Text(
-                                      'إظهار المزيد (${int.parse(widget.membersCount) - 5} أخرين)',
+                                      'إظهار المزيد (${int.parse(widget.membersCount) - 10} أخرين)',
                                       style: TextStyle(
                                           color: Colors.teal[400],
                                           fontSize: 14),

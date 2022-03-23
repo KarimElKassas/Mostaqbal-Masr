@@ -137,7 +137,9 @@ flutter:
     - family: Tajwal
       fonts:
         - asset: assets/fonts/tajwal.ttf
-
+    - family: Amiri
+      fonts:
+        - asset: assets/fonts/Amiri-Regular.ttf
   #       - asset: fonts/Schyler-Italic.ttf
   #         style: italic
   #   - family: Trajan Pro

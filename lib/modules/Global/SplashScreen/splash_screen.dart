@@ -1,9 +1,6 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mostaqbal_masr/modules/Global/Login/login_screen.dart';
-import 'package:mostaqbal_masr/network/remote/dio_helper.dart';
-
 import 'cubit/splash_states.dart';
 import 'cubit/splash_cubit.dart';
 

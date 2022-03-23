@@ -14,6 +14,7 @@ import 'package:mostaqbal_masr/modules/Global/Posts/cubit/global_display_posts_c
 import 'package:mostaqbal_masr/modules/Global/Posts/cubit/global_display_posts_states.dart';
 import 'package:mostaqbal_masr/modules/Global/Posts/screens/global_post_details_screen.dart';
 import 'package:mostaqbal_masr/shared/components.dart';
+import 'package:mostaqbal_masr/shared/cubit/app_cubit.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
@@ -80,9 +81,7 @@ class _GlobalDisplayPostsScreenState extends State<GlobalDisplayPostsScreen>
                       color: Colors.white,
                     ),
                     onPressed: () {
-                      cubit.postsList.clear();
-                      cubit.postsListReversed.clear();
-                      cubit.getPosts();
+                      AppCubit.get(context).changeAppMode();
                     },
                   ),
                   IconButton(

@@ -1,22 +1,21 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:intl/intl.dart' as d;
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:mostaqbal_masr/modules/Customer/cubit/customer_support_cubit.dart';
-import 'package:mostaqbal_masr/modules/Global/GroupChat/screens/display_groups_screen.dart';
-import 'package:mostaqbal_masr/modules/Global/GroupChat/screens/groupMediaScreen.dart';
 import 'package:mostaqbal_masr/modules/Global/SplashScreen/splash_screen.dart';
-import 'package:mostaqbal_masr/modules/ITDepartment/layout/it_home_layout.dart';
 import 'package:mostaqbal_masr/modules/SocialMedia/cubit/display_posts_cubit.dart';
 import 'package:mostaqbal_masr/network/local/cache_helper.dart';
 import 'package:mostaqbal_masr/network/remote/dio_helper.dart';
 import 'package:mostaqbal_masr/shared/bloc_observer.dart';
 import 'package:mostaqbal_masr/shared/components.dart';
-
-import 'modules/Global/Login/login_screen.dart';
+import 'package:mostaqbal_masr/shared/cubit/app_cubit.dart';
+import 'package:mostaqbal_masr/shared/cubit/app_states.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async
 {
@@ -106,11 +105,17 @@ void main() async {
   // background fcm
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
-  runApp(MyApp());
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  bool? isDark = prefs.getBool("isDark");
+
+  runApp(MyApp(isDark??false));
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({Key? key}) : super(key: key);
+
+  final bool isDark;
+
+   const MyApp(this.isDark, {Key? key}) : super(key: key);
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -122,8 +127,7 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     // TODO: implement initState
     super.initState();
-
-
+    initializeDateFormatting('ar', null);
   }
 
   @override
@@ -140,54 +144,65 @@ class _MyAppState extends State<MyApp> {
           CustomerSupportCubit()
             ..getUserData(),
         ),
-      ],
-      child: Directionality(
-        textDirection: TextDirection.rtl,
-        child: MaterialApp(
-          title: 'مستقبل مصر',
-          theme: ThemeData(
-            appBarTheme: const AppBarTheme(
-                backgroundColor: Color(0xff232c38),
-                elevation: 0,
-                titleTextStyle: TextStyle(
-                    fontFamily: "Tajwal",
-                    color: Colors.white,
-                    fontSize: 16
-                )
-            ),
-            primarySwatch: Colors.teal,
-            scaffoldBackgroundColor: Colors.white,
-            fontFamily: "Tajwal",
-            bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-              selectedLabelStyle: TextStyle(fontFamily: "Roboto"),
-              unselectedLabelStyle: TextStyle(fontFamily: "Roboto"),
-            ),
-            primaryColor: Colors.teal[700],
-          ),
-          darkTheme: ThemeData(
-            appBarTheme: const AppBarTheme(
-              backgroundColor: Color(0xff232c38),
-              elevation: 0,
-              titleTextStyle: TextStyle(
-                fontFamily: "Tajwal",
-                color: Colors.white,
-                fontSize: 16
-              )
-            ),
-            scaffoldBackgroundColor: const Color(0xff232c38),
-            fontFamily: "Tajwal",
-            bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-              selectedLabelStyle: TextStyle(fontFamily: "Roboto"),
-              unselectedLabelStyle: TextStyle(fontFamily: "Roboto", color: Colors.white),
-              elevation: 0
-            ),
-          ),
-          themeMode: ThemeMode.light,
-          debugShowCheckedModeBanner: false,
-          home: SplashScreen(),
-          routes: {
-          },
+        BlocProvider(
+          create: (context) =>
+          AppCubit()
+            ..changeAppMode(fromShared: widget.isDark),
         ),
+      ],
+      child: BlocConsumer<AppCubit, AppStates>(
+        listener: (context, state){},
+        builder: (context, state){
+
+          var cubit = AppCubit.get(context);
+
+          return Directionality(
+            textDirection: TextDirection.rtl,
+            child: MaterialApp(
+              title: 'مستقبل مصر',
+              theme: ThemeData(
+                appBarTheme: const AppBarTheme(
+                    backgroundColor: Color(0xff232c38),
+                    elevation: 0,
+                    titleTextStyle: TextStyle(
+                        fontFamily: "Tajwal",
+                        color: Colors.white,
+                        fontSize: 16
+                    )
+                ),
+                primarySwatch: Colors.teal,
+                scaffoldBackgroundColor: Colors.white,
+                fontFamily: "Tajwal",
+                bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+                  selectedLabelStyle: TextStyle(fontFamily: "Roboto"),
+                  unselectedLabelStyle: TextStyle(fontFamily: "Roboto"),
+                ),
+                primaryColor: Colors.teal[700],
+              ),
+              darkTheme: ThemeData(
+                appBarTheme: const AppBarTheme(
+                    backgroundColor: Color(0xff232c38),
+                    elevation: 0,
+                    titleTextStyle: TextStyle(
+                        fontFamily: "Tajwal",
+                        color: Colors.white,
+                        fontSize: 16
+                    )
+                ),
+                scaffoldBackgroundColor: const Color(0xff232c38),
+                fontFamily: "Amiri",
+                bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+                    selectedLabelStyle: TextStyle(fontFamily: "Roboto"),
+                    unselectedLabelStyle: TextStyle(fontFamily: "Roboto", color: Colors.white),
+                    elevation: 0
+                ),
+              ),
+              themeMode: ThemeMode.light,
+              debugShowCheckedModeBanner: false,
+              home: const SplashScreen(),
+            ),
+          );
+        },
       ),
     );
   }

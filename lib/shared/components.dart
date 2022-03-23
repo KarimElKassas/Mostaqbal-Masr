@@ -28,13 +28,13 @@ Widget defaultButton({
       ),
       child: MaterialButton(
         onPressed: function,
-        height: 30,
+        height: 20,
         child: Text(
           isUpperCase ? text.toUpperCase() : text,
           textAlign: TextAlign.center,
           style: TextStyle(
               fontWeight: FontWeight.bold,
-              fontSize: 14,
+              fontSize: 12,
               letterSpacing: 2,
               color: textColor),
         ),

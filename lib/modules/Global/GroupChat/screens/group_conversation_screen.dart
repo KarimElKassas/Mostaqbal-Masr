@@ -106,9 +106,9 @@ class _GroupConversationScreenState extends State<GroupConversationScreen> {
                             onPressed: () {
                               Navigator.pop(context);
                             },
-                            icon: const Icon(
+                            icon: Icon(
                               IconlyBroken.arrowRightCircle,
-                              color: Colors.white,
+                              color: Colors.grey.shade200,
                             ),
                           ),
                           const SizedBox(
@@ -149,36 +149,48 @@ class _GroupConversationScreenState extends State<GroupConversationScreen> {
                           const SizedBox(
                             width: 12,
                           ),
-                          Expanded(
-                            flex: 3,
+                          Flexible(
+                            //flex: 3,
                             child: InkWell(
                               onTap: (){
                                 cubit.navigateToDetails(context, widget.groupID, widget.groupName, widget.groupImage, widget.membersList, widget.adminsList);
                               },
                               splashColor: Colors.transparent,
                               child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: <Widget>[
                                   const SizedBox(
-                                    height: 4,
+                                    height: 16,
                                   ),
                                   Text(
                                     widget.groupName,
-                                    style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600, color: Colors.white),
+                                    style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600, color: Colors.grey.shade200),
                                   ),
-                                  const SizedBox(
-                                    height: 4,
+                                  const SizedBox(height: 6.0,),
+                                  Flexible(
+                                    child: cubit.gotMembers ? ListView.builder(
+                                        physics: const NeverScrollableScrollPhysics(),
+                                        scrollDirection: Axis.horizontal,
+                                        itemCount: cubit.groupMembersNameList.length,
+                                        itemBuilder: (context, index) =>
+                                            membersNameView(cubit, state, index)) : Text(
+                                      "اضغط هنا لتفاصيل الجروب",
+                                      overflow: TextOverflow.ellipsis,
+                                      style:  TextStyle(
+                                          overflow: TextOverflow.ellipsis,
+                                          fontSize: 8,
+                                          fontWeight: FontWeight.w600, color: Colors.grey.shade400),
+                                    ),
                                   ),
+
                                 ],
                               ),
                             ),
                           ),
-                          Expanded(
-                              child: getEmptyWidget(),
-                          ),
+                          const SizedBox(width: 16,),
                         ],
                       ),
                     ),
@@ -220,7 +232,19 @@ class _GroupConversationScreenState extends State<GroupConversationScreen> {
       ),
     );
   }
-
+  Widget membersNameView(GroupConversationCubit cubit,GroupConversationStates state, int index){
+    return Align(
+      alignment: Alignment.centerRight,
+      child: Text(
+        "${cubit.groupMembersNameList[index].toString()}, ",
+        overflow: TextOverflow.ellipsis,
+        style:  TextStyle(
+            overflow: TextOverflow.ellipsis,
+            fontSize: 8,
+            fontWeight: FontWeight.w600, color: Colors.grey.shade400),
+      ),
+    );
+  }
   Widget chatView(BuildContext context, GroupConversationCubit cubit, int index,
       GroupConversationStates state) {
     if (cubit.chatListReversed[index].type == "Text") {
@@ -229,7 +253,7 @@ class _GroupConversationScreenState extends State<GroupConversationScreen> {
           print("SWIPE\n");
         },
         child: Container(
-          padding: const EdgeInsets.only(top: 10, bottom: 10),
+          padding: cubit.chatListReversed[index].senderID == cubit.userID ? const EdgeInsets.only(top: 10, bottom: 10, left: 16) : const EdgeInsets.only(top: 10, bottom: 10, right: 16),
           child: Align(
             alignment: (cubit.chatListReversed[index].senderID == cubit.userID
                 ? Alignment.topRight
@@ -508,6 +532,7 @@ class _GroupConversationScreenState extends State<GroupConversationScreen> {
                                       bottomRight: Radius.circular(14.0),
                                     ),
                           child: CachedNetworkImage(
+                            width: double.infinity,
                             imageUrl: cubit.chatListReversed[index].fileName,
                             imageBuilder: (context, imageProvider) => ClipRRect(
                               borderRadius: BorderRadius.circular(0.0),
@@ -1008,7 +1033,7 @@ class _GroupConversationScreenState extends State<GroupConversationScreen> {
   Widget audioGroupConversationManagement(BuildContext itemBuilderContext,
       int index, GroupConversationCubit cubit) {
     return Padding(
-      padding: const EdgeInsets.only(top: 4, right: 2, left: 2),
+      padding: const EdgeInsets.only(top: 4, bottom: 4),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
@@ -1018,12 +1043,10 @@ class _GroupConversationScreenState extends State<GroupConversationScreen> {
               margin: cubit.chatListReversed[index].senderID == cubit.userID
                   ? EdgeInsets.only(
                       left: MediaQuery.of(context).size.width / 8,
-                      right: 5.0,
                       top: 5.0,
                     )
                   : EdgeInsets.only(
                       right: MediaQuery.of(context).size.width / 8,
-                      left: 5.0,
                       top: 5.0,
                     ),
               alignment: cubit.chatListReversed[index].senderID == cubit.userID
@@ -1053,7 +1076,7 @@ class _GroupConversationScreenState extends State<GroupConversationScreen> {
                     ? Row(
                         children: [
                           const SizedBox(
-                            width: 8.0,
+                            width: 4.0,
                           ),
                           GestureDetector(
                             onLongPress: () =>

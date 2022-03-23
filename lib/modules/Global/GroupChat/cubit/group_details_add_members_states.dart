@@ -1,0 +1,37 @@
+abstract class GroupDetailsAddMembersStates{}
+
+class GroupDetailsAddMembersInitialState extends GroupDetailsAddMembersStates{}
+
+class GroupDetailsAddMembersLoadingMembersInfoState extends GroupDetailsAddMembersStates{}
+
+class GroupDetailsAddMembersMembersInfoState extends GroupDetailsAddMembersStates{}
+
+class GroupDetailsAddMembersLoadingMediaState extends GroupDetailsAddMembersStates{}
+
+class GroupDetailsAddMembersGetMediaState extends GroupDetailsAddMembersStates{}
+
+class GroupDetailsAddMembersLoadingGroupsState extends GroupDetailsAddMembersStates{}
+
+class GroupDetailsAddMembersFilterClerkState extends GroupDetailsAddMembersStates{}
+
+class GroupDetailsAddMembersChangeClerkSelectState extends GroupDetailsAddMembersStates{}
+
+class GroupDetailsAddMembersAddClerkToSelectState extends GroupDetailsAddMembersStates{}
+
+class GroupDetailsAddMembersLoadingClerksState extends GroupDetailsAddMembersStates{}
+
+class GroupDetailsAddMembersGetClerksState extends GroupDetailsAddMembersStates{}
+
+class GroupDetailsAddMembersRemoveClerkFromSelectState extends GroupDetailsAddMembersStates{}
+
+class GroupDetailsAddMembersGetGroupsSuccessState extends GroupDetailsAddMembersStates{}
+
+class GroupDetailsAddMembersFilterGroupState extends GroupDetailsAddMembersStates{}
+
+class GroupDetailsAddMembersGetGroupsErrorState extends GroupDetailsAddMembersStates{
+
+  final String error;
+
+  GroupDetailsAddMembersGetGroupsErrorState(this.error);
+
+}

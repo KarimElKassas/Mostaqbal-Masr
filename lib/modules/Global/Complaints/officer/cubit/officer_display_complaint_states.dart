@@ -1,0 +1,66 @@
+abstract class OfficerDisplayComplaintStates{}
+
+class OfficerDisplayComplaintInitialState extends OfficerDisplayComplaintStates{}
+
+class OfficerDisplayComplaintChangeFilterRespondState extends OfficerDisplayComplaintStates{}
+
+class OfficerDisplayComplaintChangeFilterState extends OfficerDisplayComplaintStates{}
+
+class OfficerDisplayComplaintChangeDepartmentSheetState extends OfficerDisplayComplaintStates{}
+
+class OfficerDisplayComplaintLoadingDepartmentsState extends OfficerDisplayComplaintStates{}
+
+class OfficerDisplayComplaintLoadingUserState extends OfficerDisplayComplaintStates{}
+
+class OfficerDisplayComplaintLoadingComplaintsState extends OfficerDisplayComplaintStates{}
+
+class OfficerDisplayComplaintLoadingUpdateComplaintState extends OfficerDisplayComplaintStates{}
+
+class OfficerDisplayComplaintLoadingDeleteComplaintState extends OfficerDisplayComplaintStates{}
+
+class OfficerDisplayComplaintSuccessGetUserState extends OfficerDisplayComplaintStates{}
+
+class OfficerDisplayComplaintSuccessGetDepartmentsState extends OfficerDisplayComplaintStates{}
+
+class OfficerDisplayComplaintSuccessGetComplaintsState extends OfficerDisplayComplaintStates{}
+
+class OfficerDisplayComplaintSuccessUpdateComplaintState extends OfficerDisplayComplaintStates{}
+
+class OfficerDisplayComplaintSuccessDeleteComplaintState extends OfficerDisplayComplaintStates{}
+
+class OfficerDisplayComplaintErrorGetUserState extends OfficerDisplayComplaintStates{
+
+  final String error;
+
+  OfficerDisplayComplaintErrorGetUserState(this.error);
+
+}
+class OfficerDisplayComplaintErrorGetDepartmentsState extends OfficerDisplayComplaintStates{
+
+  final String error;
+
+  OfficerDisplayComplaintErrorGetDepartmentsState(this.error);
+
+}
+
+class OfficerDisplayComplaintErrorGetComplaintsState extends OfficerDisplayComplaintStates{
+
+  final String error;
+
+  OfficerDisplayComplaintErrorGetComplaintsState(this.error);
+
+}
+class OfficerDisplayComplaintErrorUpdateComplaintState extends OfficerDisplayComplaintStates{
+
+  final String error;
+
+  OfficerDisplayComplaintErrorUpdateComplaintState(this.error);
+
+}
+class OfficerDisplayComplaintErrorDeleteComplaintState extends OfficerDisplayComplaintStates{
+
+  final String error;
+
+  OfficerDisplayComplaintErrorDeleteComplaintState(this.error);
+
+}

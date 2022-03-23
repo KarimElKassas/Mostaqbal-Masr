@@ -139,13 +139,23 @@ class ClerkRegisterCubit extends Cubit<ClerkRegisterStates> {
       String presenceName, String coreStrengthName) async {
     emit(ClerkRegisterLoadingUploadClerksState());
 
-    await DioHelper.postData(
-        url: 'person/POST',
-        query: {
-          'Person_Name': clerkName,
-          'Person_Address': "",
-          'Place_ID': 1
-        }).then((value) {
+    await FirebaseDatabase.instance.reference().child("Clerks").child(clerkPhone).get().then((value) {
+      if (value.exists) {
+        print("USER EXISTS \n");
+        isUserExist = true;
+      } else {
+        print("USER Doesn't EXIST \n");
+        isUserExist = false;
+      }
+    });
+    if(!isUserExist){
+      await DioHelper.postData(
+          url: 'person/POST',
+          query: {
+            'Person_Name': clerkName,
+            'Person_Address': "",
+            'Place_ID': 1
+          }).then((value) {
 
         getPersonID(clerkName).then((value){
           print("Person ID : $personID \n");
@@ -157,22 +167,26 @@ class ClerkRegisterCubit extends Cubit<ClerkRegisterStates> {
                 getPersonPhone().then((value){
                   print("Person Phone ID : $personPhoneID \n");
                   print("Person Phone : $personPhone \n");
-                   uploadUserFirebase(clerkID, clerkName, clerkNumber, clerkPhone, clerkPassword, clerkAddress,managementName,
-                       managementName, typeName, rankName, categoryName, jobName,
-                       presenceName, coreStrengthName);
+                  uploadUserFirebase(clerkID, clerkName, clerkNumber, clerkPhone, clerkPassword, clerkAddress,managementName,
+                      managementName, typeName, rankName, categoryName, jobName,
+                      presenceName, coreStrengthName);
                 });
               });
             });
           });
         });
-    }).catchError((error) {
-      if (error is DioError) {
-        emit(ClerkRegisterAddNameErrorState(
-            "لقد حدث خطأ ما برجاء المحاولة لاحقاً"));
-      } else {
-        emit(ClerkRegisterAddNameErrorState(error.toString()));
-      }
-    });
+      }).catchError((error) {
+        if (error is DioError) {
+          emit(ClerkRegisterAddNameErrorState(
+              "لقد حدث خطأ ما برجاء المحاولة لاحقاً"));
+        } else {
+          emit(ClerkRegisterAddNameErrorState(error.toString()));
+        }
+      });
+    }else{
+      emit(ClerkRegisterClerkExistState());
+    }
+
   }
 
   Future<void> getPersonID(String personName) async {

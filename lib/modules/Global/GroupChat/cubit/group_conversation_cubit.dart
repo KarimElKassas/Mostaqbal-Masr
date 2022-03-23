@@ -72,6 +72,7 @@ class GroupConversationCubit extends Cubit<GroupConversationStates> {
   int recordDuration = 0;
   int lastAudioPlayingIndex = 0;
   double audioPlayingSpeed = 1.0;
+  bool gotMembers = false;
   late double currAudioPlayingTime;
   final j.AudioPlayer justAudioPlayer = j.AudioPlayer();
   final Record record = Record();
@@ -89,7 +90,9 @@ class GroupConversationCubit extends Cubit<GroupConversationStates> {
   List<GroupChatModel> chatListReversed = [];
   List<GroupChatModel> chatListTempReversed = [];
   List<Object?> groupMembersList = [];
+  List<Object?> groupMembersNameList = [];
   List<Object?> groupAdminsList = [];
+  List<Object?> groupAdminsNameList = [];
   List<XFile>? imageFileList = [];
   List<XFile?> emptyList = [];
   List<XFile?>? messageImages = [];
@@ -532,8 +535,9 @@ class GroupConversationCubit extends Cubit<GroupConversationStates> {
   }
 
   void getGroupMembers(String groupID) async {
-    emit(GroupConversationLoadingMessageState());
+    emit(GroupConversationLoadingMembersState());
 
+    gotMembers = false;
     FirebaseDatabase.instance
         .reference()
         .child('Groups')
@@ -541,7 +545,7 @@ class GroupConversationCubit extends Cubit<GroupConversationStates> {
         .child("Info")
         .child("Members")
         .onValue
-        .listen((event) {
+        .listen((event) async {
       groupList.clear();
       groupMembersList = [];
       groupModel = null;
@@ -552,8 +556,19 @@ class GroupConversationCubit extends Cubit<GroupConversationStates> {
           print('Members Data : $data\n');
           groupMembersList = data;
         }
-      }
+        groupMembersNameList = [];
 
+        for (var element in data)  {
+
+          var clerkName = await FirebaseDatabase.instance
+              .reference()
+              .child('Clerks')
+              .child(element.toString())
+              .child("ClerkName").get();
+          groupMembersNameList.add(clerkName.value.toString());
+        }
+      }
+      gotMembers = true;
       emit(GroupConversationGetGroupMembersSuccessState());
     });
     FirebaseDatabase.instance
@@ -563,7 +578,7 @@ class GroupConversationCubit extends Cubit<GroupConversationStates> {
         .child("Info")
         .child("Admins")
         .onValue
-        .listen((event) {
+        .listen((event)async  {
       groupList.clear();
       groupAdminsList = [];
       groupModel = null;
@@ -574,8 +589,19 @@ class GroupConversationCubit extends Cubit<GroupConversationStates> {
           print('Admins Data : $data\n');
           groupAdminsList = data;
         }
-      }
+        groupAdminsNameList = [];
 
+        for (var element in data)  {
+
+          var clerkName = await FirebaseDatabase.instance
+              .reference()
+              .child('Clerks')
+              .child(element.toString())
+              .child("ClerkName").get();
+          groupAdminsNameList.add(clerkName.value.toString());
+        }
+      }
+      gotMembers = true;
       emit(GroupConversationGetGroupMembersSuccessState());
     });
   }
