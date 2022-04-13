@@ -106,6 +106,7 @@ class MonitorOfficerPermissionCubit extends Cubit<MonitorOfficerPermissionStates
     });
     emit(MonitorOfficerPermissionGetClerksForPermissionsState());
   }
+
   Future<void> getClerksForClientsComplaintsPermission(String clerkID)async {
 
     await FirebaseDatabase.instance.reference().child("Departments").child("Monitor").child("Permissions").child("ClientsComplaints").child(clerkID).get().then((value) async{
