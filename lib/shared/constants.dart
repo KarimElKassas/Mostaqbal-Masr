@@ -88,15 +88,26 @@ class BlurryDialog extends StatelessWidget {
   }
 }
 class BlurryProgressDialog extends StatelessWidget {
+  final String title;
 
+  const BlurryProgressDialog({Key? key, required this.title}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Directionality(
       textDirection: ui.TextDirection.rtl,
       child: BackdropFilter(
-          filter: ui.ImageFilter.blur(sigmaX: 6, sigmaY: 6),
-          child:  AlertDialog(
-            content: Center(child: CircularProgressIndicator(color: Colors.teal[500], strokeWidth: 0.8,),),
+          filter: ui.ImageFilter.blur(sigmaX: 4, sigmaY: 4),
+          child: AlertDialog(
+            scrollable: true,
+            content: Column(
+              children: [
+                Text(title, style: TextStyle(color: Colors.teal[700], fontSize: 12),),
+                const SizedBox(height: 36,),
+                CircularProgressIndicator(color: Colors.teal[700], strokeWidth: 0.8,),
+                const SizedBox(height: 8,),
+
+              ],
+            ),
           )),
     );
   }

@@ -1,17 +1,14 @@
-import 'package:bloc/bloc.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mostaqbal_masr/modules/Global/Complaints/clerk/cubit/complaint_states.dart';
-import 'package:mostaqbal_masr/modules/Global/Complaints/clerk/screens/add_complaint_screen.dart';
-import 'package:mostaqbal_masr/shared/components.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../screens/display_complaints_screen.dart';
+import 'group_selected_images_states.dart';
 
-class ComplaintCubit extends Cubit<ComplaintStates>{
-  ComplaintCubit() : super(ComplaintInitialState());
 
-  static ComplaintCubit get(context) => BlocProvider.of(context);
+
+class GroupSelectedImagesCubit extends Cubit<GroupSelectedImagesStates>{
+  GroupSelectedImagesCubit() : super(GroupSelectedImagesInitialState());
+
+  static GroupSelectedImagesCubit get(context) => BlocProvider.of(context);
 
   String userID = "";
   String receiverID = "Future Of Egypt";
@@ -19,7 +16,6 @@ class ComplaintCubit extends Cubit<ComplaintStates>{
   String userPhone = "";
   String userNumber = "";
   String userPassword = "";
-  String userManagementID = "";
   String userManagementName = "";
   String userCategoryName = "";
   String userRankName = "";
@@ -29,6 +25,7 @@ class ComplaintCubit extends Cubit<ComplaintStates>{
   String userJobName = "";
   String userToken = "";
   String userImage = "";
+  String uploadingImageName = "";
 
   void getUserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -38,7 +35,6 @@ class ComplaintCubit extends Cubit<ComplaintStates>{
     userPhone = prefs.getString("ClerkPhone")!;
     userNumber = prefs.getString("ClerkNumber")!;
     userPassword = prefs.getString("ClerkPassword")!;
-    userManagementID = prefs.getString("ClerkManagementID")!;
     userManagementName = prefs.getString("ClerkManagementName")!;
     userTypeName = prefs.getString("ClerkTypeName")!;
     userRankName = prefs.getString("ClerkRankName")!;
@@ -48,15 +44,6 @@ class ComplaintCubit extends Cubit<ComplaintStates>{
     userJobName = prefs.getString("ClerkJobName")!;
     userToken = prefs.getString("ClerkToken")!;
     userImage = prefs.getString("ClerkImage")!;
-
-    emit(ComplaintGetUserDataState());
   }
 
-  void navigateToAddComplaint(BuildContext context){
-    navigateTo(context, AddComplaintScreen(userID: userID, userManagementID: userManagementID,));
-  }
-
-  void navigateToDisplayComplaint(BuildContext context){
-    navigateTo(context, DisplayComplaintScreen(userID: userID,));
-  }
 }

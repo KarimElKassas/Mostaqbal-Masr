@@ -44,6 +44,8 @@ class ClerkRegisterAddClassificationPersonIDSuccessState extends ClerkRegisterSt
 
 class ClerkRegisterSuccessState extends ClerkRegisterStates{}
 
+class ClerkRegisterNavigateSuccessState extends ClerkRegisterStates{}
+
 class ClerkRegisterErrorState extends ClerkRegisterStates{
 
   final String error;

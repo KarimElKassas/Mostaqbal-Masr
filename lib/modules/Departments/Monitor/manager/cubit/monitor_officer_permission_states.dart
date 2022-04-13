@@ -1,0 +1,19 @@
+abstract class MonitorOfficerPermissionStates{}
+
+class MonitorOfficerPermissionInitialState extends MonitorOfficerPermissionStates{}
+
+class MonitorOfficerPermissionGetUserDataState extends MonitorOfficerPermissionStates{}
+
+class MonitorOfficerPermissionLoadingGetPermissionsState extends MonitorOfficerPermissionStates{}
+
+class MonitorOfficerPermissionGetClerksForPermissionsState extends MonitorOfficerPermissionStates{}
+
+class MonitorOfficerPermissionGetPermissionsState extends MonitorOfficerPermissionStates{}
+
+class MonitorOfficerPermissionDeletePermissionsState extends MonitorOfficerPermissionStates{}
+
+class MonitorOfficerPermissionGetManagementUsersState extends MonitorOfficerPermissionStates{}
+
+class MonitorOfficerPermissionFilterUsersState extends MonitorOfficerPermissionStates{}
+
+class MonitorOfficerPermissionLogOutUserState extends MonitorOfficerPermissionStates{}

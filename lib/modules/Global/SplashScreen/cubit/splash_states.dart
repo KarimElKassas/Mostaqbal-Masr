@@ -8,6 +8,14 @@ class SplashSuccessPermissionDeniedState extends SplashStates{}
 
 class SplashSuccessNavigateState extends SplashStates{}
 
+class SplashGetDepartmentManagerSuccessState extends SplashStates{}
+
+class SplashGetDepartmentManagerErrorState extends SplashStates{
+  final String error;
+
+  SplashGetDepartmentManagerErrorState(this.error);
+}
+
 class SplashErrorNavigateState extends SplashStates{
 
   final String error;

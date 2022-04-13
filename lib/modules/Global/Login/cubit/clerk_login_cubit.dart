@@ -9,9 +9,13 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mostaqbal_masr/modules/Global/Login/cubit/clerk_login_states.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:transition_plus/transition_plus.dart';
 
 import '../../../../network/remote/dio_helper.dart';
 import '../../../../shared/components.dart';
+import '../../../Departments/Monitor/complaints/screens/complaint_screen.dart';
+import '../../../Departments/Monitor/manager/screens/monitor_manager_home_screen.dart';
+import '../../../Departments/SocialMedia/home/layout/social_home_layout.dart';
 
 class ClerkLoginCubit extends Cubit<ClerkLoginStates>{
   ClerkLoginCubit() : super(ClerkLoginInitialState());
@@ -20,6 +24,8 @@ class ClerkLoginCubit extends Cubit<ClerkLoginStates>{
 
   bool isPassword = true;
   IconData suffix = Icons.visibility_rounded;
+
+  String? managerID;
 
   void changePasswordVisibility() {
     isPassword = !isPassword;
@@ -30,7 +36,7 @@ class ClerkLoginCubit extends Cubit<ClerkLoginStates>{
     emit(ClerkLoginChangePassVisibility());
   }
 
-  void signInUser(String personNumber, String userPassword) async {
+  void signInUser(BuildContext context, String personNumber, String userPassword) async {
     emit(ClerkLoginLoadingSignIn());
 
     var connectivityResult = await (Connectivity().checkConnectivity());
@@ -106,6 +112,23 @@ class ClerkLoginCubit extends Cubit<ClerkLoginStates>{
                   length: Toast.LENGTH_SHORT,
                   gravity: ToastGravity.BOTTOM,
                   timeInSecForIosWeb: 3);
+
+              await getDepartmentManager(userManagementID);
+
+              switch (prefs.getString("ClerkManagementID")!.toString()){
+              //   إدارة التسويق
+                case "1054" :
+                  finish(context, const SocialHomeLayout());
+                  break;
+              //إدارة الرقمنة
+                case "1028" :
+                  finish(context, const SocialHomeLayout());
+                  break;
+              //   إدارة الرقابة والمتابعة
+                case "1022" :
+                  finish(context, (managerID != userNumber) ? const OfficerComplaintScreen() : const MonitorManagerHomeScreen());
+                  break;
+              }
               emit(ClerkLoginSuccessState());
             }
           }).catchError((error) {
@@ -131,6 +154,20 @@ class ClerkLoginCubit extends Cubit<ClerkLoginStates>{
         }
       });
     }
+  }
+  Future<void> getDepartmentManager(String departmentID) async{
+    await DioHelper.getData(
+        url: 'departments/GetDepartmentWithID',
+        query: {'DEPTID' : departmentID}).then((value){
+      managerID = value.data[0]["DEPTLeaderID"].toString();
+      emit(ClerkLoginGetDepartmentManagerSuccessState());
+    }).catchError((error){
+      emit(ClerkLoginGetDepartmentManagerErrorState(error.toString()));
+    });
+  }
+
+  void finish(BuildContext context, route){
+    Navigator.pushReplacement(context, ScaleTransition1(page: route, startDuration: const Duration(milliseconds: 1500),closeDuration: const Duration(milliseconds: 800), type: ScaleTrasitionTypes.bottomRight));
   }
 
 }

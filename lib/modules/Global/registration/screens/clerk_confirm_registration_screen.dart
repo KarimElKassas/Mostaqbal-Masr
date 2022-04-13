@@ -52,6 +52,11 @@ class _ClerkConfirmRegistrationScreenState extends State<ClerkConfirmRegistratio
           if(state is ClerkRegisterErrorState){
             showToast(message: state.error, length: Toast.LENGTH_SHORT, gravity: ToastGravity.BOTTOM, timeInSecForIosWeb: 3);
           }
+          if(state is ClerkRegisterLoadingUploadClerksState){
+            showDialog(
+                context: context,
+                builder: (BuildContext context) => const BlurryProgressDialog(title: "جارى انشاء الحساب"));
+          }
         },
         builder: (context, state) {
           var cubit = ClerkRegisterCubit.get(context);
@@ -68,10 +73,7 @@ class _ClerkConfirmRegistrationScreenState extends State<ClerkConfirmRegistratio
                       children: [
                         clerkView(cubit),
                         const SizedBox(height: 18,),
-                        BuildCondition(
-                          condition: state is ClerkRegisterLoadingUploadClerksState,
-                          builder: (context) => Center(child: CircularProgressIndicator(color: Colors.teal.shade700, strokeWidth: 0.8,),),
-                          fallback: (context) => defaultButton(function: (){
+                        defaultButton(function: (){
                             if(formKey.currentState!.validate()){
                               if(clerkPasswordController.text.toString() != clerkConfirmPasswordController.text.toString()){
                                 showToast(message: "كلمتا السر يجب ان تكونا متطابقتين", length: Toast.LENGTH_SHORT, gravity: ToastGravity.BOTTOM, timeInSecForIosWeb: 3);
@@ -90,12 +92,11 @@ class _ClerkConfirmRegistrationScreenState extends State<ClerkConfirmRegistratio
                                 return;
                               }
                               cubit.insertPersonName(
-                                  widget.clerkModel.clerkID??"", widget.clerkModel.clerkName??"",widget.clerkModel.personNumber??"", widget.clerkModel.personPhone??"", clerkPasswordController.text.toString(), widget.clerkModel.personAddress??"",
-                                  widget.clerkModel.managementName??"", widget.clerkModel.personTypeName??"", widget.clerkModel.rankName??"", widget.clerkModel.categoryName??"",
+                                  context, widget.clerkModel.clerkID??"", widget.clerkModel.clerkName??"",widget.clerkModel.personNumber??"", widget.clerkModel.personPhone??"", clerkPasswordController.text.toString(), widget.clerkModel.personAddress??"",
+                                  widget.clerkModel.managementID??"", widget.clerkModel.managementName??"", widget.clerkModel.personTypeName??"", widget.clerkModel.rankName??"", widget.clerkModel.categoryName??"",
                                   widget.clerkModel.jobName??"", widget.clerkModel.presenceName??"", widget.clerkModel.coreStrengthName??"");
                             }
                           }, text: "انشاء حساب", background: Colors.teal),
-                        ),
                         const SizedBox(height: 8.0,)
                       ],
                     ),

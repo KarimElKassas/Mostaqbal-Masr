@@ -9,17 +9,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:mostaqbal_masr/models/city_model.dart';
 import 'package:mostaqbal_masr/models/clerk_model.dart';
 import 'package:mostaqbal_masr/models/firebase_clerk_model.dart';
-import 'package:mostaqbal_masr/models/region_model.dart';
-import 'package:mostaqbal_masr/models/section_model.dart';
-import 'package:mostaqbal_masr/modules/Customer/dropdown/drop_list_model.dart';
 import 'package:mostaqbal_masr/modules/Global/registration/cubit/clerk_register_states.dart';
 import 'package:mostaqbal_masr/network/remote/dio_helper.dart';
 import 'package:mostaqbal_masr/shared/components.dart';
 import 'package:mostaqbal_masr/shared/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:transition_plus/transition_plus.dart';
+
+import '../../../Departments/Monitor/complaints/screens/complaint_screen.dart';
+import '../../../Departments/SocialMedia/home/layout/social_home_layout.dart';
 
 class ClerkRegisterCubit extends Cubit<ClerkRegisterStates> {
   ClerkRegisterCubit() : super(ClerkRegisterInitialState());
@@ -42,6 +42,7 @@ class ClerkRegisterCubit extends Cubit<ClerkRegisterStates> {
   bool isPassword = true;
   bool isConfirmPassword = true;
   bool emptyImage = true;
+  bool completeRegistration = false;
   String imageUrl = "";
 
   IconData suffix = Icons.visibility_rounded;
@@ -72,7 +73,6 @@ class ClerkRegisterCubit extends Cubit<ClerkRegisterStates> {
 
     emit(ClerkRegisterChangePasswordVisibilityState());
   }
-
 
   Future<void> getClerks(String personNumber) async {
     emit(ClerkRegisterLoadingClerksState());
@@ -134,8 +134,8 @@ class ClerkRegisterCubit extends Cubit<ClerkRegisterStates> {
     });
   }
 
-  Future<void> insertPersonName(String clerkID, String clerkName, String clerkNumber, String clerkPhone, String clerkPassword, String clerkAddress,
-      String managementName, String typeName, String rankName, String categoryName, String jobName,
+  Future<void> insertPersonName(BuildContext context, String clerkID, String clerkName, String clerkNumber, String clerkPhone, String clerkPassword, String clerkAddress,
+      String managementID, String managementName, String typeName, String rankName, String categoryName, String jobName,
       String presenceName, String coreStrengthName) async {
     emit(ClerkRegisterLoadingUploadClerksState());
 
@@ -167,7 +167,7 @@ class ClerkRegisterCubit extends Cubit<ClerkRegisterStates> {
                 getPersonPhone().then((value){
                   print("Person Phone ID : $personPhoneID \n");
                   print("Person Phone : $personPhone \n");
-                  uploadUserFirebase(clerkID, clerkName, clerkNumber, clerkPhone, clerkPassword, clerkAddress,managementName,
+                  uploadUserFirebase(context, clerkID, clerkName, clerkNumber, clerkPhone, clerkPassword, clerkAddress, managementName, managementID,
                       managementName, typeName, rankName, categoryName, jobName,
                       presenceName, coreStrengthName);
                 });
@@ -200,7 +200,6 @@ class ClerkRegisterCubit extends Cubit<ClerkRegisterStates> {
       personID = value.data[0]["Person_ID"];
     });
   }
-
   Future<void> insertClassificationPersonID() async {
     await DioHelper.postData(
         url: 'classificationPersons/POST',
@@ -272,7 +271,6 @@ class ClerkRegisterCubit extends Cubit<ClerkRegisterStates> {
 
     });
   }
-
   Future<void> insertLogin() async {
     await DioHelper.postData(
         url: 'classificationPersons/POST',
@@ -281,7 +279,7 @@ class ClerkRegisterCubit extends Cubit<ClerkRegisterStates> {
           'Person_ID': personID!.round(),
         }).then((value) {
 
-      emit(ClerkRegisterAddClassificationPersonIDSuccessState());
+      //emit(ClerkRegisterAddClassificationPersonIDSuccessState());
     }).catchError((error) {
       if (error is DioError) {
         emit(ClerkRegisterAddClassificationPersonIDErrorState(
@@ -291,7 +289,7 @@ class ClerkRegisterCubit extends Cubit<ClerkRegisterStates> {
       }
     });
   }
-
+  
   final ImagePicker imagePicker = ImagePicker();
 
   void selectImage() async {
@@ -305,18 +303,18 @@ class ClerkRegisterCubit extends Cubit<ClerkRegisterStates> {
     emit(ClerkRegisterChangeImageState());
   }
 
-  void uploadUserFirebase(String clerkID, String clerkName,String clerkNumber, String clerkPhone, String clerkPassword, String clerkAddress,String clerkDepartment,
-      String managementName, String typeName, String rankName, String categoryName, String jobName,
+  void uploadUserFirebase(BuildContext context, String clerkID, String clerkName,String clerkNumber, String clerkPhone, String clerkPassword, String clerkAddress,String clerkDepartment,
+      String managementID, String managementName, String typeName, String rankName, String categoryName, String jobName,
       String presenceName, String coreStrengthName)async {
 
     try {
       FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: "$clerkPhone@gmail.com",
+          email: "$clerkPhone@clerk.com",
           password: clerkPassword
       ).then((value) async {
         FirebaseMessaging.instance.getToken().then((value){
-          saveUser(clerkID, clerkName, clerkNumber, clerkPhone, clerkPassword, clerkAddress,
-              value!,clerkDepartment, managementName, typeName, rankName, categoryName, jobName,
+          saveUser(context, clerkID, clerkName, clerkNumber, clerkPhone, clerkPassword, clerkAddress,
+              value!,clerkDepartment, managementID, managementName, typeName, rankName, categoryName, jobName,
               presenceName, coreStrengthName);
         });
 
@@ -337,8 +335,8 @@ class ClerkRegisterCubit extends Cubit<ClerkRegisterStates> {
 
   }
 
-  Future saveUser(String clerkID, String clerkName,String clerkNumber, String clerkPhone, String clerkPassword, String clerkAddress,
-      String clerkToken,String clerkDepartment, String managementName, String typeName, String rankName, String categoryName, String jobName,
+  Future saveUser(BuildContext context, String clerkID, String clerkName,String clerkNumber, String clerkPhone, String clerkPassword, String clerkAddress,
+      String clerkToken,String clerkDepartment, String managementID, String managementName, String typeName, String rankName, String categoryName, String jobName,
       String presenceName, String coreStrengthName) async {
 
     var storageRef = FirebaseStorage.instance.ref("Clerks/$clerkPhone");
@@ -353,7 +351,8 @@ class ClerkRegisterCubit extends Cubit<ClerkRegisterStates> {
     dataMap['ClerkPhone'] = clerkPhone;
     dataMap['ClerkPassword'] = clerkPassword;
     dataMap["ClerkAddress"] = clerkAddress;
-    dataMap["ClerkManagementName"] = clerkDepartment;
+    dataMap["ClerkManagementID"] = managementID;
+    dataMap["ClerkManagementName"] = managementName;
     dataMap["ClerkRankName"] = rankName;
     dataMap["ClerkTypeName"] = typeName;
     dataMap["ClerkCategoryName"] = categoryName;
@@ -378,7 +377,7 @@ class ClerkRegisterCubit extends Cubit<ClerkRegisterStates> {
 
           clerksRef.child(clerkPhone).update(dataMap).then((
               realtimeDbValue) async {
-            clerkFirebaseModel = ClerkFirebaseModel(globalClerkID, globalClerkName, value.toString(), globalClerkNumber, globalClerkAddress, globalClerkPhone, clerkPassword, "متصل الأن", clerkToken, "", "",["empty"]);
+            clerkFirebaseModel = ClerkFirebaseModel(globalClerkID, globalClerkName, value.toString(), managementID, globalClerkNumber, globalClerkAddress, globalClerkPhone, clerkPassword, "متصل الأن", clerkToken, "", "",["empty"]);
 
             globalClerkName = "";
             globalClerkPhone = "";
@@ -388,24 +387,26 @@ class ClerkRegisterCubit extends Cubit<ClerkRegisterStates> {
 
             SharedPreferences prefs = await SharedPreferences.getInstance();
 
-            prefs.setString("ClerkID", clerkID.toString());
-            prefs.setString("ClerkName", clerkName);
-            prefs.setString("ClerkPhone", clerkPhone);
-            prefs.setString("ClerkNumber", clerkNumber);
-            prefs.setString("ClerkPassword", clerkPassword);
-            prefs.setString("ClerkManagementName", managementName);
-            prefs.setString("ClerkTypeName", typeName);
-            prefs.setString("ClerkRankName", rankName);
-            prefs.setString("ClerkCategoryName", categoryName);
-            prefs.setString("ClerkCoreStrengthName", coreStrengthName);
-            prefs.setString("ClerkPresenceName", presenceName);
-            prefs.setString("ClerkJobName", jobName);
-            prefs.setString("ClerkToken", clerkToken);
-            prefs.setStringList("ClerkSubscriptions", ["empty"]);
+            await prefs.setString("ClerkID", clerkID.toString());
+            await prefs.setString("ClerkName", clerkName);
+            await prefs.setString("ClerkPhone", clerkPhone);
+            await prefs.setString("ClerkNumber", clerkNumber);
+            await prefs.setString("ClerkPassword", clerkPassword);
+            await prefs.setString("ClerkManagementID", managementID);
+            await prefs.setString("ClerkManagementName", managementName);
+            await prefs.setString("ClerkTypeName", typeName);
+            await prefs.setString("ClerkRankName", rankName);
+            await prefs.setString("ClerkCategoryName", categoryName);
+            await prefs.setString("ClerkCoreStrengthName", coreStrengthName);
+            await prefs.setString("ClerkPresenceName", presenceName);
+            await prefs.setString("ClerkJobName", jobName);
+            await prefs.setString("ClerkToken", clerkToken);
+            await prefs.setStringList("ClerkSubscriptions", ["empty"]);
 
             //clerkModel!.clerkImage = value.toString();
 
             prefs.setString("ClerkImage", value.toString()).then((value) {
+              completeRegistration = true;
               showToast(
                 message: "تم التسجيل بنجاح",
                 length: Toast.LENGTH_LONG,
@@ -414,6 +415,25 @@ class ClerkRegisterCubit extends Cubit<ClerkRegisterStates> {
               );
 
               emit(ClerkRegisterSuccessState());
+              print("MANAGEMENT ID $managementID\n");
+
+              switch (managementID){
+
+              //   إدارة التسويق
+                case "1054" :
+                  finish(context, const SocialHomeLayout());
+                  break;
+              //إدارة الرقمنة
+                case "1028" :
+                  finish(context, const SocialHomeLayout());
+                  break;
+              //   إدارة الرقابة والمتابعة
+                case "1022" :
+                  finish(context, const OfficerComplaintScreen());
+                  break;
+
+              }
+
             }).catchError((error){
                 emit(ClerkRegisterErrorState(error.toString()));
               });
@@ -431,4 +451,10 @@ class ClerkRegisterCubit extends Cubit<ClerkRegisterStates> {
         emit(ClerkRegisterErrorState(error.toString()));
       });
   }
+
+  void finish(BuildContext context, route){
+    Navigator.pushReplacement(context, ScaleTransition1(page: route, startDuration: const Duration(milliseconds: 1500),closeDuration: const Duration(milliseconds: 800), type: ScaleTrasitionTypes.bottomRight));
+    emit(ClerkRegisterNavigateSuccessState());
+  }
+
 }

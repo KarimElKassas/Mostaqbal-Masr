@@ -74,7 +74,7 @@ class ComplaintScreen extends StatelessWidget {
                               const SizedBox(height: 16,),
                               InkWell(
                                 onTap: (){
-                                  cubit.navigateToOfficerDisplayComplaint(context);
+                                  cubit.navigateToDisplayComplaint(context);
                                 },
                                 splashColor: Colors.white,
                                 child: Container(

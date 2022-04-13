@@ -1,14 +1,11 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:mostaqbal_masr/modules/Customer/cubit/customer_support_cubit.dart';
 import 'package:mostaqbal_masr/modules/Global/SplashScreen/splash_screen.dart';
-import 'package:mostaqbal_masr/modules/SocialMedia/cubit/display_posts_cubit.dart';
 import 'package:mostaqbal_masr/network/local/cache_helper.dart';
 import 'package:mostaqbal_masr/network/remote/dio_helper.dart';
 import 'package:mostaqbal_masr/shared/bloc_observer.dart';
@@ -16,6 +13,8 @@ import 'package:mostaqbal_masr/shared/components.dart';
 import 'package:mostaqbal_masr/shared/cubit/app_cubit.dart';
 import 'package:mostaqbal_masr/shared/cubit/app_states.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'modules/Departments/SocialMedia/posts/cubit/display_posts_cubit.dart';
 
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async
 {
@@ -138,11 +137,6 @@ class _MyAppState extends State<MyApp> {
           create: (context) =>
           SocialDisplayPostsCubit()
             ..getPosts(),
-        ),
-        BlocProvider(
-          create: (context) =>
-          CustomerSupportCubit()
-            ..getUserData(),
         ),
         BlocProvider(
           create: (context) =>

@@ -49,7 +49,6 @@ class ClerkLoginScreen extends StatelessWidget {
             gravity: ToastGravity.BOTTOM,
             timeInSecForIosWeb: 3,
           );
-          navigateAndFinish(context, ComplaintScreen());
         }
       }, builder: (context, state) {
         var cubit = ClerkLoginCubit.get(context);
@@ -74,7 +73,7 @@ class ClerkLoginScreen extends StatelessWidget {
                     backgroundColor: Colors.teal[700],
                     onPressed: () async {
                       if (formKey.currentState!.validate()) {
-                        cubit.signInUser(nameController.text.toString(),
+                        cubit.signInUser(context, nameController.text.toString(),
                             passwordController.text.toString());
                       }
                     },

@@ -22,6 +22,8 @@ class ClerkLoginSuccessState extends ClerkLoginStates {}
 
 class ClerkLoginGetClerkDataSuccessState extends ClerkLoginStates {}
 
+class ClerkLoginGetDepartmentManagerSuccessState extends ClerkLoginStates {}
+
 class ClerkLoginGetUserSectionSuccessState extends ClerkLoginStates {}
 
 class ClerkLoginGetUserPersonIDSuccessState extends ClerkLoginStates {}
@@ -37,6 +39,12 @@ class ClerkLoginLogSuccessState extends ClerkLoginStates {}
 class ClerkLoginLogErrorState extends ClerkLoginStates {}
 
 class ClerkLoginNoUserState extends ClerkLoginStates {}
+
+class ClerkLoginGetDepartmentManagerErrorState extends ClerkLoginStates {
+  final String error;
+
+  ClerkLoginGetDepartmentManagerErrorState(this.error);
+}
 
 class ClerkLoginSharedPrefErrorState extends ClerkLoginStates {
   final String error;

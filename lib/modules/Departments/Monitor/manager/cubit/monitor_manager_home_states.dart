@@ -1,0 +1,11 @@
+abstract class MonitorManagerHomeStates{}
+
+class MonitorManagerHomeInitialState extends MonitorManagerHomeStates{}
+
+class MonitorManagerHomeGetUserDataState extends MonitorManagerHomeStates{}
+
+class MonitorManagerHomeGetManagementUsersState extends MonitorManagerHomeStates{}
+
+class MonitorManagerHomeFilterUsersState extends MonitorManagerHomeStates{}
+
+class MonitorManagerHomeLogOutUserState extends MonitorManagerHomeStates{}

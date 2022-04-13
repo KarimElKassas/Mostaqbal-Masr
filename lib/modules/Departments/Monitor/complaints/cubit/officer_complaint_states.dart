@@ -1,0 +1,13 @@
+abstract class OfficerComplaintStates{}
+
+class OfficerComplaintInitialState extends OfficerComplaintStates{}
+
+class OfficerComplaintGetUserDataState extends OfficerComplaintStates{}
+
+class OfficerComplaintLogOutUserState extends OfficerComplaintStates{}
+
+class OfficerComplaintGetPermissionsState extends OfficerComplaintStates{}
+
+class OfficerComplaintGetClerksForPermissionsState extends OfficerComplaintStates{}
+
+class OfficerComplaintGetDepartmentManagerState extends OfficerComplaintStates{}

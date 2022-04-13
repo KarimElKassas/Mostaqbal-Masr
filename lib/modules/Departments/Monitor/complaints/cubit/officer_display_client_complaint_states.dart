@@ -1,0 +1,66 @@
+abstract class OfficerDisplayClientComplaintsStates{}
+
+class OfficerDisplayClientComplaintsInitialState extends OfficerDisplayClientComplaintsStates{}
+
+class OfficerDisplayClientComplaintsChangeFilterRespondState extends OfficerDisplayClientComplaintsStates{}
+
+class OfficerDisplayClientComplaintsChangeFilterState extends OfficerDisplayClientComplaintsStates{}
+
+class OfficerDisplayClientComplaintsChangeDepartmentSheetState extends OfficerDisplayClientComplaintsStates{}
+
+class OfficerDisplayClientComplaintsLoadingDepartmentsState extends OfficerDisplayClientComplaintsStates{}
+
+class OfficerDisplayClientComplaintsLoadingUserState extends OfficerDisplayClientComplaintsStates{}
+
+class OfficerDisplayClientComplaintsLoadingComplaintsState extends OfficerDisplayClientComplaintsStates{}
+
+class OfficerDisplayClientComplaintsLoadingUpdateComplaintState extends OfficerDisplayClientComplaintsStates{}
+
+class OfficerDisplayClientComplaintsLoadingDeleteComplaintState extends OfficerDisplayClientComplaintsStates{}
+
+class OfficerDisplayClientComplaintsSuccessGetUserState extends OfficerDisplayClientComplaintsStates{}
+
+class OfficerDisplayClientComplaintsSuccessGetDepartmentsState extends OfficerDisplayClientComplaintsStates{}
+
+class OfficerDisplayClientComplaintsSuccessGetComplaintsState extends OfficerDisplayClientComplaintsStates{}
+
+class OfficerDisplayClientComplaintsSuccessUpdateComplaintState extends OfficerDisplayClientComplaintsStates{}
+
+class OfficerDisplayClientComplaintsSuccessDeleteComplaintState extends OfficerDisplayClientComplaintsStates{}
+
+class OfficerDisplayClientComplaintsErrorGetUserState extends OfficerDisplayClientComplaintsStates{
+
+  final String error;
+
+  OfficerDisplayClientComplaintsErrorGetUserState(this.error);
+
+}
+class OfficerDisplayClientComplaintsErrorGetDepartmentsState extends OfficerDisplayClientComplaintsStates{
+
+  final String error;
+
+  OfficerDisplayClientComplaintsErrorGetDepartmentsState(this.error);
+
+}
+
+class OfficerDisplayClientComplaintsErrorGetComplaintsState extends OfficerDisplayClientComplaintsStates{
+
+  final String error;
+
+  OfficerDisplayClientComplaintsErrorGetComplaintsState(this.error);
+
+}
+class OfficerDisplayClientComplaintsErrorUpdateComplaintState extends OfficerDisplayClientComplaintsStates{
+
+  final String error;
+
+  OfficerDisplayClientComplaintsErrorUpdateComplaintState(this.error);
+
+}
+class OfficerDisplayClientComplaintsErrorDeleteComplaintState extends OfficerDisplayClientComplaintsStates{
+
+  final String error;
+
+  OfficerDisplayClientComplaintsErrorDeleteComplaintState(this.error);
+
+}
