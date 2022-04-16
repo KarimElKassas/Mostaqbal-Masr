@@ -58,26 +58,27 @@ class BlurryDialog extends StatelessWidget {
   VoidCallback continueCallBack;
 
   BlurryDialog(this.title, this.content, this.continueCallBack);
-  TextStyle textStyle = const TextStyle (color: Colors.black);
+  TextStyle textStyle = const TextStyle (color: Colors.teal, fontSize: 12);
 
   @override
   Widget build(BuildContext context) {
     return Directionality(
       textDirection: ui.TextDirection.rtl,
       child: BackdropFilter(
-          filter: ui.ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+          filter: ui.ImageFilter.blur(sigmaX: 4, sigmaY: 4),
           child:  AlertDialog(
             title: Text(title,style: textStyle,),
             content: Text(content, style: textStyle,),
             actions: <Widget>[
                TextButton(
-                child: const Text("نعم"),
+                child: Text("نعم", style: textStyle,),
                 onPressed: () {
                   continueCallBack();
+                  Navigator.of(context).pop();
                 },
               ),
               TextButton(
-                child: const Text("الغاء"),
+                child: Text("الغاء", style: textStyle,),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },

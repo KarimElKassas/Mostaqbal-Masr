@@ -4,18 +4,16 @@ import 'package:external_path/external_path.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mostaqbal_masr/modules/Departments/Monitor/complaints/screens/complaint_screen.dart';
 import 'package:mostaqbal_masr/modules/Departments/Monitor/manager/screens/monitor_manager_home_screen.dart';
-import 'package:mostaqbal_masr/modules/Global/Complaints/clerk/screens/complaint_screen.dart';
+import 'package:mostaqbal_masr/modules/Departments/SocialMedia/home/layout/social_home_layout.dart';
 import 'package:mostaqbal_masr/modules/Global/Login/clerk_login_screen.dart';
 import 'package:mostaqbal_masr/modules/Global/SplashScreen/cubit/splash_states.dart';
-import 'package:mostaqbal_masr/shared/components.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:transition_plus/transition_plus.dart';
 
 import '../../../../network/remote/dio_helper.dart';
-import '../../../Departments/SocialMedia/home/layout/social_home_layout.dart';
+import '../../../Departments/Monitor/manager/screens/monitor_manager_home_two_screen.dart';
 
 class SplashCubit extends Cubit<SplashStates> {
   SplashCubit() : super(SplashInitialState());
@@ -31,7 +29,7 @@ class SplashCubit extends Cubit<SplashStates> {
 
     if(prefs.getString("ClerkID") != null){
 
-      await getDepartmentManager(prefs.getString("ClerkManagementID")!.toString());
+      //await getDepartmentManager(prefs.getString("ClerkManagementID")!.toString());
 
       switch (prefs.getString("ClerkManagementID")!.toString()){
 
@@ -45,7 +43,8 @@ class SplashCubit extends Cubit<SplashStates> {
           break;
         //   إدارة الرقابة والمتابعة
         case "1022" :
-          finish(context, (managerID != prefs.getString("ClerkNumber")!.toString()) ? const OfficerComplaintScreen() : const MonitorManagerHomeScreen());
+          finish(context, const MonitorManagerHomeTwoScreen());
+          //finish(context, (managerID != prefs.getString("ClerkNumber")!.toString()) ? const OfficerComplaintScreen() : const MonitorManagerHomeScreen());
           break;
       }
     }else{

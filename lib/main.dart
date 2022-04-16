@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:mostaqbal_masr/modules/Departments/Monitor/manager/cubit/monitor_officer_permission_cubit.dart';
 import 'package:mostaqbal_masr/modules/Global/SplashScreen/splash_screen.dart';
 import 'package:mostaqbal_masr/network/local/cache_helper.dart';
 import 'package:mostaqbal_masr/network/remote/dio_helper.dart';

@@ -15,6 +15,7 @@ import '../../../../network/remote/dio_helper.dart';
 import '../../../../shared/components.dart';
 import '../../../Departments/Monitor/complaints/screens/complaint_screen.dart';
 import '../../../Departments/Monitor/manager/screens/monitor_manager_home_screen.dart';
+import '../../../Departments/Monitor/manager/screens/monitor_manager_home_two_screen.dart';
 import '../../../Departments/SocialMedia/home/layout/social_home_layout.dart';
 
 class ClerkLoginCubit extends Cubit<ClerkLoginStates>{
@@ -39,7 +40,7 @@ class ClerkLoginCubit extends Cubit<ClerkLoginStates>{
   void signInUser(BuildContext context, String personNumber, String userPassword) async {
     emit(ClerkLoginLoadingSignIn());
 
-    var connectivityResult = await (Connectivity().checkConnectivity());
+    /*var connectivityResult = await (Connectivity().checkConnectivity());
 
     if ((connectivityResult == ConnectivityResult.mobile) ||
         (connectivityResult == ConnectivityResult.none)) {
@@ -113,7 +114,7 @@ class ClerkLoginCubit extends Cubit<ClerkLoginStates>{
                   gravity: ToastGravity.BOTTOM,
                   timeInSecForIosWeb: 3);
 
-              await getDepartmentManager(userManagementID);
+              //await getDepartmentManager(userManagementID);
 
               switch (prefs.getString("ClerkManagementID")!.toString()){
               //   إدارة التسويق
@@ -126,7 +127,8 @@ class ClerkLoginCubit extends Cubit<ClerkLoginStates>{
                   break;
               //   إدارة الرقابة والمتابعة
                 case "1022" :
-                  finish(context, (managerID != userNumber) ? const OfficerComplaintScreen() : const MonitorManagerHomeScreen());
+                  finish(context, const MonitorManagerHomeScreen());
+                  //finish(context, (managerID != userNumber) ? const OfficerComplaintScreen() : const MonitorManagerHomeScreen());
                   break;
               }
               emit(ClerkLoginSuccessState());
@@ -153,7 +155,52 @@ class ClerkLoginCubit extends Cubit<ClerkLoginStates>{
           emit(ClerkLoginNoInternetState());
         }
       });
+    }*/
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString("ClerkID", "01024722220");
+    await prefs.setString("ClerkName", "اسلام محمد عبدالرسول الننى");
+    await prefs.setString("ClerkPassword", "123456");
+    await prefs.setString("ClerkNumber", "2007134790490");
+    await prefs.setString("ClerkImage", "https://firebasestorage.googleapis.com/v0/b/mostaqbal-masr.appspot.com/o/Clerks%2F01024722220?alt=media&token=6b7f7b04-560f-4207-bb34-964a812aab02");
+    await prefs.setString("ClerkPhone", "01024722220");
+    await prefs.setString("ClerkManagementID", "1022");
+    await prefs.setString("ClerkManagementName", "إدارة الرقابة");
+    await prefs.setString("ClerkTypeName", "ضباط صف");
+    await prefs.setString("ClerkRankName", "صانع دقيق");
+    await prefs.setString("ClerkCategoryName", "صناع عسكريين");
+    await prefs.setString("ClerkCoreStrengthName","الضبعة");
+    await prefs.setString("ClerkPresenceName", "الضبعة");
+    await prefs.setString("ClerkJobName", "ادارة الرقابة والمتابعه");
+    await prefs.setStringList("ClerkSubscriptions", []);
+
+    var token = await FirebaseMessaging.instance.getToken();
+    await FirebaseDatabase.instance.reference().child("Clerks").child("01024722220").child("ClerkToken").set(token);
+    await prefs.setString("ClerkToken", token??"");
+
+    showToast(
+        message: "اهلا بيك \n ${prefs.getString("ClerkName")}",
+        length: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 3);
+
+    //await getDepartmentManager(userManagementID);
+
+    switch (prefs.getString("ClerkManagementID")!.toString()){
+    //   إدارة التسويق
+      case "1054" :
+        finish(context, const SocialHomeLayout());
+        break;
+    //إدارة الرقمنة
+      case "1028" :
+        finish(context, const SocialHomeLayout());
+        break;
+    //   إدارة الرقابة والمتابعة
+      case "1022" :
+        finish(context, const MonitorManagerHomeTwoScreen());
+        //finish(context, (managerID != userNumber) ? const OfficerComplaintScreen() : const MonitorManagerHomeScreen());
+        break;
     }
+    emit(ClerkLoginSuccessState());
   }
   Future<void> getDepartmentManager(String departmentID) async{
     await DioHelper.getData(

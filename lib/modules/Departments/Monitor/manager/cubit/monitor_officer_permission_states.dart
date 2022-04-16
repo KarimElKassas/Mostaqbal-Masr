@@ -6,6 +6,18 @@ class MonitorOfficerPermissionGetUserDataState extends MonitorOfficerPermissionS
 
 class MonitorOfficerPermissionLoadingGetPermissionsState extends MonitorOfficerPermissionStates{}
 
+class MonitorOfficerPermissionLoadingAddPermissionsToClerkState extends MonitorOfficerPermissionStates{}
+
+class MonitorOfficerPermissionChangeAddPermissionsToDoneState extends MonitorOfficerPermissionStates{}
+
+class MonitorOfficerPermissionAddPermissionsToClerkSuccessState extends MonitorOfficerPermissionStates{}
+
+class MonitorOfficerPermissionAddPermissionsToClerkErrorState extends MonitorOfficerPermissionStates{
+  final String error;
+
+  MonitorOfficerPermissionAddPermissionsToClerkErrorState(this.error);
+}
+
 class MonitorOfficerPermissionGetClerksForPermissionsState extends MonitorOfficerPermissionStates{}
 
 class MonitorOfficerPermissionGetPermissionsState extends MonitorOfficerPermissionStates{}
@@ -15,5 +27,15 @@ class MonitorOfficerPermissionDeletePermissionsState extends MonitorOfficerPermi
 class MonitorOfficerPermissionGetManagementUsersState extends MonitorOfficerPermissionStates{}
 
 class MonitorOfficerPermissionFilterUsersState extends MonitorOfficerPermissionStates{}
+
+class MonitorOfficerPermissionLoadingUnGrantedPermissionsState extends MonitorOfficerPermissionStates{}
+
+class MonitorOfficerPermissionGetUnGrantedPermissionsState extends MonitorOfficerPermissionStates{}
+
+class MonitorOfficerPermissionChangePermissionsSelectState extends MonitorOfficerPermissionStates{}
+
+class MonitorOfficerPermissionAddPermissionsToSelectState extends MonitorOfficerPermissionStates{}
+
+class MonitorOfficerPermissionRemovePermissionsFromSelectState extends MonitorOfficerPermissionStates{}
 
 class MonitorOfficerPermissionLogOutUserState extends MonitorOfficerPermissionStates{}

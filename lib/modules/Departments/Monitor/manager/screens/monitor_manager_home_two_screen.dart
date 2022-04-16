@@ -1,4 +1,5 @@
 import 'package:animate_do/animate_do.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,8 +9,8 @@ import 'package:mostaqbal_masr/modules/Departments/Monitor/manager/cubit/monitor
 import 'package:mostaqbal_masr/modules/Departments/Monitor/manager/cubit/monitor_manager_home_states.dart';
 import 'package:mostaqbal_masr/modules/Departments/Monitor/manager/screens/monitor_display_users_screen.dart';
 
-class MonitorManagerHomeScreen extends StatelessWidget {
-  const MonitorManagerHomeScreen({Key? key}) : super(key: key);
+class MonitorManagerHomeTwoScreen extends StatelessWidget {
+  const MonitorManagerHomeTwoScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +27,40 @@ class MonitorManagerHomeScreen extends StatelessWidget {
           return Scaffold(
             appBar: AppBar(
               centerTitle: true,
+              actions: [
+                CachedNetworkImage(
+                  imageUrl: cubit.userImage,
+                  imageBuilder: (context, imageProvider) => ClipOval(
+                    child: FadeInImage(
+                      height: 50,
+                      width: 50,
+                      fit: BoxFit.fill,
+                      image: imageProvider,
+                      placeholder: const AssetImage(
+                          "assets/images/placeholder.jpg"),
+                      imageErrorBuilder:
+                          (context, error, stackTrace) {
+                        return Image.asset(
+                          'assets/images/error.png',
+                          fit: BoxFit.fill,
+                          height: 50,
+                          width: 50,
+                        );
+                      },
+                    ),
+                  ),
+                  placeholder: (context, url) => const CircularProgressIndicator(color: Colors.teal, strokeWidth: 0.8,),
+                  errorWidget: (context, url, error) =>
+                  const FadeInImage(
+                    height: 50,
+                    width: 50,
+                    fit: BoxFit.fill,
+                    image: AssetImage("assets/images/error.png"),
+                    placeholder:
+                    AssetImage("assets/images/placeholder.jpg"),
+                  ),
+                ),
+              ],
               title: const Text("إدارة الرقابة والمتابعة", style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),),
               backgroundColor: Colors.teal[700],
             ),
