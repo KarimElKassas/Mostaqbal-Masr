@@ -1,7 +1,5 @@
 import 'dart:collection';
-
-import 'package:bloc/bloc.dart';
-import 'package:firebase_database/firebase_database.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -37,6 +35,7 @@ class MonitorOfficerPermissionCubit
   String userImage = "";
   bool isPermissionSelected = false;
   bool gotPermission = false;
+  bool zeroPermissions = false;
 
   OfficerPermissionModel? permissionModel;
   List<OfficerPermissionModel> grantedPermissionModelList = [];
@@ -68,153 +67,45 @@ class MonitorOfficerPermissionCubit
 
   Future<void> getPermissions(String clerkID) async {
     gotPermission = false;
-    grantedPermissionModelList = [];
-    await getClerksForClerksComplaintsPermission(clerkID);
-    await getClerksForClientsComplaintsPermission(clerkID);
-    await getUnGrantedPermissions();
-    gotPermission = true;
-    emit(MonitorOfficerPermissionGetPermissionsState());
-  }
-
-  Future<void> getClerksForClerksComplaintsPermission(String clerkID) async {
-    await FirebaseDatabase.instance
-        .reference()
-        .child("Departments")
-        .child("Monitor")
-        .child("Permissions")
-        .child("ClerksComplaints")
-        .child(clerkID)
-        .get()
-        .then((value) async {
-      if (value.exists) {
-        print("value clerk new : ${value.value["ClerkID"]}\n");
-        await FirebaseDatabase.instance
-            .reference()
-            .child("Departments")
-            .child("Monitor")
-            .child("Permissions")
-            .child("ClerksComplaints")
-            .get()
-            .then((value) {
-          print("DESCRIPTION : ${value.value["PermissionDescription"]}\n");
-          permissionModel = OfficerPermissionModel(value.value["PermissionID"],
-              value.value["PermissionDescription"]);
-          grantedPermissionModelList.add(permissionModel!);
-          print("LIST LENGTH : ${grantedPermissionModelList.length}\n");
-        });
-      } else {
-        print("NO Clerk VALUE \n");
+    zeroPermissions = false;
+    emit(MonitorOfficerPermissionLoadingGetPermissionsState());
+    FirebaseFirestore.instance.collection('Departments').doc('Monitor').collection("Permissions").snapshots().listen((event) {
+      if(event.docs.isEmpty){
+        zeroPermissions = true;
       }
+      grantedPermissionModelList = [];
+      unGrantedPermissionModelList = [];
+      for (var element in event.docs) {
+        Map<String, dynamic> data = element.data();
+          print("DATAAAAAAA : ${data["PermissionDescription"]}\n");
 
-      /*value.value.forEach((key, value){
-        print("KEY : $key\n");
-        print("Value : ${value}\n");
-        clerkPermissionList.add(key);
-      });*/
-    });
-    emit(MonitorOfficerPermissionGetClerksForPermissionsState());
-  }
-
-  Future<void> getClerksForClerksComplaintsPermission2(String clerkID) async {
-    await FirebaseDatabase.instance
-        .reference()
-        .child("Departments")
-        .child("Monitor")
-        .child("Permissions")
-        .child("ClerksComplaints")
-        .child(clerkID)
-        .get()
-        .then((value) async {
-      if (value.exists) {
-        print("value clerk new : ${value.value["ClerkID"]}\n");
-        await FirebaseDatabase.instance
-            .reference()
-            .child("Departments")
-            .child("Monitor")
-            .child("Permissions")
-            .child("ClerksComplaints")
-            .get()
-            .then((value) {
-          print("DESCRIPTION : ${value.value["PermissionDescription"]}\n");
-          permissionModel = OfficerPermissionModel(value.value["PermissionID"],
-              value.value["PermissionDescription"]);
-          grantedPermissionModelList.add(permissionModel!);
-          print("LIST LENGTH : ${grantedPermissionModelList.length}\n");
+        FirebaseFirestore.instance.collection('Departments').doc('Monitor').collection("Permissions").doc(data["PermissionID"]).collection("Clerks").doc(clerkID).get().then((value){
+          if(value.exists){
+            print("DESC Data : ${data["PermissionDescription"]}\n");
+            permissionModel = OfficerPermissionModel(data["ManagerID"], data["PermissionID"], data["PermissionDescription"]);
+            grantedPermissionModelList.add(permissionModel!);
+            emit(MonitorOfficerPermissionGetPermissionsState());
+          }else{
+            print("No Data\n");
+            print("DESC No : ${data["PermissionDescription"]}\n");
+            permissionModel = OfficerPermissionModel(data["ManagerID"], data["PermissionID"], data["PermissionDescription"]);
+            unGrantedPermissionModelList.add(permissionModel!);
+            emit(MonitorOfficerPermissionGetPermissionsState());
+          }
         });
-      } else {
-        print("NO Clerk VALUE \n");
       }
-
-      /*value.value.forEach((key, value){
-        print("KEY : $key\n");
-        print("Value : ${value}\n");
-        clerkPermissionList.add(key);
-      });*/
+      gotPermission = true;
+      emit(MonitorOfficerPermissionGetPermissionsState());
     });
-    emit(MonitorOfficerPermissionGetClerksForPermissionsState());
-  }
 
-  Future<void> getClerksForClientsComplaintsPermission(String clerkID) async {
-    await FirebaseDatabase.instance
-        .reference()
-        .child("Departments")
-        .child("Monitor")
-        .child("Permissions")
-        .child("ClientsComplaints")
-        .child(clerkID)
-        .get()
-        .then((value) async {
-      if (value.exists) {
-        print("value new : ${value.value["ClerkID"]}\n");
-        await FirebaseDatabase.instance
-            .reference()
-            .child("Departments")
-            .child("Monitor")
-            .child("Permissions")
-            .child("ClientsComplaints")
-            .get()
-            .then((value) {
-          print("DESCRIPTION : ${value.value["PermissionDescription"]}\n");
-          permissionModel = OfficerPermissionModel(value.value["PermissionID"],
-              value.value["PermissionDescription"]);
-          grantedPermissionModelList.add(permissionModel!);
-          print("LIST LENGTH : ${grantedPermissionModelList.length}\n");
-        });
-      } else {
-        print("NO VALUE \n");
-      }
-
-      /*value.value.forEach((key, value){
-        print("KEY : $key\n");
-        print("Value : ${value}\n");
-        clerkPermissionList.add(key);
-      });*/
-    });
-    emit(MonitorOfficerPermissionGetClerksForPermissionsState());
   }
 
   Future<void> deletePermissionFromClerk(
       String clerkID, String permissionID) async {
-    await FirebaseDatabase.instance
-        .reference()
-        .child("Departments")
-        .child("Monitor")
-        .child("Permissions")
-        .child(permissionID)
-        .child(clerkID)
-        .remove()
-        .then((value) async => await getPermissions(clerkID))
-        .catchError((error) {
-      print(error.toString());
-      showToast(
-          message: error.toString(),
-          length: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 3);
+    FirebaseFirestore.instance.collection('Departments').doc('Monitor').collection("Permissions").doc(permissionID).collection("Clerks").doc(clerkID).delete().then((value){
+      getPermissions(clerkID);
+      emit(MonitorOfficerPermissionDeletePermissionsState());
     });
-    grantedPermissionModelList
-        .removeWhere((element) => element.permissionID == permissionID);
-    emit(MonitorOfficerPermissionDeletePermissionsState());
   }
 
   //============== Add Permissions To Clerk ==============
@@ -230,24 +121,18 @@ class MonitorOfficerPermissionCubit
         data['ClerkID'] = clerkID;
         data['ManagerID'] = managerID;
         data['givenDate'] = currentFullTime;
+        data['ButtonID'] = "";
 
-        await FirebaseDatabase.instance
-            .reference()
-            .child("Departments")
-            .child("Monitor")
-            .child("Permissions")
-            .child(permission.permissionID)
-            .child(clerkID)
-            .set(data)
-            .then((value) {})
-            .catchError((error) {
+        CollectionReference departmentsCollection = FirebaseFirestore.instance.collection('Departments');
+        departmentsCollection.doc("Monitor").collection("Permissions").doc(permission.permissionID).collection("Clerks").doc(clerkID).set(data).then((value){
+
+        }).catchError((error){
           showToast(
               message: error.toString(),
               length: Toast.LENGTH_SHORT,
               gravity: ToastGravity.BOTTOM,
               timeInSecForIosWeb: 3);
-          emit(MonitorOfficerPermissionAddPermissionsToClerkErrorState(
-              error.toString()));
+          emit(MonitorOfficerPermissionAddPermissionsToClerkErrorState(error.toString()));
         });
       }
     } else {
@@ -259,32 +144,6 @@ class MonitorOfficerPermissionCubit
     }
   }
 
-  Future<void> getUnGrantedPermissions() async {
-    unGrantedPermissionModelList = [];
-    emit(MonitorOfficerPermissionLoadingUnGrantedPermissionsState());
-    FirebaseDatabase.instance
-        .reference()
-        .child("Departments")
-        .child("Monitor")
-        .child("Permissions")
-        .once()
-        .then((value) {
-      value.value.forEach((key, value) async {
-        permissionModel = OfficerPermissionModel(
-            value["PermissionID"], value["PermissionDescription"]);
-        unGrantedPermissionModelList.add(permissionModel!);
-      });
-
-      for (var permission in grantedPermissionModelList) {
-        print("granted List : ${permission.permissionID}\n");
-        unGrantedPermissionModelList.retainWhere(
-            (element) => element.permissionID != permission.permissionID);
-        print("denied Length : ${unGrantedPermissionModelList.length}\n");
-      }
-      emit(MonitorOfficerPermissionGetUnGrantedPermissionsState());
-    });
-  }
-
   void changePermissionSelect() {
     isPermissionSelected = !isPermissionSelected;
     emit(MonitorOfficerPermissionChangePermissionsSelectState());
@@ -292,13 +151,11 @@ class MonitorOfficerPermissionCubit
 
   void addClerkToSelect(OfficerPermissionModel permissionModel) {
     selectedUnGrantedPermissionModelList.add(permissionModel);
-
     emit(MonitorOfficerPermissionAddPermissionsToSelectState());
   }
 
   void removeUserFromSelect(OfficerPermissionModel permissionModel) {
     selectedUnGrantedPermissionModelList.remove(permissionModel);
-
     emit(MonitorOfficerPermissionRemovePermissionsFromSelectState());
   }
 
@@ -311,6 +168,9 @@ class MonitorOfficerPermissionCubit
             page: route,
             startDuration: const Duration(milliseconds: 1500),
             closeDuration: const Duration(milliseconds: 800),
-            type: ScaleTrasitionTypes.bottomRight)).then((value){getPermissions(officerID);});
+            type: ScaleTrasitionTypes.bottomRight)).then((value)async {
+              await getPermissions(officerID);
+              emit(MonitorOfficerPermissionSuccessNavigateState());
+            });
   }
 }

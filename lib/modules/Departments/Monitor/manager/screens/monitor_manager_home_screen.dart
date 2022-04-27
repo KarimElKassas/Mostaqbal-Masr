@@ -7,6 +7,7 @@ import 'package:mostaqbal_masr/modules/Departments/Monitor/complaints/screens/of
 import 'package:mostaqbal_masr/modules/Departments/Monitor/manager/cubit/monitor_manager_home_cubit.dart';
 import 'package:mostaqbal_masr/modules/Departments/Monitor/manager/cubit/monitor_manager_home_states.dart';
 import 'package:mostaqbal_masr/modules/Departments/Monitor/manager/screens/monitor_display_users_screen.dart';
+import 'package:mostaqbal_masr/modules/Departments/Monitor/manager/screens/monitor_management_permissions_screen.dart';
 
 class MonitorManagerHomeScreen extends StatelessWidget {
   const MonitorManagerHomeScreen({Key? key}) : super(key: key);
@@ -38,7 +39,7 @@ class MonitorManagerHomeScreen extends StatelessWidget {
                     duration: const Duration(milliseconds: 1500),
                     child: Container(
                       width: double.infinity,
-                      height: MediaQuery.of(context).size.height / 2.3,
+                      height: MediaQuery.of(context).size.height / 1.8,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(16),
                         color: Colors.white,
@@ -59,6 +60,22 @@ class MonitorManagerHomeScreen extends StatelessWidget {
                             children: [
                               Text("اهلا بيك  \n ${cubit.userName}", style: TextStyle(color: Colors.teal.shade500, fontWeight: FontWeight.normal, wordSpacing: 2, fontSize: 14, overflow: TextOverflow.ellipsis,), overflow: TextOverflow.ellipsis, textAlign: TextAlign.center,),
                               const SizedBox(height: 24,),
+                              InkWell(
+                                onTap: (){
+                                  cubit.navigateTo(context, const MonitorManagementPermissionsScreen());
+                                },
+                                splashColor: Colors.white,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8),
+                                    color: Colors.teal.shade500,
+                                  ),
+                                  width: MediaQuery.of(context).size.width / 1.8,
+                                  height: 40,
+                                  child: const Center(child: Text("صلاحيات الإدارة", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),)),
+                                ),
+                              ),
+                              const SizedBox(height: 16,),
                               InkWell(
                                 onTap: (){
                                   cubit.navigateTo(context, MonitorDisplayUsersScreen(clerksList: cubit.filteredClerksModelList));
@@ -141,7 +158,7 @@ class MonitorManagerHomeScreen extends StatelessWidget {
                             ],
                           ),
                         ),
-                      )
+                      ),
                     ),
                   ),
                 ),

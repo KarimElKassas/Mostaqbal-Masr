@@ -4,6 +4,12 @@ class MonitorManagerHomeInitialState extends MonitorManagerHomeStates{}
 
 class MonitorManagerHomeGetUserDataState extends MonitorManagerHomeStates{}
 
+class MonitorManagementHomeLoadingPermissionsState extends MonitorManagerHomeStates{}
+
+class MonitorManagementHomeGetPermissionsState extends MonitorManagerHomeStates{}
+
+class MonitorManagementHomeChangeBottomNavState extends MonitorManagerHomeStates{}
+
 class MonitorManagerHomeGetManagementUsersState extends MonitorManagerHomeStates{}
 
 class MonitorManagerHomeFilterUsersState extends MonitorManagerHomeStates{}

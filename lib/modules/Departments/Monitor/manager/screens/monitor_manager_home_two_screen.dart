@@ -1,13 +1,17 @@
+import 'dart:math';
+
 import 'package:animate_do/animate_do.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_iconly/flutter_iconly.dart';
+import 'package:hexcolor/hexcolor.dart';
 import 'package:mostaqbal_masr/modules/Departments/Monitor/complaints/screens/officer_display_client_complaints_screen.dart';
 import 'package:mostaqbal_masr/modules/Departments/Monitor/complaints/screens/officer_display_complaints_screen.dart';
 import 'package:mostaqbal_masr/modules/Departments/Monitor/manager/cubit/monitor_manager_home_cubit.dart';
 import 'package:mostaqbal_masr/modules/Departments/Monitor/manager/cubit/monitor_manager_home_states.dart';
 import 'package:mostaqbal_masr/modules/Departments/Monitor/manager/screens/monitor_display_users_screen.dart';
+import 'package:mostaqbal_masr/modules/Departments/Monitor/permissions/screens/monitor_permission_details_screen.dart';
 
 class MonitorManagerHomeTwoScreen extends StatelessWidget {
   const MonitorManagerHomeTwoScreen({Key? key}) : super(key: key);
@@ -15,169 +19,174 @@ class MonitorManagerHomeTwoScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => MonitorManagerHomeCubit()..getUserData()..getManagementClerks(),
+      create: (context) => MonitorManagerHomeCubit()
+        ..getUserData()
+        ..getManagementClerks()
+        ..getPermissions(),
       child: BlocConsumer<MonitorManagerHomeCubit, MonitorManagerHomeStates>(
-        listener: (context, state){
-
-        },
-        builder: (context, state){
-
+        listener: (context, state) {},
+        builder: (context, state) {
           var cubit = MonitorManagerHomeCubit.get(context);
 
           return Scaffold(
             appBar: AppBar(
+              systemOverlayStyle: const SystemUiOverlayStyle(
+                statusBarColor: Colors.teal,
+                statusBarIconBrightness: Brightness.light,
+                // For Android (dark icons)
+                statusBarBrightness: Brightness.dark, // For iOS (dark icons)
+              ),
               centerTitle: true,
-              actions: [
-                CachedNetworkImage(
-                  imageUrl: cubit.userImage,
-                  imageBuilder: (context, imageProvider) => ClipOval(
-                    child: FadeInImage(
-                      height: 50,
-                      width: 50,
-                      fit: BoxFit.fill,
-                      image: imageProvider,
-                      placeholder: const AssetImage(
-                          "assets/images/placeholder.jpg"),
-                      imageErrorBuilder:
-                          (context, error, stackTrace) {
-                        return Image.asset(
-                          'assets/images/error.png',
-                          fit: BoxFit.fill,
-                          height: 50,
-                          width: 50,
-                        );
-                      },
-                    ),
-                  ),
-                  placeholder: (context, url) => const CircularProgressIndicator(color: Colors.teal, strokeWidth: 0.8,),
-                  errorWidget: (context, url, error) =>
-                  const FadeInImage(
-                    height: 50,
-                    width: 50,
-                    fit: BoxFit.fill,
-                    image: AssetImage("assets/images/error.png"),
-                    placeholder:
-                    AssetImage("assets/images/placeholder.jpg"),
-                  ),
+              title: const Text(
+                "إدارة الرقابة والمتابعة",
+                style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    letterSpacing: 4.5),
+              ),
+              flexibleSpace: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                      colors: [
+                        Colors.teal[600]!,
+                        Colors.teal[400]!,
+                        Colors.teal[300]!,
+                      ],
+                      begin: const FractionalOffset(0.0, 0.0),
+                      end: const FractionalOffset(1.0, 0.0),
+                      stops: const [0.0, 0.5, 1.0],
+                      tileMode: TileMode.clamp),
                 ),
-              ],
-              title: const Text("إدارة الرقابة والمتابعة", style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),),
-              backgroundColor: Colors.teal[700],
+              ),
+              elevation: 0,
+              toolbarHeight: MediaQuery.of(context).size.height * 0.05,
             ),
-            body: Directionality(
-              textDirection: TextDirection.rtl,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 48.0, horizontal: 36),
-                child: Center(
-                  child: SlideInUp(
-                    duration: const Duration(milliseconds: 1500),
-                    child: Container(
-                      width: double.infinity,
-                      height: MediaQuery.of(context).size.height / 2.3,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.teal.shade700,
-                            spreadRadius: 0.16,
-                            blurRadius: 0.1,
-                            offset: const Offset(0, 0), // changes position of shadow
+            backgroundColor: Colors.teal,
+            body: Container(
+              height: MediaQuery.of(context).size.height,
+              width: MediaQuery.of(context).size.width,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                    colors: [
+                      Colors.teal[600]!,
+                      Colors.teal[400]!,
+                      Colors.teal[300]!,
+                    ],
+                    begin: const FractionalOffset(0.0, 0.0),
+                    end: const FractionalOffset(1.0, 0.0),
+                    stops: const [0.0, 0.5, 1.0],
+                    tileMode: TileMode.clamp),
+              ),
+              child: Directionality(
+                textDirection: TextDirection.rtl,
+                child: Container(
+                  decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.98),
+                      borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(24),
+                          topRight: Radius.circular(24))),
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                        left: 12, right: 12),
+                    child: cubit.gotPermission ? SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      child: Column(
+                        children: [
+                          const SizedBox(height: 24,),
+                          FadeInDown(
+                            duration: const Duration(milliseconds: 1500),
+                            child: Material(
+                              elevation: 5,
+                              borderRadius: BorderRadius.circular(12),
+                              child: Container(
+                                width: MediaQuery.of(context).size.width * 0.90,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 16, horizontal: 8),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      SizedBox(
+                                        width: MediaQuery.of(context).size.width *
+                                            0.25,
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(8),
+                                          child:
+                                              Image.asset("assets/images/me.jpg"),
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        width: 16,
+                                      ),
+                                      Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          const SizedBox(
+                                            height: 8,
+                                          ),
+                                          Text(
+                                            cubit.userName,
+                                            style: const TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 12,
+                                                overflow: TextOverflow.ellipsis),
+                                              overflow: TextOverflow.ellipsis
+                                          ),
+                                          const SizedBox(
+                                            height: 8,
+                                          ),
+                                          Text(
+                                            cubit.userManagementName,
+                                            style: const TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 12),
+                                          ),
+                                          const SizedBox(
+                                            height: 8,
+                                          ),
+                                          Text(
+                                            "قوة الإدارة : ${cubit.filteredClerksModelList.length}",
+                                            style: const TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 12),
+                                          ),
+                                          const SizedBox(
+                                            height: 8,
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
                           ),
+                          const SizedBox(
+                            height: 16,
+                          ),
+                          FadeInRight(duration: const Duration(milliseconds: 1500), child: const Text('صلاحيات الإدارة', style: TextStyle(color: Colors.teal, fontSize: 12),)),
+                          const SizedBox(
+                            height: 8,
+                          ),
+                          GridView.builder(
+                            shrinkWrap: true,
+                            physics: const BouncingScrollPhysics(),
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 2),
+                            itemBuilder: (_, index) => permissionItem(context, cubit, index),
+                            itemCount: cubit.permissionModelList.length,
+                          )
                         ],
                       ),
-                      child: Center(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text("اهلا بيك  \n ${cubit.userName}", style: TextStyle(color: Colors.teal.shade500, fontWeight: FontWeight.normal, wordSpacing: 2, fontSize: 14, overflow: TextOverflow.ellipsis,), overflow: TextOverflow.ellipsis, textAlign: TextAlign.center,),
-                              const SizedBox(height: 24,),
-                              InkWell(
-                                onTap: (){
-                                  cubit.navigateTo(context, MonitorDisplayUsersScreen(clerksList: cubit.filteredClerksModelList));
-                                },
-                                splashColor: Colors.white,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(8),
-                                    color: Colors.teal.shade500,
-                                  ),
-                                  width: MediaQuery.of(context).size.width / 1.8,
-                                  height: 40,
-                                  child: const Center(child: Text("صلاحيات الموظفين", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),)),
-                                ),
-                              ),
-                              const SizedBox(height: 16,),
-                              InkWell(
-                                onTap: (){
-                                  cubit.navigateTo(context, OfficerDisplayComplaintScreen(officerID: cubit.userID));
-                                },
-                                splashColor: Colors.white,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(8),
-                                    color: Colors.teal.shade500,
-                                  ),
-                                  width: MediaQuery.of(context).size.width / 1.8,
-                                  height: 40,
-                                  child: const Center(child: Text("شكاوى الموظفين", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),)),
-                                ),
-                              ),
-                              const SizedBox(height: 16,),
-                              InkWell(
-                                onTap: (){
-                                  cubit.navigateTo(context, OfficerDisplayClientComplaintsScreen(officerID: cubit.userID));
-                                },
-                                splashColor: Colors.white,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(6),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.teal.shade700,
-                                        spreadRadius: 0.16,
-                                        blurRadius: 0,
-                                        offset: const Offset(0, 0), // changes position of shadow
-                                      ),
-                                    ],
-                                    color: Colors.white,
-                                  ),
-                                  width: MediaQuery.of(context).size.width / 1.8,
-                                  height: 40,
-                                  child: Center(child: Text("شكاوى العملاء", style: TextStyle(color: Colors.teal.shade500, fontWeight: FontWeight.bold, fontSize: 12),)),
-                                ),
-                              ),
-                              const SizedBox(height: 16,),
-                              InkWell(
-                                onTap: (){
-                                  cubit.logOut(context);
-                                },
-                                splashColor: Colors.white,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(6),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.teal.shade700,
-                                        spreadRadius: 0.16,
-                                        blurRadius: 0,
-                                        offset: const Offset(0, 0), // changes position of shadow
-                                      ),
-                                    ],
-                                    color: Colors.white,
-                                  ),
-                                  width: MediaQuery.of(context).size.width / 1.8,
-                                  height: 40,
-                                  child: Center(child: Text("تسجيل الخروج", style: TextStyle(color: Colors.teal.shade500, fontWeight: FontWeight.bold, fontSize: 12),)),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      )
-                    ),
+                    ) : Center(child: CircularProgressIndicator(color: Colors.teal[500], strokeWidth: 0.8,),),
                   ),
                 ),
               ),
@@ -186,5 +195,65 @@ class MonitorManagerHomeTwoScreen extends StatelessWidget {
         },
       ),
     );
+  }
+
+  Widget permissionItem(
+      BuildContext context, MonitorManagerHomeCubit cubit, int index) {
+    return FadeInUp(
+      duration: const Duration(milliseconds: 1500),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
+        child: InkWell(
+          onTap: (){
+            cubit.navigateTo(context, MonitorPermissionDetailsScreen(permissionID: cubit.permissionModelList[index].permissionID));
+          },
+          child: Material(
+            elevation: 5,
+            borderRadius: BorderRadius.circular(12),
+            child: Container(
+              width: MediaQuery.of(context).size.width * 0.90,
+              decoration: BoxDecoration(
+                color: RandomColor().colorRandomizer(),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.only(left: 8, right: 8),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(IconlyBroken.notification, color: Colors.white, size: 40,),
+                    const SizedBox(
+                      height: 16,
+                    ),
+                    Text(
+                      cubit.permissionModelList[index].permissionDescription,
+                      style: const TextStyle(color: Colors.white, fontSize: 10),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+class RandomColor {
+  List color = [
+    Color(0xFF5DA55B),
+    Color(0xFF715699),
+    Color(0xFF60AAA9),
+    Color(0xFF5999BD),
+    Color(0xFF4A7CB9),
+    Color(0xFFE5AA46),
+  ];
+
+  var index = Random().nextInt(6);
+
+  Color colorRandomizer() {
+    return color[index];
   }
 }

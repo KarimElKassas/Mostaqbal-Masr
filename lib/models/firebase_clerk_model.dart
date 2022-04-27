@@ -6,6 +6,7 @@ class ClerkFirebaseModel{
   String? clerkName;
   String? clerkImage;
   String? clerkManagementID;
+  String? clerkJobName;
   String? clerkLastMessage;
   String? clerkLastMessageTime;
   String? personNumber;
@@ -21,6 +22,7 @@ class ClerkFirebaseModel{
       this.clerkName,
       this.clerkImage,
       this.clerkManagementID,
+      this.clerkJobName,
       this.personNumber,
       this.personAddress,
       this.personPhone,
@@ -38,6 +40,7 @@ class ClerkFirebaseModel{
         jsonData['ClerkName'],
         jsonData['ClerkImage'],
         jsonData['ClerkManagementID'],
+        jsonData['ClerkJobName'],
         jsonData['PersonNumber'],
         jsonData['PersonAddress'],
         jsonData['PersonPhone'],
@@ -55,6 +58,7 @@ class ClerkFirebaseModel{
     'ClerkName': clerkModel.clerkName,
     'ClerkImage': clerkModel.clerkImage,
     'ClerkManagementID': clerkModel.clerkManagementID,
+    'ClerkJobName': clerkModel.clerkJobName,
     'ClerkPhone': clerkModel.personPhone,
     'ClerkNumber': clerkModel.personNumber,
     'ClerkAddress': clerkModel.personAddress,

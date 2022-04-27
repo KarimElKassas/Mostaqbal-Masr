@@ -21,38 +21,6 @@ class MonitorOfficerPermissionsScreen extends StatefulWidget {
 
 class _MonitorOfficerPermissionsScreenState extends State<MonitorOfficerPermissionsScreen> with WidgetsBindingObserver {
   @override
-  void initState() {
-    super.initState();
-
-    WidgetsBinding.instance!.addObserver(this);
-
-    noInternet();
-
-    print("app in initState\n");
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) async {
-    super.didChangeAppLifecycleState(state);
-
-    switch (state) {
-      case AppLifecycleState.resumed:
-        print("app in resumed\n");
-        break;
-      case AppLifecycleState.inactive:
-        print("app in inactive\n");
-        break;
-      case AppLifecycleState.paused:
-        print("app in paused\n");
-        break;
-      case AppLifecycleState.detached:
-      //await SocialHomeCubit.get(context).logOut(context);
-      //await logOut();
-        print("app in detached\n");
-        break;
-    }
-  }
-  @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => MonitorOfficerPermissionCubit()..getUserData()..getPermissions(widget.officerID),
@@ -85,7 +53,7 @@ class _MonitorOfficerPermissionsScreenState extends State<MonitorOfficerPermissi
                   ),
                 ),
                 fallback: (_){
-                  return cubit.grantedPermissionModelList.isNotEmpty ? hasPermissions(context, cubit, state) : zeroPermissions(context, cubit);
+                  return !cubit.zeroPermissions ? hasPermissions(context, cubit, state) : zeroPermissions(context, cubit);
                 }
               ),
             ),

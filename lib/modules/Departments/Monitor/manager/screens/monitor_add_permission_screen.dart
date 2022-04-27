@@ -1,6 +1,5 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:buildcondition/buildcondition.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -27,7 +26,7 @@ class MonitorAddPermissionsScreen extends StatelessWidget {
     return BlocProvider(
       create: (context) => MonitorOfficerPermissionCubit()
         ..getUserData()
-        ..getUnGrantedPermissions(),
+        ,
       child: BlocConsumer<MonitorOfficerPermissionCubit,
           MonitorOfficerPermissionStates>(listener: (context, state) {
         if (state
@@ -111,7 +110,7 @@ class MonitorAddPermissionsScreen extends StatelessWidget {
                     builder: (blurContext) =>
                         BlurryDialog("تنبيه", "هل تريد اضافة هذه الصلاحيات ؟", () {
                           cubit
-                              .addPermissionToClerk(officerID, cubit.userPhone)
+                              .addPermissionToClerk(officerID, cubit.userNumber)
                               .then((value) async {
                             for (int i = 0; i <= 1; i++) {
                               if (Navigator.canPop(context)) {

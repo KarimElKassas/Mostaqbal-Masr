@@ -179,6 +179,7 @@ class NewGroupCubit extends Cubit<NewGroupStates>{
                 user["ClerkName"],
                 user["ClerkImage"],
                 user["ClerkManagementID"],
+                user["ClerkJobName"],
                 user["ClerkNumber"],
                 user["ClerkAddress"],
                 user["ClerkPhone"],

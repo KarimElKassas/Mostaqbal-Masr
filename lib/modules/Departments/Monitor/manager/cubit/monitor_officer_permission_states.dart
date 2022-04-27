@@ -38,4 +38,6 @@ class MonitorOfficerPermissionAddPermissionsToSelectState extends MonitorOfficer
 
 class MonitorOfficerPermissionRemovePermissionsFromSelectState extends MonitorOfficerPermissionStates{}
 
+class MonitorOfficerPermissionSuccessNavigateState extends MonitorOfficerPermissionStates{}
+
 class MonitorOfficerPermissionLogOutUserState extends MonitorOfficerPermissionStates{}

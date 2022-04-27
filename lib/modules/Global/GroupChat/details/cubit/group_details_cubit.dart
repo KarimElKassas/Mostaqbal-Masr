@@ -76,7 +76,7 @@ class GroupDetailsCubit extends Cubit<GroupDetailsStates> {
     print('testttttttttttttt : ${membersIDList}\n');
      for (var element in membersIDList) {
        await FirebaseDatabase.instance.reference().child('Clerks').child(element.toString()).get().then((event) {
-         clerkModel = ClerkFirebaseModel(event.value["ClerkID"], event.value["ClerkName"], event.value["ClerkImage"], event.value["ClerkManagementID"], event.value["PersonNumber"], event.value["PersonAddress"], event.value["PersonPhone"], event.value["PersonPassword"], event.value["PersonState"], event.value["PersonToken"], event.value["CategoryLastMessage"], event.value["CategoryLastMessageTime"], event.value["ClerkSubscriptions"]);
+         clerkModel = ClerkFirebaseModel(event.value["ClerkID"], event.value["ClerkName"], event.value["ClerkImage"], event.value["ClerkManagementID"],event.value["ClerkJobName"], event.value["PersonNumber"], event.value["PersonAddress"], event.value["PersonPhone"], event.value["PersonPassword"], event.value["PersonState"], event.value["PersonToken"], event.value["CategoryLastMessage"], event.value["CategoryLastMessageTime"], event.value["ClerkSubscriptions"]);
          print("DATA DETAILS : ${event.value["ClerkName"]}\n");
          print('tesssssssss : ${membersinfolist.length}\n');
          membersinfolist.add(clerkModel!);

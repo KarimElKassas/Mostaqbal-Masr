@@ -1,14 +1,20 @@
 import 'dart:collection';
 
 import 'package:bloc/bloc.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:mostaqbal_masr/models/firebase_clerk_model.dart';
 import 'package:mostaqbal_masr/modules/Departments/Monitor/manager/cubit/monitor_manager_home_states.dart';
+import 'package:mostaqbal_masr/modules/Departments/Monitor/manager/screens/monitor_manager_home_two_screen.dart';
+import 'package:mostaqbal_masr/modules/Global/GroupChat/display/screens/display_groups_screen.dart';
+import 'package:mostaqbal_masr/modules/Global/Settings/home/screens/clerk_settings_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:transition_plus/transition_plus.dart';
 
+import '../../../../../models/officer_permission_model.dart';
 import '../../../../Global/Login/clerk_login_screen.dart';
 import '../../complaints/screens/officer_display_client_complaints_screen.dart';
 import '../../complaints/screens/officer_display_complaints_screen.dart';
@@ -33,10 +39,14 @@ class MonitorManagerHomeCubit extends Cubit<MonitorManagerHomeStates>{
   String userJobName = "";
   String userToken = "";
   String userImage = "";
+  bool gotPermission = false;
+  int currentIndex = 0;
 
   ClerkFirebaseModel? clerkFirebaseModel;
   List<ClerkFirebaseModel> clerksModelList = [];
   List<ClerkFirebaseModel> filteredClerksModelList = [];
+  OfficerPermissionModel? permissionModel;
+  List<OfficerPermissionModel> permissionModelList = [];
 
   void getUserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -72,6 +82,7 @@ class MonitorManagerHomeCubit extends Cubit<MonitorManagerHomeStates>{
            value["ClerkName"],
            value["ClerkImage"],
            value["ClerkManagementID"].toString(),
+           value["ClerkJobName"],
            value["ClerkNumber"],
            value["ClerkAddress"],
            value["ClerkPhone"],
@@ -87,6 +98,24 @@ class MonitorManagerHomeCubit extends Cubit<MonitorManagerHomeStates>{
       filteredClerksModelList = clerksModelList;
       print("FILTERED ${filteredClerksModelList.length}\n");
       emit(MonitorManagerHomeGetManagementUsersState());
+    });
+  }
+
+  Future<void> getPermissions() async {
+    gotPermission = false;
+    emit(MonitorManagementHomeLoadingPermissionsState());
+    Future.delayed(const Duration(seconds: 1)).then((value){
+      FirebaseFirestore.instance.collection('Departments').doc('Monitor').collection("Permissions").snapshots().listen((event) {
+        permissionModelList = [];
+        for (var element in event.docs) {
+          Map<String, dynamic> data = element.data();
+          print("DESC : ${data["PermissionDescription"]}\n");
+          permissionModel = OfficerPermissionModel(data["ManagerID"] ,data["PermissionID"], data["PermissionDescription"]);
+          permissionModelList.add(permissionModel!);
+        }
+        gotPermission = true;
+        emit(MonitorManagementHomeGetPermissionsState());
+      });
     });
   }
 

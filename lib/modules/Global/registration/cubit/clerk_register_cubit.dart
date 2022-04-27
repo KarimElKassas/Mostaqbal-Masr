@@ -377,7 +377,7 @@ class ClerkRegisterCubit extends Cubit<ClerkRegisterStates> {
 
           clerksRef.child(clerkPhone).update(dataMap).then((
               realtimeDbValue) async {
-            clerkFirebaseModel = ClerkFirebaseModel(globalClerkID, globalClerkName, value.toString(), managementID, globalClerkNumber, globalClerkAddress, globalClerkPhone, clerkPassword, "متصل الأن", clerkToken, "", "",["empty"]);
+            clerkFirebaseModel = ClerkFirebaseModel(globalClerkID, globalClerkName, value.toString(), managementID, jobName, globalClerkNumber, globalClerkAddress, globalClerkPhone, clerkPassword, "متصل الأن", clerkToken, "", "",["empty"]);
 
             globalClerkName = "";
             globalClerkPhone = "";

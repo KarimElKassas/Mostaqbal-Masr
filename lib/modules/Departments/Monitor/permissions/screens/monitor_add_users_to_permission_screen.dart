@@ -4,40 +4,35 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:mostaqbal_masr/models/firebase_clerk_model.dart';
-import 'package:mostaqbal_masr/modules/Departments/Monitor/manager/cubit/monitor_manager_home_cubit.dart';
-import 'package:mostaqbal_masr/modules/Departments/Monitor/manager/cubit/monitor_manager_home_states.dart';
-import 'package:mostaqbal_masr/modules/Departments/Monitor/manager/screens/monitor_officer_permissions_screen.dart';
-import 'package:mostaqbal_masr/modules/Global/GroupChat/create/cubit/new_group_cubit.dart';
-import 'package:mostaqbal_masr/modules/Global/GroupChat/create/cubit/new_group_states.dart';
-import 'package:mostaqbal_masr/shared/components.dart';
-import 'package:mostaqbal_masr/shared/constants.dart';
+import 'package:mostaqbal_masr/modules/Departments/Monitor/permissions/cubit/monitor_permission_details_cubit.dart';
+import 'package:mostaqbal_masr/modules/Departments/Monitor/permissions/cubit/monitor_permission_details_states.dart';
 
-class MonitorDisplayUsersScreen extends StatefulWidget {
-  const MonitorDisplayUsersScreen({Key? key, required this.clerksList}) : super(key: key);
+import '../../../../../shared/components.dart';
+import '../../../../../shared/constants.dart';
 
-  final List<ClerkFirebaseModel> clerksList;
+class MonitorAddUsersToPermissionScreen extends StatefulWidget {
+  const MonitorAddUsersToPermissionScreen({Key? key, required this.permissionID, required this.clerksModelIDList}) : super(key: key);
 
+  final String permissionID;
+  final List<String> clerksModelIDList;
   @override
-  State<MonitorDisplayUsersScreen> createState() =>
-      _MonitorDisplayUsersScreenState();
+  State<MonitorAddUsersToPermissionScreen> createState() => _MonitorAddUsersToPermissionScreenState();
 }
 
-class _MonitorDisplayUsersScreenState extends State<MonitorDisplayUsersScreen> {
+class _MonitorAddUsersToPermissionScreenState extends State<MonitorAddUsersToPermissionScreen> {
   var searchController = TextEditingController();
-
   String searchText = "";
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => MonitorManagerHomeCubit()..getUserData()..getManagementClerks(),
-      child: BlocConsumer<MonitorManagerHomeCubit, MonitorManagerHomeStates>(
+      create: (context) => MonitorPermissionDetailsCubit()..getUserData()..getUnGrantedClerks(widget.permissionID),
+      child: BlocConsumer<MonitorPermissionDetailsCubit, MonitorPermissionDetailsStates>(
         listener: (context, state) {},
         builder: (context, state) {
-          var cubit = MonitorManagerHomeCubit.get(context);
+
+          var cubit = MonitorPermissionDetailsCubit.get(context);
 
           return Scaffold(
             appBar: AppBar(
@@ -115,16 +110,50 @@ class _MonitorDisplayUsersScreenState extends State<MonitorDisplayUsersScreen> {
                       const SizedBox(
                         height: 16,
                       ),
-                       ListView.separated(
+                      BuildCondition(
+                        condition: !cubit.gotUnGrantedClerks,
+                        builder: (context) => Center(
+                          child: CircularProgressIndicator(
+                            color: Colors.teal[700],
+                            strokeWidth: 0.8,
+                          ),
+                        ),
+                        fallback: (context) => ListView.separated(
                           shrinkWrap: true,
                           physics: const BouncingScrollPhysics(),
                           scrollDirection: Axis.vertical,
                           itemBuilder: (context, index) =>
                               listItem(context, cubit, state, index),
                           separatorBuilder: (context, index) =>
-                              const SizedBox(width: 10.0),
-                          itemCount: cubit.filteredClerksModelList.length,
+                          const SizedBox(width: 10.0),
+                          itemCount: cubit.filteredClerkList.length,
                         ),
+                      ),
+                      !cubit.zeroUnGrantedClerks ? Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        child: defaultButton(function: (){
+                          if (cubit.selectedClerksList.isNotEmpty) {
+                            print("User ID ${cubit.userID} \n");
+                            showDialog(
+                                context: context,
+                                builder: (context) => BlurryDialog("تنبيه", "هل انت متأكد ؟", (){
+                                  showDialog(context: context, builder: (context) => const BlurryProgressDialog(title: 'جارى اضافة الموظفين ...'));
+                                  cubit.addPermissionToClerk(widget.permissionID).then((value){
+                                    Navigator.pop(context);
+                                    Navigator.pop(context);
+                                  });
+                                })
+                            );
+
+                          } else {
+                            showToast(
+                                message: "يجب اختيار شخص واحد على الاقل",
+                                length: Toast.LENGTH_SHORT,
+                                gravity: ToastGravity.BOTTOM,
+                                timeInSecForIosWeb: 3);
+                          }
+                        }, text: "اضافة", background: Colors.teal),
+                      ): getEmptyWidget(),
                     ],
                   ),
                 ),
@@ -136,25 +165,39 @@ class _MonitorDisplayUsersScreenState extends State<MonitorDisplayUsersScreen> {
     );
   }
 
-  Widget listItem(BuildContext context, MonitorManagerHomeCubit cubit, state, int index) {
+  Widget listItem(BuildContext context, MonitorPermissionDetailsCubit cubit, state, int index) {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Card(
         margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 16.0),
         elevation: 2,
         shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+        RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
         shadowColor: Colors.black,
         child: InkWell(
           onTap: () {
-            print("USER PHONE NAVIGATE : ${cubit.filteredClerksModelList[index].personNumber}\n");
-              cubit.navigateTo(context, MonitorOfficerPermissionsScreen(officerID: cubit.filteredClerksModelList[index].personNumber!));
+            if (cubit.selectedClerksList
+                .contains(cubit.filteredClerkList[index])) {
+              print("Yeeeees\n");
+              cubit.removeUserFromSelect(cubit.filteredClerkList[index]);
+            } else {
+              print("Nooooooo\n");
+              cubit.addClerkToSelect(cubit.filteredClerkList[index]);
+            }
           },
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
               children: [
-                InkWell(
+                BuildCondition(
+                  condition: !cubit.gotUnGrantedClerks,
+                  builder: (context) => const Center(
+                    child: CircularProgressIndicator(
+                      color: Colors.teal,
+                      strokeWidth: 0.8,
+                    ),
+                  ),
+                  fallback: (context) => InkWell(
                     onTap: () {
                       showDialog(
                         context: context,
@@ -179,20 +222,20 @@ class _MonitorDisplayUsersScreenState extends State<MonitorDisplayUsersScreen> {
                                                 return CachedNetworkImage(
                                                   fit: BoxFit.fill,
                                                   imageUrl: cubit
-                                                      .filteredClerksModelList[index]
+                                                      .filteredClerkList[index]
                                                       .clerkImage!,
                                                   height: double.infinity,
                                                   width: double.infinity,
                                                   placeholder: (context, url) =>
-                                                      const Center(
-                                                          child:
-                                                              CircularProgressIndicator(
-                                                    color: Colors.teal,
-                                                    strokeWidth: 0.8,
-                                                  )),
+                                                  const Center(
+                                                      child:
+                                                      CircularProgressIndicator(
+                                                        color: Colors.teal,
+                                                        strokeWidth: 0.8,
+                                                      )),
                                                   errorWidget: (context, url,
-                                                          error) =>
-                                                      const Icon(Icons.error),
+                                                      error) =>
+                                                  const Icon(Icons.error),
                                                 );
                                               },
                                             ),
@@ -200,27 +243,27 @@ class _MonitorDisplayUsersScreenState extends State<MonitorDisplayUsersScreen> {
                                         },
                                         child: ClipRRect(
                                           borderRadius:
-                                              BorderRadius.circular(12.0),
+                                          BorderRadius.circular(12.0),
                                           child: CachedNetworkImage(
                                             fit: BoxFit.fill,
                                             imageUrl: cubit
-                                                .filteredClerksModelList[index]
+                                                .filteredClerkList[index]
                                                 .clerkImage!,
                                             height: MediaQuery.of(context)
-                                                    .size
-                                                    .height *
+                                                .size
+                                                .height *
                                                 0.55,
                                             width: double.infinity,
                                             placeholder: (context, url) =>
-                                                const Center(
-                                                    child:
-                                                        CircularProgressIndicator(
-                                              color: Colors.teal,
-                                              strokeWidth: 0.8,
-                                            )),
+                                            const Center(
+                                                child:
+                                                CircularProgressIndicator(
+                                                  color: Colors.teal,
+                                                  strokeWidth: 0.8,
+                                                )),
                                             errorWidget:
                                                 (context, url, error) =>
-                                                    const Icon(Icons.error),
+                                            const Icon(Icons.error),
                                           ),
                                         ),
                                       ),
@@ -236,32 +279,57 @@ class _MonitorDisplayUsersScreenState extends State<MonitorDisplayUsersScreen> {
                     child: ClipOval(
                       child: CachedNetworkImage(
                         fit: BoxFit.fill,
-                        imageUrl: cubit.filteredClerksModelList[index].clerkImage!,
+                        imageUrl: cubit.filteredClerkList[index].clerkImage!,
                         height: 50,
                         width: 50,
                         placeholder: (context, url) => const Center(
                             child: CircularProgressIndicator(
-                          color: Colors.teal,
-                          strokeWidth: 0.8,
-                        )),
+                              color: Colors.teal,
+                              strokeWidth: 0.8,
+                            )),
                         errorWidget: (context, url, error) =>
-                            const Icon(Icons.error),
+                        const Icon(Icons.error),
                       ),
                     ),
+                  ),
                 ),
                 const SizedBox(
                   width: 16.0,
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4.0),
-                  child: Text(
-                    cubit.filteredClerksModelList[index].clerkName??"",
-                    style: const TextStyle(
-                        color: Colors.black,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600),
+                Expanded(
+                  flex: 4,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4.0),
+                    child: Text(
+                      cubit.filteredClerkList[index].clerkName??"",
+                      style: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600),
+                    ),
                   ),
                 ),
+                Expanded(
+                  flex: 1,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4.0),
+                    child: cubit.selectedClerksList
+                        .contains(cubit.filteredClerkList[index])
+                        ? FadeIn(
+                      duration: const Duration(milliseconds: 500),
+                      child: const CircleAvatar(
+                        child: Icon(
+                          Icons.done_rounded,
+                          color: Colors.white,
+                          size: 16,
+                        ),
+                        backgroundColor: Colors.teal,
+                        maxRadius: 16,
+                      ),
+                    )
+                        : getEmptyWidget(),
+                  ),
+                )
               ],
             ),
           ),
