@@ -2,18 +2,15 @@ import 'dart:collection';
 
 import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:mostaqbal_masr/models/officer_permission_model.dart';
-import 'package:mostaqbal_masr/shared/components.dart';
+import 'package:mostaqbal_masr/modules/Departments/Monitor/permissions/cubit/monitor_management_permission_states.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:transition_plus/transition_plus.dart';
 
-import 'monitor_management_permission_states.dart';
-import 'monitor_officer_permission_states.dart';
+
 
 class MonitorManagementPermissionCubit
     extends Cubit<MonitorManagementPermissionStates> {

@@ -2,12 +2,11 @@ import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
-import 'package:pandabar/model.dart';
 
 import '../../../../../shared/widgets/bottom_navigation/button_model.dart';
 import '../../../../Global/GroupChat/display/screens/display_groups_screen.dart';
 import '../../../../Global/Settings/home/screens/clerk_settings_screen.dart';
-import '../../manager/screens/monitor_manager_home_two_screen.dart';
+import '../../manager/home/screens/monitor_manager_home_screen.dart';
 import 'manager_home_states.dart';
 
 class ManagerHomeCubit extends Cubit<ManagerHomeStates>{
@@ -32,12 +31,14 @@ class ManagerHomeCubit extends Cubit<ManagerHomeStates>{
         isLeading: false
     ),
   ];
+
   List<IconData> icons = [
     EvaIcons.home,
     EvaIcons.settings,
   ];
+
   List<Widget> screens = [
-    const MonitorManagerHomeTwoScreen(),
+    const MonitorManagerHomeScreen(),
     const DisplayGroupsScreen(),
     const ClerkSettingsScreen(),
   ];

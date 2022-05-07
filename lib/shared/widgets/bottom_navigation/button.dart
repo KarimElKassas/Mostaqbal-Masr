@@ -34,7 +34,7 @@ class _MyNavBarButtonState extends State<MyNavBarButton> with SingleTickerProvid
     super.initState();
 
     animationController = AnimationController(
-      duration: Duration(milliseconds: 700),
+      duration: const Duration(milliseconds: 700),
       vsync: this,
     )..addListener(() {
       setState(() {});
@@ -71,6 +71,7 @@ class _MyNavBarButtonState extends State<MyNavBarButton> with SingleTickerProvid
             Container(
               height: animation.value,
             ),
+            const SizedBox(height: 2,),
             Text(widget.title,
                 style: TextStyle(
                     color: widget.isSelected

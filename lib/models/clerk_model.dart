@@ -23,6 +23,7 @@ class ClerkModel{
   String? coreStrengthName;
   String? presenceID;
   String? presenceName;
+  String? userStatus;
 
   ClerkModel(
       this.clerkID,
@@ -45,7 +46,8 @@ class ClerkModel{
       this.coreStrengthID,
       this.coreStrengthName,
       this.presenceID,
-      this.presenceName);
+      this.presenceName,
+      this.userStatus);
 
 
   factory ClerkModel.fromJson(Map<String, dynamic> jsonData) {
@@ -71,6 +73,7 @@ class ClerkModel{
         jsonData['CoreStrengthName'],
         jsonData['PresenceID'],
         jsonData['PresenceName'],
+        jsonData['TrueOrFalse']
     );
   }
 
@@ -96,6 +99,7 @@ class ClerkModel{
     'ClerkCoreStrengthName': clerkModel.coreStrengthName,
     'ClerkPresenceID': clerkModel.presenceID,
     'ClerkPresenceName': clerkModel.presenceName,
+    'TrueOrFalse': clerkModel.userStatus,
   };
 
   static String encode(List<ClerkModel> clerks) => json.encode(

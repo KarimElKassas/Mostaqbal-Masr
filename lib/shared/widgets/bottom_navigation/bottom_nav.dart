@@ -42,7 +42,7 @@ class _MyNavBarState extends State<MyNavBar> {
   @override
   void initState() {
     selectedId =
-    widget.buttonData.length > 0 ? widget.buttonData.first.id : null;
+    widget.buttonData.isNotEmpty ? widget.buttonData.first.id : null;
     super.initState();
   }
 
@@ -67,16 +67,17 @@ class _MyNavBarState extends State<MyNavBar> {
             child: Container(
               height: 70,
               padding: const EdgeInsets.symmetric(vertical: 10),
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
+                borderRadius: const BorderRadius.only(topRight: Radius.circular(18), topLeft: Radius.circular(18)),
                   gradient: LinearGradient(
                       colors: [
-                        Color(0xFF004152),
-                        Color(0xFF01586F),
-                        Color(0xFF016179),
+                        Colors.teal.shade600,
+                        Colors.teal.shade400,
+                        Colors.teal.shade300,
                       ],
-                      begin: FractionalOffset(0.0, 0.0),
-                      end: FractionalOffset(1.0, 0.0),
-                      stops: [0.0, 0.5, 1.0],
+                      begin: const FractionalOffset(0.0, 0.0),
+                      end: const FractionalOffset(1.0, 0.0),
+                      stops: const [0.0, 0.5, 1.0],
                       tileMode: TileMode.clamp),
                 //color: widget.backgroundColor ?? Color(0xFF004152),
               ),
@@ -144,7 +145,7 @@ class _PandaBarClipper extends CustomClipper<Path> {
   final double centerRadius = 20;
   final double cornerRadius = 5;
 
-  _PandaBarClipper({this.fabSize = 100});
+  _PandaBarClipper({this.fabSize = 120});
 
   @override
   Path getClip(Size size) {

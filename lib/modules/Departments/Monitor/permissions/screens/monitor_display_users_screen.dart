@@ -1,19 +1,14 @@
 import 'package:animate_do/animate_do.dart';
-import 'package:buildcondition/buildcondition.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_iconly/flutter_iconly.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mostaqbal_masr/models/firebase_clerk_model.dart';
-import 'package:mostaqbal_masr/modules/Departments/Monitor/manager/cubit/monitor_manager_home_cubit.dart';
-import 'package:mostaqbal_masr/modules/Departments/Monitor/manager/cubit/monitor_manager_home_states.dart';
-import 'package:mostaqbal_masr/modules/Departments/Monitor/manager/screens/monitor_officer_permissions_screen.dart';
-import 'package:mostaqbal_masr/modules/Global/GroupChat/create/cubit/new_group_cubit.dart';
-import 'package:mostaqbal_masr/modules/Global/GroupChat/create/cubit/new_group_states.dart';
-import 'package:mostaqbal_masr/shared/components.dart';
+import 'package:mostaqbal_masr/modules/Departments/Monitor/manager/home/cubit/monitor_manager_home_cubit.dart';
+import 'package:mostaqbal_masr/modules/Departments/Monitor/manager/home/cubit/monitor_manager_home_states.dart';
 import 'package:mostaqbal_masr/shared/constants.dart';
+
+import 'monitor_officer_permissions_screen.dart';
 
 class MonitorDisplayUsersScreen extends StatefulWidget {
   const MonitorDisplayUsersScreen({Key? key, required this.clerksList}) : super(key: key);

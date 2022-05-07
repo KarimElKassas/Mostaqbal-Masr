@@ -1,3 +1,4 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
@@ -37,21 +38,23 @@ class _ManagerHomeLayoutState extends State<ManagerHomeLayout>
             child: Scaffold(
               extendBody: true,
               body: cubit.screens[cubit.currentIndex],
-              bottomNavigationBar: MyNavBar(
-                buttonData: cubit.bottomNavigationItems,
-                buttonSelectedColor: Colors.tealAccent,
-                buttonColor: Colors.grey[300],
+              bottomNavigationBar: FadeInUp(
+                duration: const Duration(milliseconds: 1000),
+                child: MyNavBar(
+                  buttonData: cubit.bottomNavigationItems,
+                  buttonSelectedColor: const Color(0xFFE8E8A6),
+                  buttonColor: Colors.grey[300],
+                  onChange: (id) {
+                    cubit.changeBottomNavBarIndex(id, context);
+                  },
+                  fabColors: const[
+                    Colors.white,
+                    Colors.white70,
+                  ],
+                  onFabButtonPressed: () {
 
-                onChange: (id) {
-                  cubit.changeBottomNavBarIndex(id, context);
-                },
-                fabColors: [
-                  Colors.teal[700]!,
-                  Colors.teal[300]!,
-                ],
-                onFabButtonPressed: () {
-
-                },
+                  },
+                ),
               ),
             ),
           );
@@ -60,17 +63,3 @@ class _ManagerHomeLayoutState extends State<ManagerHomeLayout>
     );
   }
 }
-/*AnimatedBottomNavigationBar(
-                icons: cubit.icons,
-                activeIndex: cubit.currentIndex,
-                gapLocation: GapLocation.center,
-                notchSmoothness: NotchSmoothness.smoothEdge,
-                leftCornerRadius: 18,
-                rightCornerRadius: 18,
-                backgroundColor: Colors.white,
-                activeColor: Colors.teal,
-                iconSize: 26,
-                elevation: 10,
-                onTap: (index) => cubit.changeBottomNavBarIndex(index, context),
-                //other params
-              ),*/

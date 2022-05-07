@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
+import 'package:flutter_svg/flutter_svg.dart';
+
 class MyNavBarFabButton extends StatefulWidget {
 
   final double size;
@@ -48,7 +50,7 @@ class _MyNavBarFabButtonState extends State<MyNavBarFabButton> {
             width: _touched ? widget.size - 1 : widget.size,
             height: _touched ? widget.size - 1 : widget.size,
             decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(widget.size / 3),
+                borderRadius: BorderRadius.circular(50),
                 gradient: LinearGradient(
                     begin: Alignment.centerLeft,
                     end: Alignment.centerRight,
@@ -59,15 +61,16 @@ class _MyNavBarFabButtonState extends State<MyNavBarFabButton> {
                       blurRadius: 5,
                       offset: Offset(3, 3))
                 ]),
-            child: Center(
-              child: Transform.rotate(
-                  angle: -45 * math.pi / 180,
-                  child: widget.icon ??
-                      Icon(
-                        Icons.add,
-                        size: widget.size / 1.5,
-                        color: Colors.white,
-                      )),
+            child: Padding(
+              padding: const EdgeInsets.all(6.0),
+              child: Center(
+                child: Transform.rotate(
+                    angle: -45 * math.pi / 180,
+                    child:
+                        SvgPicture.asset(
+                        "assets/images/head.svg"),
+                ),
+              ),
             ),
           ),
         ),

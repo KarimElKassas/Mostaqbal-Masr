@@ -7,17 +7,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:mostaqbal_masr/models/firebase_clerk_model.dart';
-import 'package:mostaqbal_masr/modules/Departments/Monitor/manager/cubit/monitor_manager_home_states.dart';
-import 'package:mostaqbal_masr/modules/Departments/Monitor/manager/screens/monitor_manager_home_two_screen.dart';
+import 'package:mostaqbal_masr/modules/Departments/Monitor/manager/home/cubit/monitor_manager_home_states.dart';
+import 'package:mostaqbal_masr/modules/Departments/Monitor/manager/home/screens/monitor_manager_home_screen.dart';
 import 'package:mostaqbal_masr/modules/Global/GroupChat/display/screens/display_groups_screen.dart';
 import 'package:mostaqbal_masr/modules/Global/Settings/home/screens/clerk_settings_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:transition_plus/transition_plus.dart';
 
-import '../../../../../models/officer_permission_model.dart';
-import '../../../../Global/Login/clerk_login_screen.dart';
-import '../../complaints/screens/officer_display_client_complaints_screen.dart';
-import '../../complaints/screens/officer_display_complaints_screen.dart';
+import '../../../../../../models/officer_permission_model.dart';
+import '../../../../../Global/Login/clerk_login_screen.dart';
+import '../../../complaints/screens/officer_display_client_complaints_screen.dart';
+import '../../../complaints/screens/officer_display_complaints_screen.dart';
 
 class MonitorManagerHomeCubit extends Cubit<MonitorManagerHomeStates>{
   MonitorManagerHomeCubit() : super(MonitorManagerHomeInitialState());

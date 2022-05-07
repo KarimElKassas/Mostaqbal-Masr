@@ -5,11 +5,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mostaqbal_masr/models/officer_permission_model.dart';
-import 'package:mostaqbal_masr/modules/Departments/Monitor/manager/cubit/monitor_officer_permission_cubit.dart';
-import 'package:mostaqbal_masr/modules/Departments/Monitor/manager/cubit/monitor_officer_permission_states.dart';
 
 import '../../../../../shared/components.dart';
 import '../../../../../shared/constants.dart';
+import '../cubit/monitor_officer_permission_cubit.dart';
+import '../cubit/monitor_officer_permission_states.dart';
 
 class MonitorAddPermissionsScreen extends StatelessWidget {
   const MonitorAddPermissionsScreen(

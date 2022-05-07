@@ -14,7 +14,7 @@ import 'package:transition_plus/transition_plus.dart';
 import '../../../../network/remote/dio_helper.dart';
 import '../../../../shared/components.dart';
 import '../../../Departments/Monitor/complaints/screens/complaint_screen.dart';
-import '../../../Departments/Monitor/manager/screens/monitor_manager_home_screen.dart';
+import '../../../Departments/Monitor/manager/home/screens/monitor_manager_home_screen.dart';
 import '../../../Departments/SocialMedia/home/layout/social_home_layout.dart';
 
 class ClerkLoginCubit extends Cubit<ClerkLoginStates>{

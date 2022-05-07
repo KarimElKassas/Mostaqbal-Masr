@@ -3,12 +3,12 @@ import 'package:buildcondition/buildcondition.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:mostaqbal_masr/modules/Departments/Monitor/manager/cubit/monitor_officer_permission_cubit.dart';
-import 'package:mostaqbal_masr/modules/Departments/Monitor/manager/cubit/monitor_officer_permission_states.dart';
-import 'package:mostaqbal_masr/modules/Departments/Monitor/manager/screens/monitor_add_permission_screen.dart';
+import 'package:mostaqbal_masr/modules/Departments/Monitor/permissions/screens/monitor_add_permission_screen.dart';
 import 'package:mostaqbal_masr/shared/components.dart';
 import 'package:mostaqbal_masr/shared/constants.dart';
+
+import '../../permissions/cubit/monitor_officer_permission_cubit.dart';
+import '../../permissions/cubit/monitor_officer_permission_states.dart';
 
 class MonitorOfficerPermissionsScreen extends StatefulWidget {
   const MonitorOfficerPermissionsScreen({Key? key, required this.officerID}) : super(key: key);
