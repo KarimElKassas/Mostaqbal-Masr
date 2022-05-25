@@ -8,14 +8,15 @@ import 'package:mostaqbal_masr/modules/Departments/Monitor/manager/deparment_cor
 import 'package:mostaqbal_masr/modules/Departments/Monitor/manager/deparment_core/screens/core_clerk_details_screen.dart';
 
 class MonitorCoreScreen extends StatelessWidget {
-  const MonitorCoreScreen({Key? key, required this.departmentID}) : super(key: key);
+  const MonitorCoreScreen({Key? key, required this.departmentID, required this.departmentName}) : super(key: key);
 
   final String departmentID;
+  final String departmentName;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => MonitorCoreCubit(),
+      create: (context) => MonitorCoreCubit()..getFilteredClerks(departmentID, 0),
       child: BlocConsumer<MonitorCoreCubit, MonitorCoreStates>(
         listener: (context, state) {},
         builder: (context, state) {
@@ -32,7 +33,7 @@ class MonitorCoreScreen extends StatelessWidget {
               automaticallyImplyLeading: false,
               centerTitle: true,
               title: Text(
-                "قوة $departmentID",
+                "قوة $departmentName",
                 style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -83,7 +84,7 @@ class MonitorCoreScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 16,),
-                      cubit.gotClerks ? ListView.separated(
+                      cubit.gotClerks ? (!cubit.zeroClerks ? ListView.separated(
                         shrinkWrap: true,
                         physics: const BouncingScrollPhysics(),
                         itemBuilder: (context, index) =>
@@ -93,7 +94,7 @@ class MonitorCoreScreen extends StatelessWidget {
                           width: 2,
                         ),
                         itemCount: cubit.filteredClerksModelList.length,
-                      ) : Center(child: CircularProgressIndicator(color: Colors.teal[700], strokeWidth: 0.8,),),
+                      ) : Center(child: Text('لا يوجد ${cubit.selectedPersonTypeName} بالإدارة', style: TextStyle(color: Colors.teal[700], fontSize: 16),),))  : Center(child: CircularProgressIndicator(color: Colors.teal[700], strokeWidth: 0.8,),),
                     ],
                   ),
                 ),
@@ -111,7 +112,7 @@ class MonitorCoreScreen extends StatelessWidget {
       child: InkWell(
         onTap: () {
           if(cubit.selectedPersonTypeID != cubit.personTypeNameList[index].typeID){
-            cubit.changeFilter(cubit.personTypeNameList[index].typeID);
+            cubit.changeFilter(cubit.personTypeNameList[index].typeID, cubit.personTypeNameList[index].typeName);
             cubit.getFilteredClerks("1022", cubit.personTypeNameList[index].typeID);
           }
         },
@@ -162,7 +163,10 @@ class MonitorCoreScreen extends StatelessWidget {
                   userName: cubit.filteredClerksModelList[index].clerkName!,
                   userPhone: cubit.filteredClerksModelList[index].personPhone!,
                   userImageUrl: cubit.filteredClerksModelList[index].clerkImage!,
-                  userDocNumber: cubit.filteredClerksModelList[index].personNumber!,));
+                  userDocNumber: cubit.filteredClerksModelList[index].personNumber!,
+                  userJob: cubit.filteredClerksModelList[index].jobName!,
+                  onFirebase: cubit.filteredClerksModelList[index].OnFirebase!,
+                  userToken: cubit.filteredClerksModelList[index].token??"",));
             },
             child: Padding(
               padding: const EdgeInsets.all(8.0),

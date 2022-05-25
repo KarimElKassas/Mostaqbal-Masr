@@ -7,20 +7,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:intl/intl.dart';
+import 'package:mostaqbal_masr/modules/Departments/SocialMedia/posts/screens/social_display_posts_screen.dart';
+import 'package:mostaqbal_masr/modules/Global/Chat/screens/social_display_chats_screen.dart';
 import 'package:mostaqbal_masr/modules/Global/Login/clerk_login_screen.dart';
 import 'package:mostaqbal_masr/modules/Global/blank_screen.dart';
-import 'package:mostaqbal_masr/network/remote/dio_helper.dart';
 import 'package:mostaqbal_masr/shared/components.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:transition_plus/transition_plus.dart';
 
 import '../../posts/screens/social_add_post_screen.dart';
-import '../../chat/screens/social_display_chats_screen.dart';
-import '../../chat/screens/social_display_posts_screen.dart';
 import '../../settings/screens/social_settings_screen.dart';
 import 'social_home_states.dart';
+
 
 class SocialHomeCubit extends Cubit<SocialHomeStates> {
   SocialHomeCubit() : super(SocialHomeInitialState());

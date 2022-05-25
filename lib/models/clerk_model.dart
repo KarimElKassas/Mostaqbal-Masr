@@ -24,6 +24,8 @@ class ClerkModel{
   String? presenceID;
   String? presenceName;
   String? userStatus;
+  String? OnFirebase;
+  String? token;
 
   ClerkModel(
       this.clerkID,
@@ -47,7 +49,9 @@ class ClerkModel{
       this.coreStrengthName,
       this.presenceID,
       this.presenceName,
-      this.userStatus);
+      this.userStatus,
+      this.OnFirebase,
+      this.token);
 
 
   factory ClerkModel.fromJson(Map<String, dynamic> jsonData) {
@@ -73,7 +77,9 @@ class ClerkModel{
         jsonData['CoreStrengthName'],
         jsonData['PresenceID'],
         jsonData['PresenceName'],
-        jsonData['TrueOrFalse']
+        jsonData['TrueOrFalse'],
+        jsonData['OnFirebase'],
+        jsonData['ClerkToken']
     );
   }
 
@@ -100,6 +106,8 @@ class ClerkModel{
     'ClerkPresenceID': clerkModel.presenceID,
     'ClerkPresenceName': clerkModel.presenceName,
     'TrueOrFalse': clerkModel.userStatus,
+    'OnFirebase': clerkModel.OnFirebase,
+    'ClerkToken': clerkModel.token,
   };
 
   static String encode(List<ClerkModel> clerks) => json.encode(

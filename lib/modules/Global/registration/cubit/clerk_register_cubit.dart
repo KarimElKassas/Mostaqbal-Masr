@@ -60,8 +60,7 @@ class ClerkRegisterCubit extends Cubit<ClerkRegisterStates> {
   void changePasswordVisibility() {
     isPassword = !isPassword;
 
-    suffix =
-        isPassword ? Icons.visibility_rounded : Icons.visibility_off_rounded;
+    suffix = isPassword ? Icons.visibility_rounded : Icons.visibility_off_rounded;
 
     emit(ClerkRegisterChangePasswordVisibilityState());
   }
@@ -98,7 +97,7 @@ class ClerkRegisterCubit extends Cubit<ClerkRegisterStates> {
                   clerk['Person_Type_ID'].toString(), clerk['Person_Type_Name'].toString(), clerk['PR_Category_ID'].toString(), clerk['PR_Category_Name'].toString(),
                   clerk['CategoryRank'].toString(), clerk['PR_Rank_ID'].toString(), clerk['PR_Rank_Name'].toString(), clerk['PR_Management_ID'].toString(),
                   clerk['PR_Management_Name'].toString(), clerk['PR_Jobs_ID'].toString(), clerk['PR_Jobs_Name'].toString(), clerk['PR_CoreStrength_ID'].toString(),
-                  clerk['PR_CoreStrength_Name'].toString(), clerk['PR_Presence_ID'].toString(), clerk['PR_Presence_Name'].toString(), clerk['TrueOrFalse'].toString());
+                  clerk['PR_CoreStrength_Name'].toString(), clerk['PR_Presence_ID'].toString(), clerk['PR_Presence_Name'].toString(), clerk['TrueOrFalse'].toString(), clerk['OnFirebase'].toString(), "");
 
               globalClerkID = clerk['PR_Persons_ID'].toString();
               globalClerkName = clerk['PR_Persons_Name'].toString();
@@ -377,7 +376,7 @@ class ClerkRegisterCubit extends Cubit<ClerkRegisterStates> {
 
           clerksRef.child(clerkPhone).update(dataMap).then((
               realtimeDbValue) async {
-            clerkFirebaseModel = ClerkFirebaseModel(globalClerkID, globalClerkName, value.toString(), managementID, jobName, globalClerkNumber, globalClerkAddress, globalClerkPhone, clerkPassword, "متصل الأن", clerkToken, "", "",["empty"]);
+            clerkFirebaseModel = ClerkFirebaseModel(globalClerkID, globalClerkName!, value.toString(), managementID, jobName, globalClerkNumber, globalClerkAddress, globalClerkPhone, clerkPassword, "متصل الأن", clerkToken, "", "",["empty"]);
 
             globalClerkName = "";
             globalClerkPhone = "";

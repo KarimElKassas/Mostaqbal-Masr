@@ -301,7 +301,7 @@ class _MonitorAddUsersToPermissionScreenState extends State<MonitorAddUsersToPer
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 4.0),
                     child: Text(
-                      cubit.filteredClerkList[index].clerkName??"",
+                      cubit.filteredClerkList[index].clerkName,
                       style: const TextStyle(
                           color: Colors.black,
                           fontSize: 12,

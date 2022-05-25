@@ -8,7 +8,7 @@ class GalleryThumbnail extends StatelessWidget {
   const GalleryThumbnail({Key? key, required this.galleryItem, this.onTap})
       : super(key: key);
 
-  final GalleryModel galleryItem;
+  final String galleryItem;
 
   final GestureTapCallback? onTap;
 
@@ -17,14 +17,17 @@ class GalleryThumbnail extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Hero(
-        tag: galleryItem.imageUrl.path,
-        child: CachedNetworkImage(
-          fit: BoxFit.cover,
-          imageUrl: galleryItem.imageUrl.path.toString().replaceAll("[", "").replaceAll("]", ""),
-          height: 100.0,
-          placeholder: (context, url) =>
-              const Center(child: CircularProgressIndicator(color: Colors.teal, strokeWidth: 0.8,)),
-          errorWidget: (context, url, error) => const Icon(Icons.error),
+        tag: galleryItem,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(4),
+          child: CachedNetworkImage(
+            fit: BoxFit.cover,
+            imageUrl: galleryItem.replaceAll("[", "").replaceAll("]", ""),
+            //height: 100.0,
+            placeholder: (context, url) =>
+                const Center(child: CircularProgressIndicator(color: Colors.teal, strokeWidth: 0.8,)),
+            errorWidget: (context, url, error) => const Icon(Icons.error),
+          ),
         ),
       ),
     );

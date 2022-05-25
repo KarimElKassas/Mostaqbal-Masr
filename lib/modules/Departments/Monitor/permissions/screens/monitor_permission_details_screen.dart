@@ -268,7 +268,7 @@ class _MonitorPermissionDetailsScreenState extends State<MonitorPermissionDetail
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      cubit.filteredClerksModelList[index].clerkName!,
+                      cubit.filteredClerksModelList[index].clerkName,
                       style: TextStyle(
                           color: Colors.teal[700],
                           fontSize: 11,

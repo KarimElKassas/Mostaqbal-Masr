@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ffi';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -15,6 +14,7 @@ Widget defaultButton({
   double width = double.infinity,
   Color background = Colors.deepPurple,
   Color textColor = Colors.white,
+  TextStyle? textStyle,
   double radius = 8.0,
   bool isUpperCase = true,
   required VoidCallback function,
@@ -32,7 +32,7 @@ Widget defaultButton({
         child: Text(
           isUpperCase ? text.toUpperCase() : text,
           textAlign: TextAlign.center,
-          style: TextStyle(
+          style: textStyle?? TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 12,
               letterSpacing: 2,

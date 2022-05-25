@@ -144,6 +144,15 @@ flutter:
     - family: Amiri
       fonts:
         - asset: assets/fonts/Amiri-Regular.ttf
+    - family: Hamed
+      fonts:
+        - asset: assets/fonts/alfont_com_Muna.ttf
+        - asset: assets/fonts/alfont_com_Bahij_Muna-Black.ttf
+        - asset: assets/fonts/alfont_com_Bahij_Muna-Bold.ttf
+        - asset: assets/fonts/Questv1Regular.ttf
+    - family: Questv
+      fonts:
+            - asset: assets/fonts/Questv1Regular.ttf
   #       - asset: fonts/Schyler-Italic.ttf
   #         style: italic
   #   - family: Trajan Pro

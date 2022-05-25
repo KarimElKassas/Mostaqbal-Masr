@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:buildcondition/buildcondition.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
@@ -9,63 +7,52 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:galleryimage/gallery_Item_model.dart';
-import 'package:mostaqbal_masr/modules/Global/GroupChat/conversation/cubit/group_conversation_cubit.dart';
-import 'package:mostaqbal_masr/modules/Global/GroupChat/conversation/screens/group_input_field_widget.dart';
+import 'package:mostaqbal_masr/modules/Global/Chat/cubit/social_conversation_cubit.dart';
+import 'package:mostaqbal_masr/modules/Global/Chat/cubit/social_conversation_states.dart';
+import 'package:mostaqbal_masr/modules/Global/Chat/screens/chat_opened_image_screen.dart';
+import 'package:mostaqbal_masr/modules/Global/Chat/screens/social_input_field_widget.dart';
 import 'package:mostaqbal_masr/shared/components.dart';
-import 'package:mostaqbal_masr/shared/gallery_item_thumbnail.dart';
-import 'package:mostaqbal_masr/shared/gallery_item_wrapper_view.dart';
 import 'package:open_file/open_file.dart';
 import 'package:percent_indicator/percent_indicator.dart';
-import 'package:swipe/swipe.dart';
+import 'package:transition_plus/transition_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../cubit/group_conversation_states.dart';
 
-class GroupConversationScreen extends StatefulWidget {
-  final String groupID;
-  final String groupName;
-  final String groupImage;
-  final List<Object?> adminsList;
-  final List<Object?> membersList;
+import '../../../../shared/gallery_item_thumbnail.dart';
+import '../../../../shared/gallery_item_wrapper_view.dart';
 
-  const GroupConversationScreen(
+class SocialConversationScreen extends StatefulWidget {
+  final String userID;
+  final String chatID;
+  final String userName;
+  final String userImage;
+  final String userToken;
+
+  const SocialConversationScreen(
       {Key? key,
-      required this.groupID,
-      required this.groupName,
-      required this.groupImage,
-      required this.adminsList,
-      required this.membersList})
+      required this.userID,
+      required this.chatID,
+      required this.userName,
+      required this.userImage,
+      required this.userToken})
       : super(key: key);
 
   @override
-  State<GroupConversationScreen> createState() =>
-      _GroupConversationScreenState();
+  State<SocialConversationScreen> createState() => _ConversationScreenState();
 }
 
-class _GroupConversationScreenState extends State<GroupConversationScreen> {
-  List<GalleryItemModel> galleryItems = <GalleryItemModel>[];
-
+class _ConversationScreenState extends State<SocialConversationScreen> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => GroupConversationCubit()
-        ..createUserDocumentsDirectory(widget.groupName)
-        ..createUserRecordingsDirectory(widget.groupName)
-        ..createUserImagesDirectory(widget.groupName)
-        ..getUserData()
+      create: (context) => SocialConversationCubit()
+        ..createUserImagesDirectory()
+        ..createUserDocumentsDirectory()
+        ..createUserRecordingsDirectory()
         ..initRecorder()
-        ..getGroupMembers(widget.groupID)
-        ..getMessages(widget.groupID),
-      child: BlocConsumer<GroupConversationCubit, GroupConversationStates>(
+        ..getFireStoreMessage(widget.userID, widget.chatID),
+      child: BlocConsumer<SocialConversationCubit, SocialConversationStates>(
         listener: (context, state) {
-          if (state is GroupConversationSendMessageErrorState) {
-            showToast(
-                message: state.error,
-                length: Toast.LENGTH_SHORT,
-                gravity: ToastGravity.BOTTOM,
-                timeInSecForIosWeb: 3);
-          }
-          if (state is GroupConversationDownloadFileErrorState) {
+          if (state is SocialConversationDownloadFileErrorState) {
             showToast(
                 message: state.error,
                 length: Toast.LENGTH_SHORT,
@@ -74,12 +61,12 @@ class _GroupConversationScreenState extends State<GroupConversationScreen> {
           }
         },
         builder: (context, state) {
-          var cubit = GroupConversationCubit.get(context);
+          var cubit = SocialConversationCubit.get(context);
 
           return Container(
             decoration: const BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage('assets/images/dark_chat_background.jpg'),
+                  image: AssetImage('assets/images/logoWhite.png'),
                   fit: BoxFit.fitWidth,
                 ),
                 color: Colors.white),
@@ -87,14 +74,14 @@ class _GroupConversationScreenState extends State<GroupConversationScreen> {
               backgroundColor: Colors.transparent,
               appBar: AppBar(
                 systemOverlayStyle: const SystemUiOverlayStyle(
-                  statusBarColor: Color(0xff141c27),
-                  statusBarIconBrightness: Brightness.light,
+                  statusBarColor: Colors.white,
+                  statusBarIconBrightness: Brightness.dark,
                   // For Android (dark icons)
-                  statusBarBrightness: Brightness.dark, // For iOS (dark icons)
+                  statusBarBrightness: Brightness.light, // For iOS (dark icons)
                 ),
                 elevation: 0,
                 automaticallyImplyLeading: false,
-                backgroundColor: Color(0xff141c27),
+                backgroundColor: Colors.white,
                 flexibleSpace: SafeArea(
                   child: Container(
                     padding: const EdgeInsets.only(left: 2.0, right: 2.0),
@@ -106,16 +93,13 @@ class _GroupConversationScreenState extends State<GroupConversationScreen> {
                             onPressed: () {
                               Navigator.pop(context);
                             },
-                            icon: Icon(
+                            icon: const Icon(
                               IconlyBroken.arrowRightCircle,
-                              color: Colors.grey.shade200,
+                              color: Colors.black,
                             ),
                           ),
-                          const SizedBox(
-                            width: 6,
-                          ),
                           CachedNetworkImage(
-                            imageUrl: widget.groupImage,
+                            imageUrl: widget.userImage,
                             imageBuilder: (context, imageProvider) => ClipOval(
                               child: FadeInImage(
                                 height: 50,
@@ -135,7 +119,11 @@ class _GroupConversationScreenState extends State<GroupConversationScreen> {
                                 },
                               ),
                             ),
-                            placeholder: (context, url) => const CircularProgressIndicator(color: Colors.teal, strokeWidth: 0.8,),
+                            placeholder: (context, url) =>
+                                const CircularProgressIndicator(
+                              color: Colors.teal,
+                              strokeWidth: 0.8,
+                            ),
                             errorWidget: (context, url, error) =>
                                 const FadeInImage(
                               height: 50,
@@ -147,50 +135,27 @@ class _GroupConversationScreenState extends State<GroupConversationScreen> {
                             ),
                           ),
                           const SizedBox(
-                            width: 12,
+                            width: 18,
                           ),
                           Flexible(
                             //flex: 3,
                             child: InkWell(
-                              onTap: (){
-                                cubit.navigateToDetails(context, widget.groupID, widget.groupName, widget.groupImage, widget.membersList, widget.adminsList);
+                              onTap: () {
+                                //cubit.navigateToDetails(context, widget.groupID, widget.groupName, widget.groupImage, widget.membersList, widget.adminsList);
                               },
                               splashColor: Colors.transparent,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: <Widget>[
-                                  const SizedBox(
-                                    height: 16,
-                                  ),
-                                  Text(
-                                    widget.groupName,
-                                    style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600, color: Colors.grey.shade200),
-                                  ),
-                                  const SizedBox(height: 6.0,),
-                                  Flexible(
-                                    child: cubit.gotMembers ? ListView.builder(
-                                        physics: const NeverScrollableScrollPhysics(),
-                                        scrollDirection: Axis.horizontal,
-                                        itemCount: cubit.groupMembersNameList.length,
-                                        itemBuilder: (context, index) =>
-                                            membersNameView(cubit, state, index)) : Text(
-                                      "اضغط هنا لتفاصيل الجروب",
-                                      overflow: TextOverflow.ellipsis,
-                                      style:  TextStyle(
-                                          overflow: TextOverflow.ellipsis,
-                                          fontSize: 8,
-                                          fontWeight: FontWeight.w600, color: Colors.grey.shade400),
-                                    ),
-                                  ),
-
-                                ],
+                              child: Text(
+                                widget.userName,
+                                style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.black),
                               ),
                             ),
                           ),
-                          const SizedBox(width: 16,),
+                          const SizedBox(
+                            width: 16,
+                          ),
                         ],
                       ),
                     ),
@@ -204,7 +169,7 @@ class _GroupConversationScreenState extends State<GroupConversationScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: BuildCondition(
                           condition:
-                              state is GroupConversationLoadingMessageState,
+                              state is SocialConversationLoadingMessageState,
                           fallback: (context) => ListView.builder(
                               physics: const BouncingScrollPhysics(),
                               shrinkWrap: true,
@@ -219,10 +184,11 @@ class _GroupConversationScreenState extends State<GroupConversationScreen> {
                               )),
                     ),
                   ),
-                  GroupInputFieldWidget(
-                    groupID: widget.groupID,
-                    groupName: widget.groupName,
-                    senderName: cubit.userName,
+                  SocialInputFieldWidget(
+                    userID: widget.userID,
+                    chatID: widget.chatID,
+                    userName: widget.userName,
+                    userToken: widget.userToken,
                   ),
                 ],
               ),
@@ -232,121 +198,91 @@ class _GroupConversationScreenState extends State<GroupConversationScreen> {
       ),
     );
   }
-  Widget membersNameView(GroupConversationCubit cubit,GroupConversationStates state, int index){
-    return Align(
-      alignment: Alignment.centerRight,
-      child: Text(
-        "${cubit.groupMembersNameList[index].toString()}, ",
-        overflow: TextOverflow.ellipsis,
-        style:  TextStyle(
-            overflow: TextOverflow.ellipsis,
-            fontSize: 8,
-            fontWeight: FontWeight.w600, color: Colors.grey.shade400),
-      ),
-    );
-  }
-  Widget chatView(BuildContext context, GroupConversationCubit cubit, int index,
-      GroupConversationStates state) {
+
+  Widget chatView(BuildContext context, SocialConversationCubit cubit,
+      int index, SocialConversationStates state) {
     if (cubit.chatListReversed[index].type == "Text") {
-      return Swipe(
-        onSwipeRight: (){
-          print("SWIPE\n");
-        },
-        child: Container(
-          padding: cubit.chatListReversed[index].senderID == cubit.userID ? const EdgeInsets.only(top: 10, bottom: 10, left: 16) : const EdgeInsets.only(top: 10, bottom: 10, right: 16),
-          child: Align(
-            alignment: (cubit.chatListReversed[index].senderID == cubit.userID
-                ? Alignment.topRight
-                : Alignment.topLeft),
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius:
-                    cubit.chatListReversed[index].senderID == cubit.userID
-                        ? const BorderRadius.only(
-                            topLeft: Radius.circular(14.0),
-                            bottomLeft: Radius.circular(14.0),
-                            bottomRight: Radius.circular(14.0),
-                          )
-                        : const BorderRadius.only(
-                            topRight: Radius.circular(14.0),
-                            bottomLeft: Radius.circular(14.0),
-                            bottomRight: Radius.circular(14.0),
-                          ),
-                color: (cubit.chatListReversed[index].senderID == cubit.userID
-                    ? Colors.teal
-                    : Colors.grey.shade200),
-              ),
-              padding:
-                  const EdgeInsets.only(top: 10, bottom: 10, right: 10, left: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  cubit.chatListReversed[index].senderID != cubit.userID
-                      ? Text(
-                          cubit.chatListReversed[index].senderName,
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: cubit.chatListReversed[index].senderID ==
-                                    cubit.userID
-                                ? Colors.yellow
-                                : Colors.redAccent.shade700,
-                          ),
+      return Container(
+        padding: cubit.chatListReversed[index].senderID == cubit.userID
+            ? const EdgeInsets.only(top: 10, bottom: 10, left: 16)
+            : const EdgeInsets.only(top: 10, bottom: 10, right: 16),
+        child: Align(
+          alignment: (cubit.chatListReversed[index].senderID == cubit.userID
+              ? Alignment.topRight
+              : Alignment.topLeft),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius:
+                  cubit.chatListReversed[index].senderID == cubit.userID
+                      ? const BorderRadius.only(
+                          topLeft: Radius.circular(14.0),
+                          bottomLeft: Radius.circular(14.0),
+                          bottomRight: Radius.circular(14.0),
                         )
-                      : getEmptyWidget(),
-                  const SizedBox(
-                    height: 6.0,
+                      : const BorderRadius.only(
+                          topRight: Radius.circular(14.0),
+                          bottomLeft: Radius.circular(14.0),
+                          bottomRight: Radius.circular(14.0),
+                        ),
+              color: (cubit.chatListReversed[index].senderID == cubit.userID
+                  ? Colors.teal
+                  : Colors.grey.shade200),
+            ),
+            padding:
+                const EdgeInsets.only(top: 10, bottom: 10, right: 10, left: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Linkify(
+                  onOpen: (link) async {
+                    if (await canLaunch(link.url)) {
+                      await launch(link.url);
+                    } else {
+                      throw 'Could not launch $link';
+                    }
+                  },
+                  text: cubit.chatListReversed[index].message.toString(),
+                  style: TextStyle(
+                    color:
+                        cubit.chatListReversed[index].senderID == cubit.userID
+                            ? Colors.white.withOpacity(0.9)
+                            : Colors.black,
+                    fontSize: 11.0,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  Linkify(
-                    onOpen: (link) async {
-                      if (await canLaunch(link.url)) {
-                        await launch(link.url);
-                      } else {
-                        throw 'Could not launch $link';
-                      }
-                    },
-                    text: cubit.chatListReversed[index].message.toString(),
-                    style: TextStyle(
-                      color:
-                          cubit.chatListReversed[index].senderID == cubit.userID
-                              ? Colors.white.withOpacity(0.9)
-                              : Colors.black,
-                      fontSize: 11.0,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    linkStyle: TextStyle(
-                      color: Colors.cyanAccent.shade700,
-                      fontSize: 11.0,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    textDirection: TextDirection.rtl,
-                    textAlign: TextAlign.start,
+                  linkStyle: TextStyle(
+                    color: Colors.cyanAccent.shade700,
+                    fontSize: 11.0,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(
-                    height: 8.0,
+                  textDirection: TextDirection.rtl,
+                  textAlign: TextAlign.start,
+                ),
+                const SizedBox(
+                  height: 8.0,
+                ),
+                Text(
+                  cubit.chatListReversed[index].messageTime,
+                  style: TextStyle(
+                    fontSize: 10,
+                    color:
+                        cubit.chatListReversed[index].senderID == cubit.userID
+                            ? Colors.white.withOpacity(0.9)
+                            : Colors.black,
                   ),
-                  Text(
-                    cubit.chatListReversed[index].messageTime,
-                    style: TextStyle(
-                      fontSize: 10,
-                      color:
-                          cubit.chatListReversed[index].senderID == cubit.userID
-                              ? Colors.white.withOpacity(0.9)
-                              : Colors.black,
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
       );
     } else {
-      return imageMessageView(context, cubit, index, state);
+      return galleryImageMessageView(context, cubit, index, state);
     }
   }
 
-  Widget imageMessageView(BuildContext context, GroupConversationCubit cubit,
-      int index, GroupConversationStates state) {
+  Widget imageMessageView(BuildContext context, SocialConversationCubit cubit,
+      int index, SocialConversationStates state) {
     if (cubit.chatListReversed[index].type == "Image") {
       return Align(
         alignment: cubit.chatListReversed[index].senderID == cubit.userID
@@ -357,68 +293,17 @@ class _GroupConversationScreenState extends State<GroupConversationScreen> {
           child: InkWell(
             onTap: () {
               Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) {
-                    return InteractiveViewer(
-                      child: Scaffold(
-                        backgroundColor: Colors.black,
-                        appBar: AppBar(
-                          systemOverlayStyle: const SystemUiOverlayStyle(
-                            statusBarColor: Colors.black,
-                            statusBarIconBrightness: Brightness.light,
-                            // For Android (dark icons)
-                            statusBarBrightness:
-                                Brightness.dark, // For iOS (dark icons)
-                          ),
-                          backgroundColor: Colors.black,
-                          elevation: 0.0,
-                          toolbarHeight: 0,
-                        ),
-                        body: Center(
-                          child: CachedNetworkImage(
-                            imageUrl: cubit.chatListReversed[index].fileName,
-                            imageBuilder: (context, imageProvider) => ClipRRect(
-                              borderRadius: BorderRadius.circular(0.0),
-                              child: FadeInImage(
-                                fit: BoxFit.cover,
-                                image: imageProvider,
-                                placeholder: const AssetImage(
-                                    "assets/images/placeholder.jpg"),
-                                imageErrorBuilder: (context, error, stackTrace) {
-                                  return Image.asset(
-                                    'assets/images/error.png',
-                                    fit: BoxFit.cover,
-                                  );
-                                },
-                              ),
-                            ),
-                            placeholder: (context, url) => const Center(
-                                child: CircularProgressIndicator(
-                              color: Colors.teal,
-                              strokeWidth: 0.8,
-                            )),
-                            errorWidget: (context, url, error) =>
-                                const FadeInImage(
-                              fit: BoxFit.cover,
-                              image: AssetImage("assets/images/error.png"),
-                              placeholder:
-                                  AssetImage("assets/images/placeholder.jpg"),
-                            ),
-                          ),
-                        ),
+                  context,
+                  ScaleTransition1(
+                      page: ChatOpenedImageScreen(
+                        imageUrl: cubit.chatListReversed[index].fileName,
                       ),
-                      maxScale: 3.5,
-                      panEnabled: true,
-                      scaleEnabled: true,
-                    );
-                  },
-                ),
-              );
+                      startDuration: const Duration(milliseconds: 1000),
+                      closeDuration: const Duration(milliseconds: 600),
+                      type: ScaleTrasitionTypes.bottomRight));
             },
             child: Container(
-              width: MediaQuery.of(context).size.width *
-                  0.60, // 45% of total width
+              width: MediaQuery.of(context).size.width * 0.60, // 45% of total width
               height: 300,
               decoration: BoxDecoration(
                   borderRadius:
@@ -443,30 +328,15 @@ class _GroupConversationScreenState extends State<GroupConversationScreen> {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         //mainAxisSize: MainAxisSize.min,
                         children: [
-                          Expanded(
-                            flex: 1,
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.only(right: 4.0, top: 4.0),
-                              child: Text(
-                                cubit.chatListReversed[index].senderName,
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  color:
-                                      cubit.chatListReversed[index].senderID ==
-                                              cubit.userID
-                                          ? Colors.yellow
-                                          : Colors.redAccent.shade700,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(
-                            height: 6.0,
-                          ),
-                          Expanded(
-                            flex: 20,
-                            child: ClipRRect(
+                          BuildCondition(
+                            condition: cubit.uploadingImageName ==
+                                cubit.chatListReversed[index].messageFullTime,
+                            builder: (context) => const Center(
+                                child: CircularProgressIndicator(
+                              color: Colors.teal,
+                              strokeWidth: 0.8,
+                            )),
+                            fallback: (context) => ClipRRect(
                               borderRadius: BorderRadius.circular(14),
                               child: ClipRRect(
                                 borderRadius: const BorderRadius.only(
@@ -476,8 +346,9 @@ class _GroupConversationScreenState extends State<GroupConversationScreen> {
                                     bottomRight: Radius.circular(14.0)),
                                 child: CachedNetworkImage(
                                   width: double.infinity,
-                                  imageUrl: cubit
-                                      .chatListReversed[index].fileName
+                                  height: 296,
+                                  imageUrl: cubit.chatListReversed[index]
+                                      .chatImagesModel!.messageImagesList[0]
                                       .toString(),
                                   imageBuilder: (context, imageProvider) =>
                                       ClipRRect(
@@ -515,52 +386,65 @@ class _GroupConversationScreenState extends State<GroupConversationScreen> {
                           ),
                         ],
                       )
-                    : ClipRRect(
-                        borderRadius: BorderRadius.circular(14),
-                        child: ClipRRect(
-                          borderRadius:
-                              cubit.chatListReversed[index].senderID !=
-                                      cubit.userID
-                                  ? const BorderRadius.only(
-                                      topLeft: Radius.circular(14.0),
-                                      bottomLeft: Radius.circular(14.0),
-                                      bottomRight: Radius.circular(14.0),
-                                    )
-                                  : const BorderRadius.only(
-                                      topRight: Radius.circular(14.0),
-                                      bottomLeft: Radius.circular(14.0),
-                                      bottomRight: Radius.circular(14.0),
-                                    ),
-                          child: CachedNetworkImage(
-                            width: double.infinity,
-                            imageUrl: cubit.chatListReversed[index].fileName,
-                            imageBuilder: (context, imageProvider) => ClipRRect(
-                              borderRadius: BorderRadius.circular(0.0),
-                              child: FadeInImage(
-                                fit: BoxFit.cover,
-                                image: imageProvider,
-                                placeholder: const AssetImage(
-                                    "assets/images/placeholder.jpg"),
-                                imageErrorBuilder:
-                                    (context, error, stackTrace) {
-                                  return Image.asset(
-                                    'assets/images/error.png',
-                                    fit: BoxFit.cover,
-                                  );
-                                },
+                    : BuildCondition(
+                        condition: cubit.uploadingImageName ==
+                            cubit.chatListReversed[index].messageFullTime,
+                        builder: (context) => const Center(
+                            child: CircularProgressIndicator(
+                          color: Colors.teal,
+                          strokeWidth: 0.8,
+                        )),
+                        fallback: (context) => ClipRRect(
+                          borderRadius: BorderRadius.circular(14),
+                          child: ClipRRect(
+                            borderRadius:
+                                cubit.chatListReversed[index].senderID !=
+                                        cubit.userID
+                                    ? const BorderRadius.only(
+                                        topLeft: Radius.circular(14.0),
+                                        bottomLeft: Radius.circular(14.0),
+                                        bottomRight: Radius.circular(14.0),
+                                      )
+                                    : const BorderRadius.only(
+                                        topRight: Radius.circular(14.0),
+                                        bottomLeft: Radius.circular(14.0),
+                                        bottomRight: Radius.circular(14.0),
+                                      ),
+                            child: CachedNetworkImage(
+                              width: double.infinity,
+                              height: 296,
+                              imageUrl: cubit.chatListReversed[index]
+                                  .chatImagesModel!.messageImagesList[0]
+                                  .toString(),
+                              imageBuilder: (context, imageProvider) =>
+                                  ClipRRect(
+                                borderRadius: BorderRadius.circular(0.0),
+                                child: FadeInImage(
+                                  fit: BoxFit.cover,
+                                  image: imageProvider,
+                                  placeholder: const AssetImage(
+                                      "assets/images/black_back.png"),
+                                  imageErrorBuilder:
+                                      (context, error, stackTrace) {
+                                    return Image.asset(
+                                      'assets/images/error.png',
+                                      fit: BoxFit.cover,
+                                    );
+                                  },
+                                ),
                               ),
-                            ),
-                            placeholder: (context, url) => Center(
-                                child: CircularProgressIndicator(
-                              color: Colors.white.withOpacity(0.9),
-                              strokeWidth: 0.8,
-                            )),
-                            errorWidget: (context, url, error) =>
-                                const FadeInImage(
-                              fit: BoxFit.cover,
-                              image: AssetImage("assets/images/error.png"),
-                              placeholder:
-                                  AssetImage("assets/images/placeholder.jpg"),
+                              placeholder: (context, url) => Center(
+                                  child: CircularProgressIndicator(
+                                color: Colors.white.withOpacity(0.9),
+                                strokeWidth: 0.8,
+                              )),
+                              errorWidget: (context, url, error) =>
+                                  const FadeInImage(
+                                fit: BoxFit.cover,
+                                image: AssetImage("assets/images/error.png"),
+                                placeholder:
+                                    AssetImage("assets/images/black_back.png"),
+                              ),
                             ),
                           ),
                         ),
@@ -575,186 +459,144 @@ class _GroupConversationScreenState extends State<GroupConversationScreen> {
     }
   }
 
-  Widget multipleImageMessageView(BuildContext context,
-      GroupConversationCubit cubit, int index, GroupConversationStates state) {
-    if (cubit.chatListReversed[index].type == "Image") {
-      return Align(
-        alignment: cubit.chatListReversed[index].senderID == cubit.userID
-            ? Alignment.centerLeft
-            : Alignment.centerRight,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
-          child: InkWell(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) {
-                    return InteractiveViewer(
-                      child: CachedNetworkImage(
-                        imageUrl: cubit
-                            .chatListReversed[index].messageImages![0]
-                            .toString()
-                            .replaceAll("[", "")
-                            .replaceAll("]", ""),
-                        imageBuilder: (context, imageProvider) => ClipRRect(
-                          borderRadius: BorderRadius.circular(0.0),
-                          child: FadeInImage(
-                            height: double.infinity,
-                            width: double.infinity,
-                            fit: BoxFit.fill,
-                            image: imageProvider,
-                            placeholder: const AssetImage(
-                                "assets/images/placeholder.jpg"),
-                            imageErrorBuilder: (context, error, stackTrace) {
-                              return Image.asset(
-                                'assets/images/error.png',
-                                fit: BoxFit.fill,
-                                height: double.infinity,
-                                width: double.infinity,
-                              );
-                            },
-                          ),
-                        ),
-                        placeholder: (context, url) => const FadeInImage(
-                          height: double.infinity,
-                          width: double.infinity,
-                          fit: BoxFit.fill,
-                          image: AssetImage("assets/images/placeholder.jpg"),
-                          placeholder:
-                              AssetImage("assets/images/placeholder.jpg"),
-                        ),
-                        errorWidget: (context, url, error) => const FadeInImage(
-                          height: double.infinity,
-                          width: double.infinity,
-                          fit: BoxFit.fill,
-                          image: AssetImage("assets/images/error.png"),
-                          placeholder:
-                              AssetImage("assets/images/placeholder.jpg"),
+  Widget galleryImageMessageView(
+      BuildContext context,
+      SocialConversationCubit cubit,
+      int index,
+      SocialConversationStates state) {
+    if (cubit.chatListReversed[index].type == "Image" &&
+        cubit.chatListReversed[index].chatImagesModel != null) {
+      return cubit.chatListReversed[index].imagesCount > 1
+          ? Align(
+              alignment: cubit.chatListReversed[index].senderID == cubit.userID
+                  ? Alignment.centerRight
+                  : Alignment.centerLeft,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Container(
+                  width: MediaQuery.of(context).size.width * 0.65,
+                  // 45% of total width
+                  //height: 300,
+                  alignment: Alignment.topLeft,
+                  decoration: BoxDecoration(
+                    borderRadius:
+                        cubit.chatListReversed[index].senderID == cubit.userID
+                            ? const BorderRadius.only(
+                                topLeft: Radius.circular(14.0),
+                                bottomLeft: Radius.circular(14.0),
+                                bottomRight: Radius.circular(14.0),
+                              )
+                            : const BorderRadius.only(
+                                topRight: Radius.circular(14.0),
+                                bottomLeft: Radius.circular(14.0),
+                                bottomRight: Radius.circular(14.0),
+                              ),
+                    color:
+                        (cubit.chatListReversed[index].senderID == cubit.userID
+                            ? Colors.teal
+                            : Colors.grey.shade200),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(6),
+                    child: BuildCondition(
+                      condition: cubit.uploadingImageName ==
+                          cubit.chatListReversed[index].messageFullTime,
+                      builder: (context) => const Center(
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 0.8,
                         ),
                       ),
-                      maxScale: 3.5,
-                      panEnabled: false,
-                    );
-                  },
-                ),
-              );
-            },
-            child: Container(
-              width: MediaQuery.of(context).size.width * 0.65,
-              // 45% of total width
-              height: 300,
-              alignment: Alignment.topLeft,
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8), color: Colors.teal),
-              child: Padding(
-                padding: const EdgeInsets.all(4.0),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: ClipRRect(
-                    borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(8.0),
-                        topRight: Radius.circular(8.0),
-                        bottomLeft: Radius.circular(8.0),
-                        bottomRight: Radius.circular(8.0)),
-                    child: FadeInImage(
-                      height: 140,
-                      width: MediaQuery.of(context).size.width * 0.60 * 0.5,
-                      fit: BoxFit.fill,
-                      image: NetworkImage(cubit
-                          .chatListReversed[index].messageImages![0]
-                          .toString()
-                          .replaceAll("[", "")
-                          .replaceAll("]", "")),
-                      placeholder:
-                          const AssetImage("assets/images/placeholder.jpg"),
-                      imageErrorBuilder: (context, error, stackTrace) {
-                        return Image.asset(
-                          'assets/images/error.png',
-                          fit: BoxFit.fill,
-                          height: 250,
-                          width: MediaQuery.of(context).size.width,
-                        );
-                      },
+                      fallback: (context) => GridView.builder(
+                          primary: false,
+                          itemCount:
+                              cubit.chatListReversed[index].imagesCount > 4
+                                  ? 4
+                                  : cubit.chatListReversed[index].imagesCount,
+                          padding: const EdgeInsets.all(0),
+                          semanticChildCount: 1,
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            mainAxisSpacing: 5,
+                            crossAxisSpacing: 3,
+                          ),
+                          shrinkWrap: true,
+                          itemBuilder: (BuildContext context, int imageIndex) {
+                            return cubit.chatListReversed[index].imagesCount >
+                                        4 &&
+                                    imageIndex == 3
+                                ? buildImageNumbers(index, imageIndex, cubit)
+                                : GalleryThumbnail(
+                                    galleryItem: cubit
+                                        .chatListReversed[index]
+                                        .chatImagesModel!
+                                        .messageImagesList[imageIndex]!,
+                                    onTap: () {
+                                      openImageFullScreen(
+                                          index, imageIndex, cubit);
+                                    },
+                                  );
+                          }),
                     ),
                   ),
                 ),
               ),
+            )
+          : imageMessageView(context, cubit, index, state);
+    } else {
+      return fileMessageView(cubit, index, state);
+    }
+  }
+
+  Widget buildImageNumbers(
+      int index, int imageIndex, SocialConversationCubit cubit) {
+    return GestureDetector(
+      onTap: () {
+        openImageFullScreen(index, imageIndex, cubit);
+      },
+      child: Stack(
+        alignment: AlignmentDirectional.center,
+        fit: StackFit.expand,
+        children: <Widget>[
+          GalleryThumbnail(
+            galleryItem: cubit.chatListReversed[index].chatImagesModel!
+                .messageImagesList[imageIndex]!,
+          ),
+          Container(
+            color: Colors.black.withOpacity(.5),
+            child: Center(
+              child: Text(
+                "+ ${cubit.chatListReversed[index].imagesCount - imageIndex}",
+                style: const TextStyle(color: Colors.white, fontSize: 35),
+              ),
             ),
           ),
-        ),
-      );
-    } else {
-      return fileMessageView(cubit, index, state);
-    }
+        ],
+      ),
+    );
   }
 
-  Widget galleryImageMessageView(BuildContext context,
-      GroupConversationCubit cubit, int index, GroupConversationStates state) {
-    if (cubit.chatListReversed[index].type == "Image") {
-      return Align(
-        alignment: cubit.chatListReversed[index].senderID == cubit.userID
-            ? Alignment.centerLeft
-            : Alignment.centerRight,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
-          child: Container(
-            width: MediaQuery.of(context).size.width * 0.65,
-            // 45% of total width
-            height: 300,
-            alignment: Alignment.topLeft,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8), color: Colors.teal),
-            child: Padding(
-                padding: const EdgeInsets.all(4),
-                child: cubit.chatListReversed[index].galleryModelList!.isEmpty
-                    ? getEmptyWidget()
-                    : GridView.builder(
-                        primary: false,
-                        itemCount: cubit.chatListReversed[index]
-                                    .galleryModelList!.length >
-                                3
-                            ? 3
-                            : cubit.chatListReversed[index].galleryModelList!
-                                .length,
-                        padding: const EdgeInsets.all(0),
-                        semanticChildCount: 1,
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2,
-                                mainAxisSpacing: 5,
-                                crossAxisSpacing: 3),
-                        shrinkWrap: true,
-                        itemBuilder: (BuildContext context, int index) {
-                          return ClipRRect(
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(8)),
-                              // if have less than 4 image we build GalleryItemThumbnail
-                              // if have mor than 4 build image number 3 with number for other images
-                              child: cubit.chatListReversed[index]
-                                              .galleryModelList!.length >
-                                          3 &&
-                                      index == 2
-                                  ? getEmptyWidget()/*buildImageNumbers(index, cubit)*/
-                                  : /*GalleryThumbnail(
-                                      galleryItem: cubit.chatListReversed[index]
-                                          .galleryModelList![index]!,
-                                      onTap: () {
-                                        openImageFullScreen(index, cubit);
-                                      },
-                                    ),*/
-                            getEmptyWidget()
-                          );
-                        })),
-          ),
+  void openImageFullScreen(final int indexOfMessage, int indexOfImage,
+      SocialConversationCubit cubit) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => GalleryImageWrapper(
+          titleGallery: "",
+          galleryItems: cubit.chatListReversed[indexOfMessage].chatImagesModel!
+              .messageImagesList,
+          backgroundDecoration: BoxDecoration(
+              color: Colors.black, borderRadius: BorderRadius.circular(4)),
+          initialIndex: indexOfImage,
+          scrollDirection: Axis.horizontal,
         ),
-      );
-    } else {
-      return fileMessageView(cubit, index, state);
-    }
+      ),
+    );
   }
 
-  Widget fileMessageView(GroupConversationCubit cubit, int index, GroupConversationStates state) {
+  Widget fileMessageView(SocialConversationCubit cubit, int index,
+      SocialConversationStates state) {
     return cubit.chatListReversed[index].type == "file"
         ? Align(
             alignment: cubit.chatListReversed[index].senderID == cubit.userID
@@ -767,16 +609,18 @@ class _GroupConversationScreenState extends State<GroupConversationScreen> {
                     0.65, // 45% of total width
                 //height: 60,
                 decoration: BoxDecoration(
-                  borderRadius: cubit.chatListReversed[index].senderID == cubit.userID ? const BorderRadius.only(
-                    topLeft: Radius.circular(14.0),
-                    bottomLeft: Radius.circular(14.0),
-                    bottomRight: Radius.circular(14.0),
-                  )
-                        : const BorderRadius.only(
-                topRight: Radius.circular(14.0),
-                bottomLeft: Radius.circular(14.0),
-                bottomRight: Radius.circular(14.0),
-              ),
+                  borderRadius:
+                      cubit.chatListReversed[index].senderID == cubit.userID
+                          ? const BorderRadius.only(
+                              topLeft: Radius.circular(14.0),
+                              bottomLeft: Radius.circular(14.0),
+                              bottomRight: Radius.circular(14.0),
+                            )
+                          : const BorderRadius.only(
+                              topRight: Radius.circular(14.0),
+                              bottomLeft: Radius.circular(14.0),
+                              bottomRight: Radius.circular(14.0),
+                            ),
                   color: cubit.chatListReversed[index].senderID == cubit.userID
                       ? Colors.teal
                       : Colors.grey.shade200,
@@ -791,57 +635,41 @@ class _GroupConversationScreenState extends State<GroupConversationScreen> {
                             ? InkWell(
                                 onTap: () {
                                   if (cubit.checkForDocumentFile(
-                                      cubit.chatListReversed[index].fileName,
-                                      widget.groupName,
-                                      widget.groupID,
-                                      cubit.userName)) {
+                                      cubit.chatListReversed[index].fileName)) {
                                     OpenFile.open(
-                                        "/storage/emulated/0/Download/Future Of Egypt Media/Documents/${widget.groupName}/${cubit.chatListReversed[index].fileName}");
+                                        "/storage/emulated/0/Download/Future Of Egypt Media/Documents/${cubit.chatListReversed[index].fileName}");
                                   } else {
                                     cubit
                                         .downloadDocumentFile(
+                                            widget.userID,
                                             cubit.chatListReversed[index]
-                                                .fileName,
-                                            cubit.userName,
-                                            widget.groupName,
-                                            widget.groupID)
+                                                .fileName)
                                         .then((value) {
                                       OpenFile.open(
-                                          "/storage/emulated/0/Download/Future Of Egypt Media/Documents/${widget.groupName}/${cubit.chatListReversed[index].fileName}");
+                                          "/storage/emulated/0/Download/Future Of Egypt Media/Documents/${cubit.chatListReversed[index].fileName}");
                                     });
                                   }
                                 },
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
-                                    cubit.chatListReversed[index].senderID !=
-                                            cubit.userID
-                                        ? Text(
-                                            cubit.chatListReversed[index]
-                                                .senderName,
-                                            style: TextStyle(
-                                              fontSize: 10,
-                                              color:
-                                                  cubit.chatListReversed[index]
-                                                              .senderID ==
-                                                          cubit.userID
-                                                      ? Colors.yellow
-                                                      : Colors
-                                                          .redAccent.shade700,
-                                            ),
-                                          )
-                                        : getEmptyWidget(),
-                                    const SizedBox(
-                                      height: 2.0,
-                                    ),
                                     Padding(
-                                      padding: const EdgeInsets.only(bottom: 2, right: 2),
+                                      padding: const EdgeInsets.only(
+                                          bottom: 2, right: 2),
                                       child: Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
                                         children: [
                                           BuildCondition(
-                                            condition: (cubit.downloadingFileName == cubit.chatListReversed[index].fileName) || (cubit.uploadingFileName == cubit.chatListReversed[index].fileName),
+                                            condition: (cubit
+                                                        .downloadingFileName ==
+                                                    cubit
+                                                        .chatListReversed[index]
+                                                        .fileName) ||
+                                                (cubit.uploadingFileName ==
+                                                    cubit
+                                                        .chatListReversed[index]
+                                                        .fileName),
                                             fallback: (context) => Icon(
                                               IconlyBroken.document,
                                               color:
@@ -887,18 +715,38 @@ class _GroupConversationScreenState extends State<GroupConversationScreen> {
                                       ),
                                     ),
                                     const SizedBox(
-                                      height: 1.0,
+                                      height: 6.0,
                                     ),
-                                    Text(
-                                      cubit.chatListReversed[index].messageTime,
-                                      style: TextStyle(
-                                        fontSize: 10,
-                                        color: cubit.chatListReversed[index]
-                                                    .senderID ==
-                                                cubit.userID
-                                            ? Colors.white.withOpacity(0.9)
-                                            : Colors.black,
-                                      ),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                          cubit
+                                              .chatListReversed[index].fileSize,
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            color: cubit.chatListReversed[index]
+                                                        .senderID ==
+                                                    cubit.userID
+                                                ? Colors.white.withOpacity(0.9)
+                                                : Colors.black,
+                                          ),
+                                        ),
+                                        const Spacer(),
+                                        Text(
+                                          cubit.chatListReversed[index]
+                                              .messageTime
+                                              .toString(),
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            color: cubit.chatListReversed[index]
+                                                        .senderID ==
+                                                    cubit.userID
+                                                ? Colors.white.withOpacity(0.9)
+                                                : Colors.black,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),
@@ -906,49 +754,24 @@ class _GroupConversationScreenState extends State<GroupConversationScreen> {
                             : InkWell(
                                 onTap: () {
                                   if (cubit.checkForDocumentFile(
-                                      cubit.chatListReversed[index].fileName,
-                                      widget.groupName,
-                                      widget.groupID,
-                                      cubit.userName)) {
+                                      cubit.chatListReversed[index].fileName)) {
                                     OpenFile.open(
-                                        "/storage/emulated/0/Download/Future Of Egypt Media/Documents/${widget.groupName}/${cubit.chatListReversed[index].fileName}");
+                                        "/storage/emulated/0/Download/Future Of Egypt Media/Documents/${cubit.chatListReversed[index].fileName}");
                                   } else {
                                     cubit
                                         .downloadDocumentFile(
+                                            widget.userID,
                                             cubit.chatListReversed[index]
-                                                .fileName,
-                                            cubit.userName,
-                                            widget.groupName,
-                                            widget.groupID)
+                                                .fileName)
                                         .then((value) {
                                       OpenFile.open(
-                                          "/storage/emulated/0/Download/Future Of Egypt Media/Documents/${widget.groupName}/${cubit.chatListReversed[index].fileName}");
+                                          "/storage/emulated/0/Download/Future Of Egypt Media/Documents/${cubit.chatListReversed[index].fileName}");
                                     });
                                   }
                                 },
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
-                                    cubit.chatListReversed[index].senderID !=
-                                            cubit.userID
-                                        ? Text(
-                                            cubit.chatListReversed[index]
-                                                .senderName,
-                                            style: TextStyle(
-                                              fontSize: 10,
-                                              color:
-                                                  cubit.chatListReversed[index]
-                                                              .senderID ==
-                                                          cubit.userID
-                                                      ? Colors.yellow
-                                                      : Colors
-                                                          .redAccent.shade700,
-                                            ),
-                                          )
-                                        : getEmptyWidget(),
-                                    const SizedBox(
-                                      height: 6.0,
-                                    ),
                                     Padding(
                                       padding: const EdgeInsets.only(bottom: 4),
                                       child: Row(
@@ -956,8 +779,15 @@ class _GroupConversationScreenState extends State<GroupConversationScreen> {
                                             MainAxisAlignment.spaceBetween,
                                         children: [
                                           BuildCondition(
-                                            condition:
-                                            (cubit.downloadingFileName == cubit.chatListReversed[index].fileName) || (cubit.uploadingFileName == cubit.chatListReversed[index].fileName),
+                                            condition: (cubit
+                                                        .downloadingFileName ==
+                                                    cubit
+                                                        .chatListReversed[index]
+                                                        .fileName) ||
+                                                (cubit.uploadingFileName ==
+                                                    cubit
+                                                        .chatListReversed[index]
+                                                        .fileName),
                                             fallback: (context) => Icon(
                                               IconlyBroken.document,
                                               color:
@@ -1029,11 +859,11 @@ class _GroupConversationScreenState extends State<GroupConversationScreen> {
               ),
             ),
           )
-        : audioGroupConversationManagement(context, index, cubit);
+        : audioConversationManagement(context, index, cubit);
   }
 
-  Widget audioGroupConversationManagement(BuildContext itemBuilderContext,
-      int index, GroupConversationCubit cubit) {
+  Widget audioConversationManagement(BuildContext itemBuilderContext, int index,
+      SocialConversationCubit cubit) {
     return Padding(
       padding: const EdgeInsets.only(top: 4, bottom: 4),
       child: Column(
@@ -1087,53 +917,42 @@ class _GroupConversationScreenState extends State<GroupConversationScreen> {
                               if (cubit.chatListReversed[index].senderID ==
                                   cubit.userID) {
                                 if (cubit.checkForAudioFile(
-                                    cubit.chatListReversed[index].fileName,
-                                    widget.groupName,
-                                    widget.groupID,
-                                    cubit.userName)) {
-
-                                  cubit.chatMicrophoneOnTapAction(
-                                      index,
-                                      cubit.chatListReversed[index].fileName,
-                                      widget.groupName,
-                                      cubit.userName);
+                                    cubit.chatListReversed[index].fileName)) {
+                                  cubit.chatMicrophoneOnTapAction(index,
+                                      cubit.chatListReversed[index].fileName);
                                 } else {
                                   cubit.downloadAudioFile(
                                       cubit.chatListReversed[index].fileName,
-                                      cubit.userName,
-                                      widget.groupName,
-                                      widget.groupID,
                                       index);
                                 }
                               } else {
                                 if (cubit.checkForAudioFile(
-                                    cubit.chatListReversed[index].fileName,
-                                    widget.groupName,
-                                    widget.groupID,
-                                    cubit.userName)) {
-                                  cubit.chatMicrophoneOnTapAction(
-                                      index,
-                                      cubit.chatListReversed[index].fileName,
-                                      widget.groupName,
-                                      cubit.userName);
+                                    cubit.chatListReversed[index].fileName)) {
+                                  cubit.chatMicrophoneOnTapAction(index,
+                                      cubit.chatListReversed[index].fileName);
                                 } else {
                                   cubit.downloadAudioFile(
                                       cubit.chatListReversed[index].fileName,
-                                      cubit.userName,
-                                      widget.groupName,
-                                      widget.groupID,
                                       index);
                                 }
                               }
                             },
                             child: BuildCondition(
-                              condition: (cubit.downloadingRecordName == cubit.chatListReversed[index].fileName) || (cubit.uploadingRecordName == cubit.chatListReversed[index].fileName),
-                              builder: (context) => CircularProgressIndicator(
-                                color: cubit.chatListReversed[index].senderID ==
-                                        cubit.userID
-                                    ? Colors.white.withOpacity(0.8)
-                                    : Colors.teal,
-                                strokeWidth: 0.8,
+                              condition: (cubit.downloadingRecordName ==
+                                      cubit.chatListReversed[index].fileName) ||
+                                  (cubit.uploadingRecordName ==
+                                      cubit.chatListReversed[index].fileName),
+                              builder: (context) => Padding(
+                                padding:
+                                    const EdgeInsets.only(left: 4, right: 4),
+                                child: CircularProgressIndicator(
+                                  color:
+                                      cubit.chatListReversed[index].senderID ==
+                                              cubit.userID
+                                          ? Colors.white.withOpacity(0.8)
+                                          : Colors.teal,
+                                  strokeWidth: 0.8,
+                                ),
                               ),
                               fallback: (context) => Icon(
                                 index == cubit.lastAudioPlayingIndex
@@ -1266,8 +1085,7 @@ class _GroupConversationScreenState extends State<GroupConversationScreen> {
                                 "assets/images/me.jpg",
                               ),
                               child: CachedNetworkImage(
-                                imageUrl:
-                                    cubit.chatListReversed[index].senderImage,
+                                imageUrl: widget.userImage,
                                 imageBuilder: (context, imageProvider) =>
                                     ClipOval(
                                   child: FadeInImage(
@@ -1326,7 +1144,7 @@ class _GroupConversationScreenState extends State<GroupConversationScreen> {
                               ),
                               child: CachedNetworkImage(
                                 imageUrl:
-                                    cubit.chatListReversed[index].senderImage,
+                                    "https://firebasestorage.googleapis.com/v0/b/mostaqbal-masr.appspot.com/o/Clients%2FFuture%20Of%20Egypt.jpg?alt=media&token=9c330dd7-7554-420c-9523-60bf5a5ec71e",
                                 imageBuilder: (context, imageProvider) =>
                                     ClipOval(
                                   child: FadeInImage(
@@ -1371,54 +1189,42 @@ class _GroupConversationScreenState extends State<GroupConversationScreen> {
                               if (cubit.chatListReversed[index].senderID ==
                                   cubit.userID) {
                                 if (cubit.checkForAudioFile(
-                                    cubit.chatListReversed[index].fileName,
-                                    widget.groupName,
-                                    widget.groupID,
-                                    cubit.userName)) {
-                                  cubit.chatMicrophoneOnTapAction(
-                                      index,
-                                      cubit.chatListReversed[index].fileName,
-                                      widget.groupName,
-                                      cubit.userName);
+                                    cubit.chatListReversed[index].fileName)) {
+                                  cubit.chatMicrophoneOnTapAction(index,
+                                      cubit.chatListReversed[index].fileName);
                                 } else {
                                   cubit.downloadAudioFile(
                                       cubit.chatListReversed[index].fileName,
-                                      cubit.userName,
-                                      widget.groupName,
-                                      widget.groupID,
                                       index);
                                 }
                               } else {
                                 if (cubit.checkForAudioFile(
-                                    cubit.chatListReversed[index].fileName,
-                                    widget.groupName,
-                                    widget.groupID,
-                                    cubit.userName)) {
-                                  cubit.chatMicrophoneOnTapAction(
-                                      index,
-                                      cubit.chatListReversed[index].fileName,
-                                      widget.groupName,
-                                      cubit.userName);
+                                    cubit.chatListReversed[index].fileName)) {
+                                  cubit.chatMicrophoneOnTapAction(index,
+                                      cubit.chatListReversed[index].fileName);
                                 } else {
                                   cubit.downloadAudioFile(
                                       cubit.chatListReversed[index].fileName,
-                                      cubit.userName,
-                                      widget.groupName,
-                                      widget.groupID,
                                       index);
                                 }
                               }
                             },
                             child: BuildCondition(
                               condition: (cubit.downloadingRecordName ==
-                                  cubit.chatListReversed[index].fileName) || (cubit.uploadingRecordName ==
-                                  cubit.chatListReversed[index].fileName),
-                              builder: (context) => CircularProgressIndicator(
-                                color: cubit.chatListReversed[index].senderID ==
-                                        cubit.userID
-                                    ? Colors.white.withOpacity(0.8)
-                                    : Colors.teal,
-                                strokeWidth: 0.8,
+                                      cubit.chatListReversed[index].fileName) ||
+                                  (cubit.uploadingRecordName ==
+                                      cubit.chatListReversed[index].fileName),
+                              builder: (context) => Padding(
+                                padding:
+                                    const EdgeInsets.only(left: 4, right: 4),
+                                child: CircularProgressIndicator(
+                                  color:
+                                      cubit.chatListReversed[index].senderID ==
+                                              cubit.userID
+                                          ? Colors.white.withOpacity(0.8)
+                                          : Colors.teal,
+                                  strokeWidth: 0.8,
+                                ),
                               ),
                               fallback: (context) => Icon(
                                 index == cubit.lastAudioPlayingIndex
@@ -1547,53 +1353,6 @@ class _GroupConversationScreenState extends State<GroupConversationScreen> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-/*
-  Widget buildImageNumbers(int index, GroupConversationCubit cubit) {
-    return GestureDetector(
-      onTap: () {
-        openImageFullScreen(index, cubit);
-      },
-      child: Stack(
-        alignment: AlignmentDirectional.center,
-        fit: StackFit.expand,
-        children: <Widget>[
-          GalleryThumbnail(
-            galleryItem:
-                cubit.chatListReversed[index].galleryModelList![index]!,
-          ),
-          Container(
-            color: Colors.black.withOpacity(.7),
-            child: Center(
-              child: Text(
-                "+ ${cubit.chatListReversed[index].galleryModelList!.length - index}",
-                style: const TextStyle(color: Colors.white, fontSize: 35),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-*/
-
-  void openImageFullScreen(
-      final int indexOfImage, GroupConversationCubit cubit) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => GalleryImageWrapper(
-          titleGallery: "",
-          galleryItems: cubit.chatListReversed[indexOfImage].galleryModelList!,
-          backgroundDecoration: const BoxDecoration(
-            color: Colors.black,
-          ),
-          initialIndex: 0,
-          scrollDirection: Axis.horizontal,
-        ),
       ),
     );
   }

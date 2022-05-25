@@ -4,6 +4,8 @@ class MonitorCoreInitialState extends MonitorCoreStates{}
 
 class MonitorCoreChangeFilterState extends MonitorCoreStates{}
 
+class MonitorCoreChangeButtonSizeState extends MonitorCoreStates{}
+
 class MonitorCoreNavigateSuccessState extends MonitorCoreStates{}
 
 class MonitorCoreLoadingClerksState extends MonitorCoreStates{}

@@ -386,7 +386,7 @@ class _GroupDetailsState extends State<GroupDetailsScreen> {
                                                   ),
                                                   Text(
                                                     cubit.membersinfolist[index]
-                                                        .clerkName!,
+                                                        .clerkName,
                                                     maxLines: 1,
                                                     overflow:
                                                         TextOverflow.ellipsis,

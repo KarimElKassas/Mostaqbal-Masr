@@ -4,6 +4,10 @@ class SocialDisplayChatsInitialState extends SocialDisplayChatsStates{}
 
 class SocialDisplayChatsFilterChatsState extends SocialDisplayChatsStates{}
 
+class SocialDisplayChatsLoadingCreateChatState extends SocialDisplayChatsStates{}
+
+class SocialDisplayChatsCreateChatSuccessState extends SocialDisplayChatsStates{}
+
 class SocialDisplayChatsLoadingChatsState extends SocialDisplayChatsStates{}
 
 class SocialDisplayChatsGetMessagesSuccessState extends SocialDisplayChatsStates{}

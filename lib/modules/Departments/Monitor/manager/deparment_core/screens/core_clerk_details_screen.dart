@@ -6,13 +6,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:mostaqbal_masr/modules/Departments/Monitor/manager/deparment_core/cubit/core_clerk_details_cubit.dart';
 import 'package:mostaqbal_masr/modules/Departments/Monitor/manager/deparment_core/cubit/core_clerk_details_states.dart';
+import 'package:mostaqbal_masr/modules/Global/Chat/screens/social_conversation_screen.dart';
+import 'package:mostaqbal_masr/shared/components.dart';
 
 
 
 class CoreClerkDetailsScreen extends StatefulWidget {
-  const CoreClerkDetailsScreen({Key? key , required this.userID, required this.userName, required this.userPhone, required this.userImageUrl, required this.userDocNumber,}) : super(key: key);
+  const CoreClerkDetailsScreen({Key? key , required this.userID, required this.userName, required this.userPhone, required this.userImageUrl, required this.userDocNumber, required this.userJob, required this.onFirebase, required this.userToken}) : super(key: key);
 
-  final String userID, userName, userPhone,  userImageUrl, userDocNumber;
+  final String userID, userName, userPhone,  userImageUrl, userDocNumber, userJob, onFirebase, userToken;
   @override
   State<CoreClerkDetailsScreen> createState() => _CoreClerkDetailsScreenState();
 }
@@ -22,8 +24,7 @@ class _CoreClerkDetailsScreenState extends State<CoreClerkDetailsScreen> {
   var phoneController = TextEditingController();
   var docNumberController = TextEditingController();
   var passwordController = TextEditingController();
-  var cityController = TextEditingController();
-  var regionController = TextEditingController();
+  var jobController = TextEditingController();
 
   @override
   void initState() {
@@ -31,6 +32,7 @@ class _CoreClerkDetailsScreenState extends State<CoreClerkDetailsScreen> {
     nameController.text = widget.userName;
     phoneController.text = widget.userPhone;
     docNumberController.text = widget.userDocNumber;
+    jobController.text = widget.userJob;
   }
   @override
   Widget build(BuildContext context) {
@@ -143,6 +145,7 @@ class _CoreClerkDetailsScreenState extends State<CoreClerkDetailsScreen> {
                             if (value!.isEmpty) {
                               return 'يجب ادخال اسم المستخدم !';
                             }
+                            return null;
                           },
                           decoration: InputDecoration(
                             focusedBorder: const OutlineInputBorder(
@@ -198,6 +201,7 @@ class _CoreClerkDetailsScreenState extends State<CoreClerkDetailsScreen> {
                                 !value.startsWith('015')) {
                               return 'رقم الهاتف يجب ان يكون تابع لاحدى شركات المحمول المصرية';
                             }
+                            return null;
                           },
                           decoration: InputDecoration(
                             focusedBorder: const OutlineInputBorder(
@@ -285,35 +289,123 @@ class _CoreClerkDetailsScreenState extends State<CoreClerkDetailsScreen> {
                           enabled: false,
                         ),
                         const SizedBox(height: 16,),
-                        InkWell(
-                          onTap: (){
-                            //cubit.navigate(context, ClerkPersonalEditScreen(userID: widget.userID, userName: widget.userName, userPhone: widget.userPhone, userPassword: widget.userPassword, userImageUrl: widget.userImageUrl, userDocNumber: widget.userDocNumber,));
+                        TextFormField(
+                          textDirection: TextDirection.rtl,
+                          controller: jobController,
+                          keyboardType: TextInputType.text,
+                          validator: (String? value) {
+                            if (value!.isEmpty) {
+                              return 'يجب ادخال الوظيفة';
+                            }
+                            return null;
                           },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(6),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.teal.shade700,
-                                  spreadRadius: 0.16,
-                                  blurRadius: 0,
-                                  offset: const Offset(
-                                      0, 0), // changes position of shadow
-                                ),
-                              ],
-                              color: Colors.teal.shade500,
+                          decoration: InputDecoration(
+                            focusedBorder: const OutlineInputBorder(
+                                borderSide: BorderSide(
+                                    color: Colors.teal, width: 1.0),
+                                borderRadius: BorderRadius.all(
+                                    Radius.circular(4.0))),
+                            disabledBorder: const OutlineInputBorder(
+                                borderSide: BorderSide(
+                                    color: Colors.teal, width: 1.0),
+                                borderRadius: BorderRadius.all(
+                                    Radius.circular(4.0))),
+                            enabledBorder: const OutlineInputBorder(
+                                borderSide: BorderSide(
+                                    color: Colors.teal, width: 1.0),
+                                borderRadius: BorderRadius.all(
+                                    Radius.circular(4.0))),
+                            floatingLabelStyle:
+                            TextStyle(color: Colors.teal[700], fontSize: 12),
+                            labelText: 'الوظيفة',
+                            labelStyle: TextStyle(color: Colors.teal[700], fontSize: 12),
+
+                            alignLabelWithHint: true,
+                            hintTextDirection: TextDirection.rtl,
+                            prefixIcon: Icon(
+                              IconlyBroken.work,
+                              color: Colors.teal[700],
                             ),
-                            width: MediaQuery.of(context).size.width,
-                            height: 45,
-                            child: const Center(
-                                child: Text(
-                                  "تعديل البيانات",
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 12),
-                                )),
+                            border: const OutlineInputBorder(
+                              borderRadius: BorderRadius.all(
+                                  Radius.circular(4.0)),
+                              borderSide: BorderSide(
+                                  color: Colors.teal, width: 1.0),),
                           ),
+                          style: TextStyle(color: Colors.teal[700], fontSize: 12),
+                          enabled: false,
+                        ),
+                        const SizedBox(height: 16,),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: InkWell(
+                                onTap: (){
+                                  cubit.callPerson(widget.userPhone);
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(6),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.teal.shade700,
+                                        spreadRadius: 0.48,
+                                        blurRadius: 0,
+                                        offset: const Offset(
+                                            0, 0), // changes position of shadow
+                                      ),
+                                    ],
+                                    color: Colors.white,
+                                  ),
+                                  width: MediaQuery.of(context).size.width,
+                                  height: 45,
+                                  child: Center(
+                                      child: Text(
+                                        "اتصال",
+                                        style: TextStyle(
+                                            color: Colors.teal.shade500,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 12),
+                                      )),
+                                ),
+                              ),
+                            ),
+                            widget.onFirebase == "true" ? const SizedBox(width: 16,) : getEmptyWidget(),
+                            if (widget.onFirebase == "true") Expanded(
+                              child: InkWell(
+                                onTap: ()async {
+                                  await cubit.createChatList(context, widget.userID);
+                                  print("CLICK ID : ${cubit.chatID}\n");
+                                  cubit.navigate(context, SocialConversationScreen(userID: widget.userID, chatID: cubit.chatID, userName: widget.userName, userImage: widget.userImageUrl, userToken: widget.userToken), cubit.chatID);
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(6),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.teal.shade700,
+                                        spreadRadius: 0.16,
+                                        blurRadius: 0,
+                                        offset: const Offset(
+                                            0, 0), // changes position of shadow
+                                      ),
+                                    ],
+                                    color: Colors.teal.shade500,
+                                  ),
+                                  width: MediaQuery.of(context).size.width,
+                                  height: 45,
+                                  child: const Center(
+                                      child: Text(
+                                        "محادثة",
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 12),
+                                      )),
+                                ),
+                              ),
+                            ) else getEmptyWidget()
+                          ],
                         ),
                         const SizedBox(height: 16),
                       ],

@@ -323,7 +323,7 @@ class MonitorPermissionDetailsCubit
   void searchUser(String value) {
     filteredClerkList = clerkList
         .where(
-            (user) => user.clerkName!.toLowerCase().contains(value.toString()))
+            (user) => user.clerkName.toLowerCase().contains(value.toString()))
         .toList();
     print("${filteredClerkList.length}\n");
     emit(MonitorPermissionDetailsFilterClerksState());

@@ -6,6 +6,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:mostaqbal_masr/modules/Departments/Monitor/layout/screens/manager_home_layout.dart';
 import 'package:mostaqbal_masr/modules/Global/Login/cubit/clerk_login_states.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -129,7 +130,7 @@ class ClerkLoginCubit extends Cubit<ClerkLoginStates>{
                   break;
               //   إدارة الرقابة والمتابعة
                 case "1022" :
-                  finish(context, (managerID != userNumber) ? const OfficerComplaintScreen() : const MonitorManagerHomeScreen());
+                  finish(context, (managerID != userNumber) ? const OfficerComplaintScreen() : const ManagerHomeLayout());
                   break;
               }
               emit(ClerkLoginSuccessState());

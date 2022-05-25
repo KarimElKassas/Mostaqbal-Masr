@@ -348,9 +348,6 @@ class GroupConversationCubit extends Cubit<GroupConversationStates> {
         emit(GroupConversationSendMessageErrorState(error.toString()));
       });
     });
-
-
-
   }
 
   Future<void> sendAudioMessage(String groupID, String type, bool isSeen, File file) async {

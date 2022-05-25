@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mostaqbal_masr/shared/gallery_item_model.dart';
 import 'package:photo_view/photo_view.dart';
@@ -12,7 +13,7 @@ class GalleryImageWrapper extends StatefulWidget {
   final BoxDecoration? backgroundDecoration;
   final int? initialIndex;
   final PageController pageController;
-  final List<GalleryModel?> galleryItems;
+  final List<dynamic> galleryItems;
   final Axis scrollDirection;
   final String? titleGallery;
 
@@ -42,6 +43,12 @@ class _GalleryImageWrapperState extends State<GalleryImageWrapper> {
         toolbarHeight: 0,
         elevation: 0,
         backgroundColor: Colors.transparent,
+        systemOverlayStyle: const SystemUiOverlayStyle(
+          statusBarColor: Colors.black,
+          statusBarIconBrightness: Brightness.light,
+          // For Android (dark icons)
+          statusBarBrightness: Brightness.dark, // For iOS (dark icons)
+        ),
       ),
       body: Container(
         decoration: widget.backgroundDecoration,
@@ -63,10 +70,9 @@ class _GalleryImageWrapperState extends State<GalleryImageWrapper> {
 
 // build image with zooming
   PhotoViewGalleryPageOptions _buildImage(BuildContext context, int index) {
-    final XFile item = widget.galleryItems[index]!.imageUrl;
     return PhotoViewGalleryPageOptions.customChild(
       child: CachedNetworkImage(
-        imageUrl: item.path,
+        imageUrl: widget.galleryItems[index]!.toString(),
         placeholder: (context, url) =>
             const Center(child: CircularProgressIndicator(color: Colors.teal, strokeWidth: 0.8,)),
         errorWidget: (context, url, error) => const Icon(Icons.error),
@@ -74,7 +80,7 @@ class _GalleryImageWrapperState extends State<GalleryImageWrapper> {
       initialScale: PhotoViewComputedScale.contained,
       minScale: minScale,
       maxScale: maxScale,
-      heroAttributes: PhotoViewHeroAttributes(tag: item.path),
+      heroAttributes: PhotoViewHeroAttributes(tag: widget.galleryItems[index]!.toString()),
     );
   }
 }

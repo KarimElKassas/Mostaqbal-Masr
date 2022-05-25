@@ -79,7 +79,7 @@ class MonitorManagerHomeCubit extends Cubit<MonitorManagerHomeStates>{
       value.value.forEach((key, value){
        clerkFirebaseModel = ClerkFirebaseModel(
            value["ClerkID"],
-           value["ClerkName"],
+           value["ClerkName"]??"",
            value["ClerkImage"],
            value["ClerkManagementID"].toString(),
            value["ClerkJobName"],
@@ -123,7 +123,7 @@ class MonitorManagerHomeCubit extends Cubit<MonitorManagerHomeStates>{
     clerksModelList.removeWhere((element) => element.clerkManagementID != userManagementID);
     filteredClerksModelList = clerksModelList
         .where(
-            (user) => user.clerkName!.toLowerCase().contains(value.toString()))
+            (user) => user.clerkName.toLowerCase().contains(value.toString()))
         .toList();
     print("${filteredClerksModelList.length}\n");
     emit(MonitorManagerHomeFilterUsersState());

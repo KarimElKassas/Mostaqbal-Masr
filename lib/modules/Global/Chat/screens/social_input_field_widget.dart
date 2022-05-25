@@ -2,19 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:mostaqbal_masr/modules/Global/Chat/cubit/social_conversation_cubit.dart';
+import 'package:mostaqbal_masr/modules/Global/Chat/cubit/social_conversation_states.dart';
 import 'package:mostaqbal_masr/shared/components.dart';
 import 'package:mostaqbal_masr/shared/constants.dart';
-
-import '../cubit/social_conversation_cubit.dart';
-import '../cubit/social_conversation_states.dart';
 
 class SocialInputFieldWidget extends StatefulWidget {
 
   final String userID;
+  final String chatID;
   final String userName;
   final String userToken;
 
-  const SocialInputFieldWidget({Key? key, required this.userID, required this.userName, required this.userToken}) : super(key: key);
+  const SocialInputFieldWidget({Key? key, required this.userID, required this.chatID, required this.userName, required this.userToken}) : super(key: key);
 
   @override
   State<SocialInputFieldWidget> createState() => _SocialInputFieldWidgetState();
@@ -67,8 +67,9 @@ class _SocialInputFieldWidgetState extends State<SocialInputFieldWidget> {
                                   return;
                                 }
                                 print("User Token : ${widget.userToken}\n");
-                                cubit.sendMessage(
+                                cubit.sendFireStoreMessage(
                                     widget.userID,
+                                    widget.chatID,
                                     messageController.text.toString(),
                                     "Text",
                                     false,
@@ -160,7 +161,7 @@ class _SocialInputFieldWidgetState extends State<SocialInputFieldWidget> {
                         children: [
                           IconButton(
                             onPressed: () {
-                              cubit.selectFile(widget.userID);
+                              cubit.selectFile(widget.userID, widget.chatID);
                             },
                             icon: const Icon(IconlyBroken.paperUpload,
                                 color: Colors.white),
@@ -170,7 +171,7 @@ class _SocialInputFieldWidgetState extends State<SocialInputFieldWidget> {
                           const SizedBox(width: 5),
                           IconButton(
                             onPressed: () {
-                              cubit.selectImages(context, widget.userID);
+                              cubit.selectImages(context, widget.userID, widget.chatID);
                             },
                             icon: const Icon(IconlyBroken.camera,
                                 color: Colors.white),
@@ -195,17 +196,21 @@ class _SocialInputFieldWidgetState extends State<SocialInputFieldWidget> {
                                 hintTextDirection: TextDirection.rtl,
                                 border: InputBorder.none,
                               ),
+
                               onChanged: (String value) {
 
                                 messageControllerValue.value = value.toString();
 
                                 if (value.isEmpty || value.characters.isEmpty) {
-                                  //cubit.changeUserState("متصل الان");
+                                  print("FIRST CASE\n");
+                                  cubit.changeUserState("1", widget.userID);
+                                }else{
+                                  print("SECOND CASE\n");
+                                  cubit.changeUserState("2", widget.userID);
                                 }
-                                //cubit.changeUserState("يكتب ...");
                               },
                               onEditingComplete: () {
-                                //cubit.changeUserState("متصل الان");
+                                cubit.changeUserState("1", widget.userID);
                               },
                             ),
                           ),

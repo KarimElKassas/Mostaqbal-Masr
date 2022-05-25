@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mostaqbal_masr/models/clerk_model.dart';
@@ -14,23 +16,30 @@ class MonitorCoreCubit extends Cubit<MonitorCoreStates>{
 
   static MonitorCoreCubit get(context) => BlocProvider.of(context);
 
-  String selectedPersonTypeName = "";
+  String selectedPersonTypeName = "ضباط";
   int? selectedPersonTypeID = 0;
   bool gotClerks = false;
-
+  bool zeroClerks = false;
+  bool touched = false;
+  String publicImage = "https://firebasestorage.googleapis.com/v0/b/mostaqbal-masr.appspot.com/o/Public%2Fbusiness_man_blue.png?alt=media";
+  
   ClerkModel? clerkModel;
   List<ClerkModel> clerksModelList = [];
   List<ClerkModel> filteredClerksModelList = [];
 
   List<CorePersonTypeModel> personTypeNameList = [
     CorePersonTypeModel(typeID: 0, typeName: 'ضباط'),
-    CorePersonTypeModel(typeID: 1, typeName: 'صف ضباط'),
+    CorePersonTypeModel(typeID: 1, typeName: 'ضباط صف'),
     CorePersonTypeModel(typeID: 2, typeName: 'جنود'),
     CorePersonTypeModel(typeID: 3, typeName: 'مدنيين'),
   ];
-
-  void changeFilter(int selectedID){
+  void changeBtnSize(){
+    touched = !touched;
+    emit(MonitorCoreChangeButtonSizeState());
+  }
+  void changeFilter(int selectedID, String selectedName){
     selectedPersonTypeID = selectedID;
+    selectedPersonTypeName = selectedName;
     emit(MonitorCoreChangeFilterState());
   }
 
@@ -39,17 +48,18 @@ class MonitorCoreCubit extends Cubit<MonitorCoreStates>{
     emit(MonitorCoreLoadingClerksState());
     Future.delayed(const Duration(milliseconds: 500)).then((value)async{
       clerksModelList = [];
+      print("ManagementID : $managementID\n");
       await DioHelper.getData(
           url: 'userInfo/GetUserInfoWithType',
           query: {
-            'PR_Management_ID': 1028,
+            'PR_Management_ID': managementID,
             'Person_Type_ID': personTypeID+1
           }).then((value) {
         if(value.statusMessage != "No Person Form Row Found") {
           if (value.data != null) {
             //print(value.data);
             //print(value.data[0]["TrueOrFalse"]);
-            value.data.forEach((clerk) {
+            value.data.forEach((clerk) async {
               print("Name ${clerk["PR_Persons_Name"]}\n");
               print("Status ${clerk["TrueOrFalse"] == 0 ? "لائق" : "غير لائق"}\n");
               var userID = clerk["PR_Persons_Number"].toString();
@@ -71,13 +81,24 @@ class MonitorCoreCubit extends Cubit<MonitorCoreStates>{
               var userJobID = clerk["PR_Jobs_ID"].toString();
               var userJobName = clerk["PR_Jobs_Name"].toString();
               var userStatus = clerk["TrueOrFalse"].toString();
+              var onFirebase = clerk["OnFirebase"].toString();
+              var userImage = clerk["User_Image"].toString();
+              var userToken = "";
 
+              print("Clerk ON Firebase State : $onFirebase ------ ID : $userNumber\n");
+              print("Clerk Name : $userName ---- is Empty : ${userImage.toString() == "null"}");
+              print("Clerk Image : $userImage\n");
               //print("Clerk Name : $userName ----- Clerk Job Name : $userJobName \n");
-
+              FirebaseFirestore.instance.collection("Clerks").doc(userNumber).get().then((value){
+                 if(value.exists){
+                   Map data = value.data()!;
+                   userToken = data["ClerkToken"];
+                 }
+                });
               clerkModel = ClerkModel(
                   userID,
                   userName,
-                  "https://firebasestorage.googleapis.com/v0/b/mostaqbal-masr.appspot.com/o/Clients%2F537?alt=media",
+                  onFirebase == "true" ? userImage : publicImage,
                   userNumber,
                   userAddress,
                   userPhone,
@@ -96,14 +117,22 @@ class MonitorCoreCubit extends Cubit<MonitorCoreStates>{
                   userCoreStrengthName,
                   userPresenceID,
                   userPresenceName,
-                  userStatus == "0" ? "لائق" : "غير لائق");
+                  userStatus == "0" ? "لائق" : "غير لائق",
+                  onFirebase,
+                  userToken
+              );
               clerksModelList.add(clerkModel!);
               filteredClerksModelList = clerksModelList;
             });
+            zeroClerks = false;
             gotClerks = true;
             emit(MonitorCoreGetClerksSuccessState());
 
           }
+        }else{
+          gotClerks = true;
+          zeroClerks = true;
+          emit(MonitorCoreGetClerksSuccessState());
         }
       }).catchError((error) {
         if (error is DioError) {

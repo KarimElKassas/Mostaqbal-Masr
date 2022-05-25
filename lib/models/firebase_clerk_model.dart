@@ -3,7 +3,7 @@ import 'dart:convert';
 class ClerkFirebaseModel{
 
   String? clerkID;
-  String? clerkName;
+  String  clerkName = "";
   String? clerkImage;
   String? clerkManagementID;
   String? clerkJobName;

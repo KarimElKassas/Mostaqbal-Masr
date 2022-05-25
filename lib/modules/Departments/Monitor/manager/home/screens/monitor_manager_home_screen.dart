@@ -77,25 +77,25 @@ class MonitorManagerHomeScreen extends StatelessWidget {
               ),
               child: Directionality(
                 textDirection: TextDirection.rtl,
-                child: InkWell(
-                  onTap: (){
-                    cubit.navigateTo(context, MonitorCoreScreen(departmentID: "إدارة الرقابة والمتابعة",));
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.98),
-                        borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(24),
-                            topRight: Radius.circular(24))),
-                    child: Padding(
-                      padding: const EdgeInsets.only(
-                          left: 12, right: 12),
-                      child: cubit.gotPermission ? SingleChildScrollView(
-                        physics: const BouncingScrollPhysics(),
-                        child: Column(
-                          children: [
-                            const SizedBox(height: 24,),
-                            FadeInDown(
+                child: Container(
+                  decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.98),
+                      borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(24),
+                          topRight: Radius.circular(24))),
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                        left: 12, right: 12),
+                    child: cubit.gotPermission ? SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      child: Column(
+                        children: [
+                          const SizedBox(height: 24),
+                          InkWell(
+                            onTap: (){
+                              cubit.navigateTo(context, MonitorCoreScreen(departmentID: cubit.userManagementID, departmentName: cubit.userManagementName,));
+                            },
+                            child: FadeInDown(
                               duration: const Duration(milliseconds: 1500),
                               child: Material(
                                 elevation: 5,
@@ -169,26 +169,26 @@ class MonitorManagerHomeScreen extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            const SizedBox(
-                              height: 16,
-                            ),
-                            FadeInRight(duration: const Duration(milliseconds: 1500), child: const Text('صلاحيات الإدارة', style: TextStyle(color: Colors.teal, fontSize: 12),)),
-                            const SizedBox(
-                              height: 8,
-                            ),
-                            GridView.builder(
-                              shrinkWrap: true,
-                              physics: const BouncingScrollPhysics(),
-                              gridDelegate:
-                                  const SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 2),
-                              itemBuilder: (_, index) => permissionItem(context, cubit, index),
-                              itemCount: cubit.permissionModelList.length,
-                            )
-                          ],
-                        ),
-                      ) : Center(child: CircularProgressIndicator(color: Colors.teal[500], strokeWidth: 0.8,),),
-                    ),
+                          ),
+                          const SizedBox(
+                            height: 16,
+                          ),
+                          FadeInRight(duration: const Duration(milliseconds: 1500), child: const Text('صلاحيات الإدارة', style: TextStyle(color: Colors.teal, fontSize: 12),)),
+                          const SizedBox(
+                            height: 8,
+                          ),
+                          GridView.builder(
+                            shrinkWrap: true,
+                            physics: const BouncingScrollPhysics(),
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 2),
+                            itemBuilder: (_, index) => permissionItem(context, cubit, index),
+                            itemCount: cubit.permissionModelList.length,
+                          )
+                        ],
+                      ),
+                    ) : Center(child: CircularProgressIndicator(color: Colors.teal[500], strokeWidth: 0.8,),),
                   ),
                 ),
               ),

@@ -11,9 +11,10 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
-import '../../posts/cubit/display_posts_cubit.dart';
-import '../../posts/cubit/display_posts_states.dart';
-import '../../posts/screens/social_post_details_screen.dart';
+import '../cubit/display_posts_cubit.dart';
+import '../cubit/display_posts_states.dart';
+import 'social_post_details_screen.dart';
+
 
 class SocialDisplayPostsScreen extends StatefulWidget {
   @override

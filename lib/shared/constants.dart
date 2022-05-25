@@ -8,6 +8,8 @@ import 'package:intl/intl.dart';
 
 List<Map> tasks = [];
 bool customerLogged = false;
+bool imagesUploaded = false;
+String uploadingImagesMessageID = "";
 
 Color orangeColor = const Color(0xFFF69323);
 Color greyColor = const Color(0xffEBEEF5);
@@ -22,7 +24,7 @@ Color lightSecondaryColor = const Color(0xff197DFF);
 
 Directory? appDirectory;
 
-List<XFile>? messageImagesStaticList = [];
+List<dynamic>? messageImagesStaticList = [];
 
 
 String? globalClerkID,globalClerkName,globalClerkNumber,globalClerkAddress,globalClerkPhone;
